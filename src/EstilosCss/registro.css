@@ -1,0 +1,111 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+  }
+  
+  html, body {
+    height: 100%;
+    overflow: hidden;
+  }
+  .registro-page {
+    height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background: linear-gradient(to right, #1a3c34, #2d5748);
+    font-family: Arial, sans-serif;
+  }
+  
+  .registro-container {
+    display: flex;
+    width: 800px;
+    border-radius: 15px;
+    overflow: hidden;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+    background: white;
+  }
+  
+  .left-side {
+    width: 50%;
+    background-color: #165a45;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+  }
+  
+  .logo {
+    width: 250px;
+  }
+  
+  .right-side {
+    width: 50%;
+    background-color: white;
+    padding: 40px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    text-align: center;
+  }
+  
+  h2 {
+    color: #555;
+    font-size: 18px;
+    margin-bottom: 5px;
+  }
+  
+  h3 {
+    color: #222;
+    font-size: 24px;
+    font-weight: bold;
+    margin-bottom: 20px;
+  }
+  
+  .input-field {
+    width: 100%;
+    padding: 12px;
+    margin-bottom: 15px;
+    border: 1px solid #ccc;
+    border-radius: 8px;
+    font-size: 16px;
+  }
+  
+  .register-button {
+    width: 100%;
+    background-color: black;
+    color: white;
+    padding: 12px;
+    border: none;
+    border-radius: 8px;
+    font-size: 16px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: background 0.3s ease;
+  }
+  
+  .register-button:hover {
+    background-color: #333;
+  }
+  
+  .login-text {
+    margin-top: 15px;
+    font-size: 14px;
+    color: #333;
+  }
+  
+  .login-link {
+    color: #007bff;
+    font-weight: bold;
+    text-decoration: none;
+    transition: color 0.3s ease;
+  }
+  
+  .login-link:hover {
+    color: #0056b3;
+  }
+  
+  .login-link:active {
+    color: #003d80;
+  }
+  

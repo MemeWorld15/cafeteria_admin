@@ -1,0 +1,346 @@
+.admin-app {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  font-family: 'Segoe UI', sans-serif;
+  background-color: white;
+}
+
+.admin-topbar {
+  height: 60px;
+  background-color: white;
+  border-bottom: 1px solid #ddd;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0 20px;
+}
+
+.admin-topbar-logo {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.admin-topbar-logo img {
+  width: 40px;
+}
+
+.admin-brand {
+  font-weight: bold;
+  font-size: 18px;
+  color: #333;
+}
+
+.admin-role {
+  font-size: 12px;
+  color: #555;
+}
+
+.admin-main-body {
+  display: flex;
+  flex: 1;
+  height: calc(100vh - 60px);
+}
+
+.admin-sidebar {
+  width: 220px;
+  background-color: white;
+  border-right: 1px solid #ddd;
+  transition: width 0.3s ease;
+  display: flex;
+  flex-direction: column;
+  padding-top: 10px;
+}
+
+.admin-sidebar.collapsed {
+  width: 60px;
+}
+
+.admin-toggle-btn {
+  text-align: center;
+  padding: 10px;
+  cursor: pointer;
+  color: #333;
+}
+
+.admin-nav ul {
+  list-style: none;
+  margin-top: 20px;
+  padding-left: 0;
+}
+
+.admin-nav li {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 12px 20px;
+  color: #333;
+  cursor: pointer;
+  transition: background 0.3s;
+}
+
+.admin-nav li:hover,
+.admin-nav li.active {
+  background-color: #a7e9af;
+  border-left: 4px solid #2e7d32;
+}
+
+.admin-sidebar.collapsed .admin-nav span,
+.admin-sidebar.collapsed .admin-settings span {
+  display: none;
+}
+
+.admin-settings {
+  margin-top: auto;
+  padding: 15px 20px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  cursor: pointer;
+  color: #333;
+}
+
+.admin-settings:hover {
+  background-color: #a7e9af;
+}
+
+.admin-content {
+  flex: 1;
+  padding: 20px;
+  background-color: white;
+  overflow-y: auto;
+}
+
+.top-right {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  color: #333;
+}
+
+.admin-name {
+  font-weight: 500;
+}
+.form-empleado {
+  margin-top: 1rem;
+  background: #fff;
+  padding: 1.5rem;
+  border-radius: 10px;
+  box-shadow: 0 0 8px rgba(0, 0, 0, 0.05);
+  max-width: 500px;
+}
+
+.form-empleado form {
+  display: flex;
+  flex-direction: column;
+  gap: 0.8rem;
+}
+
+.form-empleado input {
+  padding: 0.6rem;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  font-size: 14px;
+}
+
+.form-empleado button {
+  background-color: #2e7d32;
+  color: white;
+  font-weight: bold;
+  padding: 0.6rem;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: background 0.3s;
+}
+
+.form-empleado button:hover {
+  background-color: #256b29;
+}
+.admin-menu-form {
+  margin-top: 1rem;
+  background: #fff;
+  padding: 1.5rem;
+  border-radius: 10px;
+  box-shadow: 0 0 8px rgba(0, 0, 0, 0.05);
+  max-width: 600px;
+}
+
+.admin-menu-form form {
+  display: flex;
+  flex-direction: column;
+  gap: 0.8rem;
+  margin-top: 1rem;
+}
+
+.admin-menu-form input,
+.admin-menu-form textarea,
+.admin-menu-form select {
+  padding: 0.6rem;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  font-size: 14px;
+}
+
+.admin-menu-form button {
+  background-color: #2e7d32;
+  color: white;
+  font-weight: bold;
+  padding: 0.6rem;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: background 0.3s;
+}
+
+.admin-menu-form button:hover {
+  background-color: #256b29;
+}
+/* Tabla de productos */
+.tabla-productos {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 1rem;
+  font-size: 0.95rem;
+}
+
+.tabla-productos th,
+.tabla-productos td {
+  border: 1px solid #ddd;
+  padding: 10px;
+  text-align: left;
+}
+
+.tabla-productos th {
+  background-color: #f0f0f0;
+  color: #333;
+  font-weight: 600;
+}
+
+.tabla-productos td button {
+  margin-right: 5px;
+  padding: 5px 10px;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.tabla-productos td button:hover {
+  background-color: #e3f4ea;
+}
+
+/* Formulario edición producto */
+.editar-producto-form {
+  margin-top: 2rem;
+  padding: 1rem;
+  background-color: #fafafa;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  max-width: 600px;
+}
+
+.editar-producto-form input,
+.editar-producto-form textarea,
+.editar-producto-form select {
+  width: 100%;
+  padding: 0.5rem;
+  margin-bottom: 0.8rem;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+}
+
+.editar-producto-form button {
+  margin-right: 10px;
+  padding: 0.5rem 1rem;
+  border: none;
+  border-radius: 5px;
+  font-weight: bold;
+  background-color: #2e7d32;
+  color: white;
+  transition: background-color 0.2s;
+}
+
+.editar-producto-form button:last-child {
+  background-color: #aaa;
+}
+
+.editar-producto-form button:hover {
+  opacity: 0.9;
+}
+
+.lista-categorias {
+  list-style: none;
+  padding-left: 0;
+  margin-top: 1rem;
+}
+
+.lista-categorias li {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px;
+  border-bottom: 1px solid #eee;
+}
+
+/* === MODO OSCURO GLOBAL === */
+body.dark-mode {
+  background-color: #1e1e1e;
+  color: #f1f1f1;
+}
+
+/* Afectar contenedores principales */
+body.dark-mode .admin-app,
+body.dark-mode .admin-main-body,
+body.dark-mode .admin-content,
+body.dark-mode .form-empleado,
+body.dark-mode .admin-menu-form {
+  background-color: #2a2a2a;
+  color: #f1f1f1;
+}
+
+/* Topbar y sidebar */
+body.dark-mode .admin-topbar {
+  background-color: #1b1b1b;
+  color: #fff;
+}
+body.dark-mode .admin-sidebar {
+  background-color: #242424;
+}
+body.dark-mode .admin-sidebar .admin-nav ul li,
+body.dark-mode .admin-settings {
+  color: #ddd;
+}
+body.dark-mode .admin-nav ul li.active {
+  background-color: #333;
+}
+
+/* Inputs y selects */
+body.dark-mode input,
+body.dark-mode textarea,
+body.dark-mode select {
+  background-color: #333;
+  color: #fff;
+  border: 1px solid #555;
+}
+
+/* Tablas */
+body.dark-mode table {
+  background-color: #2c2c2c;
+  color: #fff;
+  border-color: #444;
+}
+body.dark-mode table th,
+body.dark-mode table td {
+  border: 1px solid #444;
+}
+
+/* Botones (puedes personalizar más si usas clases específicas) */
+body.dark-mode button {
+  background-color: #444;
+  color: #fff;
+  border: 1px solid #666;
+}
+
+
+
