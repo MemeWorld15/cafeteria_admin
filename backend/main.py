@@ -25,16 +25,25 @@ app.add_middleware(
     allow_headers=["*"],
 )
 # Ruta de prueba
+# Ruta GET (verificación simple)
 @app.get("/")
 def root():
     return {"message": "¡La API está funcionando correctamente!"}
 
-# Ruta de login
+# Ruta POST para health checks o pruebas
+@app.post("/")
+def post_root():
+    return {"message": "¡POST recibido correctamente en /"}
+
+# Ruta POST para login
 @app.post("/login")
 def login(correo: str = Form(...), contraseña: str = Form(...)):
     db = get_db_connection()
     cursor = db.cursor()
-    cursor.execute("SELECT id, rol, nombre FROM usuarios WHERE correo=%s AND contraseña=%s", (correo, contraseña))
+    cursor.execute(
+        "SELECT id, rol, nombre FROM usuarios WHERE correo=%s AND contraseña=%s",
+        (correo, contraseña)
+    )
     user = cursor.fetchone()
     cursor.close()
     db.close()
@@ -48,10 +57,9 @@ def login(correo: str = Form(...), contraseña: str = Form(...)):
         }
     raise HTTPException(status_code=401, detail="Credenciales inválidas")
 
-
-# Solo ejecuta esto si se llama directamente
+# Ejecutar si es script principal
 if __name__ == "__main__":
-    port = int(os.environ.get("PORT", 8000))  # Usa el puerto de Render o 8000 por defecto local
+    port = int(os.environ.get("PORT", 8000))  # Render usa PORT en variables de entorno
     uvicorn.run(app, host="0.0.0.0", port=port)
 
 # MODELOS Pydantic
