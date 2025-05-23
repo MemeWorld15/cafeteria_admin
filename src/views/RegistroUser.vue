@@ -91,7 +91,7 @@ async function registrarUsuario() {
     formData.append('carrera', carrera.value)
     formData.append('contraseña', contraseña.value)
 
-    const res = await fetch('https://cafeteria-admin-rowd.onrender.com', {
+    const res = await fetch('https://cafeteria-admin-rowd.onrender.com/register', {
       method: 'POST',
       body: formData
     })
