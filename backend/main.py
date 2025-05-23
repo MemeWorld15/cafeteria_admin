@@ -23,10 +23,30 @@ app.add_middleware(
     allow_headers=["*"]
 )
 
-# Ruta de prueba para la raíz
+# Ruta de prueba
 @app.get("/")
-async def read_root():
+def root():
     return {"message": "¡La API está funcionando correctamente!"}
+
+# Ruta de login
+@app.post("/login")
+def login(correo: str = Form(...), contraseña: str = Form(...)):
+    conn = get_db_connection()
+    cur = conn.cursor()
+    cur.execute("SELECT id, nombre, rol FROM usuarios WHERE correo=%s AND contraseña=%s", (correo, contraseña))
+    user = cur.fetchone()
+    cur.close()
+    conn.close()
+
+    if user:
+        return {
+            "success": True,
+            "rol": user[2],
+            "usuario_id": user[0],
+            "nombre": user[1]
+        }
+
+    raise HTTPException(status_code=401, detail="Credenciales inválidas")
 
 # Solo ejecuta esto si se llama directamente
 if __name__ == "__main__":
