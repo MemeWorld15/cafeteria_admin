@@ -52,7 +52,7 @@ const handleLogin = async () => {
     formData.append("correo", correo.value);
     formData.append("contraseña", contraseña.value);
 
-    const res = await fetch("https://cafeteria-admin-wb9r.onrender.com", {
+    const res = await fetch("https://cafeteria-admin-wb9r.onrender.com/login", {
       method: "POST",
       body: formData
     });
