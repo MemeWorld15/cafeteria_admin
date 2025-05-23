@@ -4,4 +4,4 @@ pydantic
 mysql-connector-python
 reportlab
 python-multipart
-
+**fastapi[all]**
