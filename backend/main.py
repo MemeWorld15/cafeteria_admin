@@ -19,7 +19,7 @@ app = FastAPI()
 # Middleware CORS
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["https://cafeteria-admin.vercel.app"],  # Dominio de tu frontend
+    allow_origins=["https://cafeteria-admin.vercel.app"],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
