@@ -11,6 +11,7 @@ from reportlab.lib.units import inch
 import os
 from datetime import datetime
 import uvicorn
+from fastapi.middleware.cors import CORSMiddleware
 
 
 app = FastAPI()
@@ -18,11 +19,11 @@ app = FastAPI()
 # Middleware CORS
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["https://cafeteria-admin.vercel.app"],
+    allow_origins=["https://cafeteria-admin.vercel.app"],  # Asegúrate de que sea esta exactamente
+    allow_credentials=True,
     allow_methods=["*"],
-    allow_headers=["*"]
+    allow_headers=["*"],
 )
-
 # Ruta de prueba
 @app.get("/")
 def root():
