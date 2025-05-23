@@ -13,17 +13,27 @@ from datetime import datetime
 import uvicorn
 from fastapi.middleware.cors import CORSMiddleware
 
+def get_db_connection():
+    return psycopg2.connect(
+        dbname="cafe_unach",
+        user="admin",
+        password="5iaR0WvAkuDojeqiERfKwhcQgJ0TdlmO",
+        host="dpg-d0nqf2juibrs738t3sbg-a.oregon-postgres.render.com",
+        port=5432,
+        sslmode="require"
+    )
 
 app = FastAPI()
 
 # Middleware CORS
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["https://cafeteria-admin.vercel.app"],  # Dominio de tu frontend
+    allow_origins=["https://cafeteria-admin.vercel.app"],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
 # Ruta de prueba
 @app.get("/")
 def root():
@@ -48,12 +58,10 @@ def login(correo: str = Form(...), contraseña: str = Form(...)):
         }
     raise HTTPException(status_code=401, detail="Credenciales inválidas")
 
-
-# Solo ejecuta esto si se llama directamente
+# Ejecutar la app con Uvicorn
 if __name__ == "__main__":
-    port = int(os.environ.get("PORT", 8000))  # Usa el puerto de Render o 8000 por defecto local
-    uvicorn.run(app, host="0.0.0.0", port=port)
-
+    port = int(os.environ.get("PORT", 8000))  # Usa el puerto de Render o 8000 por defecto
+    uvicorn.run("main:app", host="0.0.0.0", port=port, reload=True)
 # MODELOS Pydantic
 class ProductoOrden(BaseModel):
     nombre: str
