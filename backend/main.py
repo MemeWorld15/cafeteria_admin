@@ -10,6 +10,7 @@ from reportlab.pdfgen import canvas
 from reportlab.lib.units import inch
 import os
 from datetime import datetime
+import uvicorn
 
 
 app = FastAPI()
