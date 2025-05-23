@@ -35,11 +35,13 @@ if __name__ == "__main__":
 
 # DB connection
 def get_db_connection():
-    return mysql.connector.connect(
-        host="localhost",
-        user="root",
-        password="2612",
-        database="cafe_appss"
+    return psycopg2.connect(
+        dbname="cafe_unach",
+        user="admin",
+        password="5iaR0WvAkuDojeqiERfKwhcQgJ0TdlmO",
+        host="dpg-d0nqf2juibrs738t3sbg-a.oregon-postgres.render.com",
+        port=5432,
+        sslmode="require"
     )
 
 # MODELOS Pydantic
