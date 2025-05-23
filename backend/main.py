@@ -22,6 +22,11 @@ app.add_middleware(
     allow_headers=["*"]
 )
 
+# Ruta de prueba para la raíz
+@app.get("/")
+async def read_root():
+    return {"message": "¡La API está funcionando correctamente!"}
+
 # DB connection
 def get_db_connection():
     return mysql.connector.connect(
