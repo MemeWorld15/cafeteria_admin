@@ -10,9 +10,19 @@ from reportlab.pdfgen import canvas
 from reportlab.lib.units import inch
 import os
 from datetime import datetime
-import uvicorn
-from fastapi.middleware.cors import CORSMiddleware
 
+
+app = FastAPI()
+
+# Middleware CORS
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_methods=["*"],
+    allow_headers=["*"]
+)
+
+# DB connection
 def get_db_connection():
     return psycopg2.connect(
         dbname="cafe_unach",
@@ -23,45 +33,6 @@ def get_db_connection():
         sslmode="require"
     )
 
-app = FastAPI()
-
-# Middleware CORS
-app.add_middleware(
-    CORSMiddleware,
-    allow_origins=["https://cafeteria-admin.vercel.app"],
-    allow_credentials=True,
-    allow_methods=["*"],
-    allow_headers=["*"],
-)
-
-# Ruta de prueba
-@app.get("/")
-def root():
-    return {"message": "¡La API está funcionando correctamente!"}
-
-# Ruta de login
-@app.post("/login")
-def login(correo: str = Form(...), contraseña: str = Form(...)):
-    db = get_db_connection()
-    cursor = db.cursor()
-    cursor.execute("SELECT id, rol, nombre FROM usuarios WHERE correo=%s AND contraseña=%s", (correo, contraseña))
-    user = cursor.fetchone()
-    cursor.close()
-    db.close()
-
-    if user:
-        return {
-            "success": True,
-            "rol": user[1],
-            "usuario_id": user[0],
-            "nombre": user[2]
-        }
-    raise HTTPException(status_code=401, detail="Credenciales inválidas")
-
-# Ejecutar la app con Uvicorn
-if __name__ == "__main__":
-    port = int(os.environ.get("PORT", 8000))  # Usa el puerto de Render o 8000 por defecto
-    uvicorn.run("main:app", host="0.0.0.0", port=port, reload=True)
 # MODELOS Pydantic
 class ProductoOrden(BaseModel):
     nombre: str
@@ -78,8 +49,7 @@ class OrdenEntrada(BaseModel):
 @app.post("/login")
 def login(correo: str = Form(...), contraseña: str = Form(...)):
     db = get_db_connection()
-    #cursor = db.cursor(dictionary=True)
-    cursor = db.cursor(cursor_factory=psycopg2.extras.RealDictCursor)
+    cursor = db.cursor(dictionary=True)
     cursor.execute("SELECT * FROM usuarios WHERE correo=%s AND contraseña=%s", (correo, contraseña))
     user = cursor.fetchone()
     cursor.close()
@@ -530,16 +500,7 @@ from fastapi import Form
 # Unidades válidas
 UNIDADES_VALIDAS = {"kg", "g", "l", "ml", "piezas", "unidad", "taza"}
 
-# Conexión
-def get_db_connection():
-    return psycopg2.connect(
-        dbname=os.getenv("DB_NAME"),
-        user=os.getenv("DB_USER"),
-        password=os.getenv("DB_PASSWORD"),
-        host=os.getenv("DB_HOST"),
-        port=os.getenv("DB_PORT"),
-        sslmode="require"
-    )
+
 
 # ✅ GET Inventario
 @app.get("/inventario")
@@ -675,7 +636,7 @@ def generar_pdf_inventario():
         if cantidad < 2:
             estado = "❌ Muy bajo"
         elif 2 <= cantidad <= 4:
-            estado = "⚠️ Rellenar stock"
+            estado = "⚠ Rellenar stock"
         else:
             estado = "✅ Bien"
 
