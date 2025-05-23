@@ -19,7 +19,7 @@ app = FastAPI()
 # Middleware CORS
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["https://cafeteria-admin.vercel.app"],  # Asegúrate de que sea esta exactamente
+    allow_origins=["https://cafeteria-admin.vercel.app"],  # Dominio de tu frontend
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -32,22 +32,22 @@ def root():
 # Ruta de login
 @app.post("/login")
 def login(correo: str = Form(...), contraseña: str = Form(...)):
-    conn = get_db_connection()
-    cur = conn.cursor()
-    cur.execute("SELECT id, nombre, rol FROM usuarios WHERE correo=%s AND contraseña=%s", (correo, contraseña))
-    user = cur.fetchone()
-    cur.close()
-    conn.close()
+    db = get_db_connection()
+    cursor = db.cursor()
+    cursor.execute("SELECT id, rol, nombre FROM usuarios WHERE correo=%s AND contraseña=%s", (correo, contraseña))
+    user = cursor.fetchone()
+    cursor.close()
+    db.close()
 
     if user:
         return {
             "success": True,
-            "rol": user[2],
+            "rol": user[1],
             "usuario_id": user[0],
-            "nombre": user[1]
+            "nombre": user[2]
         }
-
     raise HTTPException(status_code=401, detail="Credenciales inválidas")
+
 
 # Solo ejecuta esto si se llama directamente
 if __name__ == "__main__":
