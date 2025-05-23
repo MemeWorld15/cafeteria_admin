@@ -54,8 +54,10 @@ const handleLogin = async () => {
 
     const res = await fetch("https://cafeteria-admin-wb9r.onrender.com/login", {
       method: "POST",
-      body: formData
+      body: formData,
+      mode: "cors"
     });
+
 
     if (!res.ok) throw new Error("Credenciales inválidas");
 
