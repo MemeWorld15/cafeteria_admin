@@ -52,7 +52,7 @@ const handleLogin = async () => {
     formData.append("correo", correo.value);
     formData.append("contraseña", contraseña.value);
 
-    const res = await fetch("https://cafeteria-admin-rowd.onrender.com/login", {
+    const res = await fetch("https://cafeteria-admin-rowd.onrender.com", {
       method: "POST",
       body: formData,
       mode: "cors"
