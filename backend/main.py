@@ -53,17 +53,6 @@ if __name__ == "__main__":
     port = int(os.environ.get("PORT", 8000))  # Usa el puerto de Render o 8000 por defecto local
     uvicorn.run(app, host="0.0.0.0", port=port)
 
-# DB connection
-def get_db_connection():
-    return psycopg2.connect(
-        dbname="cafe_unach",
-        user="admin",
-        password="5iaR0WvAkuDojeqiERfKwhcQgJ0TdlmO",
-        host="dpg-d0nqf2juibrs738t3sbg-a.oregon-postgres.render.com",
-        port=5432,
-        sslmode="require"
-    )
-
 # MODELOS Pydantic
 class ProductoOrden(BaseModel):
     nombre: str
