@@ -27,6 +27,11 @@ app.add_middleware(
 async def read_root():
     return {"message": "¡La API está funcionando correctamente!"}
 
+# Solo ejecuta esto si se llama directamente
+if __name__ == "__main__":
+    port = int(os.environ.get("PORT", 8000))  # Usa el puerto de Render o 8000 por defecto local
+    uvicorn.run(app, host="0.0.0.0", port=port)
+
 # DB connection
 def get_db_connection():
     return mysql.connector.connect(
