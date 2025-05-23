@@ -60,7 +60,8 @@ class OrdenEntrada(BaseModel):
 @app.post("/login")
 def login(correo: str = Form(...), contraseña: str = Form(...)):
     db = get_db_connection()
-    cursor = db.cursor(dictionary=True)
+    #cursor = db.cursor(dictionary=True)
+    cursor = db.cursor(cursor_factory=psycopg2.extras.RealDictCursor)
     cursor.execute("SELECT * FROM usuarios WHERE correo=%s AND contraseña=%s", (correo, contraseña))
     user = cursor.fetchone()
     cursor.close()
