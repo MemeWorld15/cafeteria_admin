@@ -85,7 +85,7 @@ async function registrarUsuario() {
   }
 
   try {
-    const res = await fetch('https://cafeteria-admin-rowd.onrender.com/register', {
+    const res = await fetch('https://cafeteria-admin-rowd.onrender.com/registro', {
       method: "POST",
       headers: {
         "Content-Type": "application/json"
