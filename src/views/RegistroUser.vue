@@ -27,8 +27,8 @@
           </select>
 
           <!-- 🔧 CAMBIO aquí: contraseña -> contrasena -->
-          <input v-model="contrasena" type="password" placeholder="Contraseña" class="input-field" required />
-          <input v-model="confirmar" type="password" placeholder="Confirmar Contraseña" class="input-field" required />
+          <input v-model="contrasena" type="password" placeholder="Contrasena" class="input-field" required />
+          <input v-model="confirmar" type="password" placeholder="Confirmar Contrasena" class="input-field" required />
 
           <button type="submit" class="register-button">REGISTRARSE</button>
         </form>
