@@ -58,10 +58,10 @@ def post_root():
     return {"message": "¡POST recibido correctamente en /"}
 
 @app.post("/login")
-def login(correo: str = Form(...), contraseña: str = Form(...)):
+def login(correo: str = Form(...), contrasena: str = Form(...)):  # <- CAMBIO
     db = get_db_connection()
     cursor = db.cursor(cursor_factory=psycopg2.extras.RealDictCursor)
-    cursor.execute("SELECT * FROM usuarios WHERE correo=%s AND contraseña=%s", (correo, contraseña))
+    cursor.execute("SELECT * FROM usuarios WHERE correo=%s AND contrasena=%s", (correo, contrasena))  # <- CAMBIO
     user = cursor.fetchone()
     cursor.close()
     db.close()
@@ -79,7 +79,7 @@ def login(correo: str = Form(...), contraseña: str = Form(...)):
 def register(
     nombre: str = Form(...),
     correo: str = Form(...),
-    contraseña: str = Form(...),
+    contrasena: str = Form(...),  # <- CAMBIO
     grado: str = Form(...),
     carrera: str = Form(...)
 ):
@@ -87,8 +87,8 @@ def register(
     cursor = db.cursor()
     try:
         cursor.execute(
-            "INSERT INTO usuarios (nombre, correo, contraseña, grado, carrera, rol) VALUES (%s, %s, %s, %s, %s, %s)",
-            (nombre, correo, contraseña, grado, carrera, 'cliente')
+            "INSERT INTO usuarios (nombre, correo, contrasena, grado, carrera, rol) VALUES (%s, %s, %s, %s, %s, %s)",  # <- CAMBIO
+            (nombre, correo, contrasena, grado, carrera, 'cliente')
         )
         db.commit()
         return {"success": True}
