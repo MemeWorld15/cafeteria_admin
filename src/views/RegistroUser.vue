@@ -94,7 +94,7 @@ async function registrarUsuario() {
     formData.append('carrera', carrera.value)
     formData.append('contraseña', contraseña.value)
 
-    const res = await fetch('https://cafeteria-admin-rowd.onrender.com', {
+    const res = await fetch('https://cafeteria-admin-rowd.onrender.com/registro', {
        method: "POST",
        body: formData,
        mode: "cors"
