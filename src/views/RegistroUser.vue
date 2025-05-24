@@ -48,6 +48,7 @@ import { ref } from 'vue'
 import '../EstilosCss/registro.css'
 import logo from '../assets/images/LogoCafe.png'
 import { useRouter } from 'vue-router'
+
 const router = useRouter()
 
 const nombre = ref('')
@@ -85,24 +86,22 @@ async function registrarUsuario() {
   }
 
   try {
+    const formData = new FormData()
+    formData.append('nombre', nombre.value)
+    formData.append('correo', correo.value)
+    formData.append('grado', grado.value)
+    formData.append('carrera', carrera.value)
+    formData.append('contraseña', contraseña.value)
+
     const res = await fetch('https://cafeteria-admin-rowd.onrender.com/registro', {
       method: "POST",
-      headers: {
-        "Content-Type": "application/json"
-      },
-      body: JSON.stringify({
-        nombre: nombre.value,
-        correo: correo.value,
-        grado: grado.value,
-        carrera: carrera.value,
-        contraseña: contraseña.value
-      }),
+      body: formData,
       mode: "cors"
     })
 
     if (!res.ok) {
       const data = await res.json()
-      throw new Error(data?.mensaje || 'Error al registrar.')
+      throw new Error(data?.detail || 'Error al registrar.')
     }
 
     mensaje.value = 'Registro exitoso. Redirigiendo...'
