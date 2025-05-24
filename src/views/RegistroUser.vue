@@ -55,7 +55,7 @@ const nombre = ref('')
 const correo = ref('')
 const grado = ref('')
 const carrera = ref('')
-const contraseña = ref('')
+const contrasena = ref('')
 const confirmar = ref('')
 const mensaje = ref('')
 const mensajeColor = ref('green')
@@ -67,7 +67,7 @@ function validarCorreo(correo) {
 async function registrarUsuario() {
   mensaje.value = ''
 
-  if (!nombre.value || !correo.value || !grado.value || !carrera.value || !contraseña.value || !confirmar.value) {
+  if (!nombre.value || !correo.value || !grado.value || !carrera.value || !contrasena.value || !confirmar.value) {
     mensaje.value = 'Todos los campos son obligatorios.'
     mensajeColor.value = 'red'
     return
@@ -79,7 +79,7 @@ async function registrarUsuario() {
     return
   }
 
-  if (contraseña.value !== confirmar.value) {
+  if (contrasena.value !== confirmar.value) {
     mensaje.value = 'Las contraseñas no coinciden.'
     mensajeColor.value = 'red'
     return
@@ -91,7 +91,7 @@ async function registrarUsuario() {
     formData.append('correo', correo.value)
     formData.append('grado', grado.value)
     formData.append('carrera', carrera.value)
-    formData.append('contraseña', contraseña.value)
+    formData.append('contrasena', contrasena.value) // <- CORREGIDO
 
     const res = await fetch('https://cafeteria-admin-rowd.onrender.com/registro', {
       method: "POST",
