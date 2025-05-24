@@ -26,7 +26,8 @@
             <option>Administración</option>
           </select>
 
-          <input v-model="contraseña" type="password" placeholder="Contraseña" class="input-field" required />
+          <!-- 🔧 CAMBIO aquí: contraseña -> contrasena -->
+          <input v-model="contrasena" type="password" placeholder="Contraseña" class="input-field" required />
           <input v-model="confirmar" type="password" placeholder="Confirmar Contraseña" class="input-field" required />
 
           <button type="submit" class="register-button">REGISTRARSE</button>
@@ -42,6 +43,7 @@
     </div>
   </div>
 </template>
+
 
 <script setup>
 import { ref } from 'vue'
