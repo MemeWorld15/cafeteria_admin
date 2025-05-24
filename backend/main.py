@@ -16,7 +16,7 @@ from fastapi.middleware.cors import CORSMiddleware
 
 app = FastAPI()
 
-# Middleware CORS
+# CORS para permitir conexión desde tu frontend
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["https://cafeteria-admin.vercel.app"],
@@ -24,45 +24,18 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
-# Ruta de prueba
-# Ruta GET (verificación simple)
-@app.get("/")
-def root():
-    return {"message": "¡La API está funcionando correctamente!"}
 
-# Ruta POST para health checks o pruebas
-@app.post("/")
-def post_root():
-    return {"message": "¡POST recibido correctamente en /"}
-
-# Ruta POST para login
-@app.post("/login")
-def login(correo: str = Form(...), contraseña: str = Form(...)):
-    db = get_db_connection()
-    cursor = db.cursor()
-    cursor.execute(
-        "SELECT id, rol, nombre FROM usuarios WHERE correo=%s AND contraseña=%s",
-        (correo, contraseña)
+# ---------------- CONEXIÓN ----------------
+def get_db_connection():
+    return psycopg2.connect(
+        host="dpg-d0nqf2juibrs738t3sbg-a.oregon-postgres.render.com",             # Ej: "dpg-xxxxxx.render.com"
+        user="admin",          # Ej: "admin"
+        password="5iaR0WvAkuDojeqiERfKwhcQgJ0TdlmO",     # Tu contraseña
+        database="cafe_unach",
+        port="5432"
     )
-    user = cursor.fetchone()
-    cursor.close()
-    db.close()
 
-    if user:
-        return {
-            "success": True,
-            "rol": user[1],
-            "usuario_id": user[0],
-            "nombre": user[2]
-        }
-    raise HTTPException(status_code=401, detail="Credenciales inválidas")
-
-# Ejecutar si es script principal
-if __name__ == "__main__":
-    port = int(os.environ.get("PORT", 8000))  # Render usa PORT en variables de entorno
-    uvicorn.run(app, host="0.0.0.0", port=port)
-
-# MODELOS Pydantic
+# ---------------- MODELOS ----------------
 class ProductoOrden(BaseModel):
     nombre: str
     cantidad: int
@@ -74,11 +47,19 @@ class OrdenEntrada(BaseModel):
     usuario_id: Optional[int]
     productos: List[ProductoOrden]
 
+# ---------------- RUTAS ----------------
+
+@app.get("/")
+def root():
+    return {"message": "¡La API está funcionando correctamente!"}
+
+@app.post("/")
+def post_root():
+    return {"message": "¡POST recibido correctamente en /"}
 
 @app.post("/login")
 def login(correo: str = Form(...), contraseña: str = Form(...)):
     db = get_db_connection()
-    #cursor = db.cursor(dictionary=True)
     cursor = db.cursor(cursor_factory=psycopg2.extras.RealDictCursor)
     cursor.execute("SELECT * FROM usuarios WHERE correo=%s AND contraseña=%s", (correo, contraseña))
     user = cursor.fetchone()
@@ -94,8 +75,6 @@ def login(correo: str = Form(...), contraseña: str = Form(...)):
         }
     raise HTTPException(status_code=401, detail="Credenciales inválidas")
 
-
-# REGISTER
 @app.post("/register")
 def register(
     nombre: str = Form(...),
@@ -113,11 +92,21 @@ def register(
         )
         db.commit()
         return {"success": True}
-    except mysql.connector.Error:
+    except psycopg2.errors.UniqueViolation:
+        db.rollback()
         raise HTTPException(status_code=400, detail="Correo ya registrado")
+    except Exception as e:
+        db.rollback()
+        raise HTTPException(status_code=500, detail="Error del servidor: " + str(e))
     finally:
         cursor.close()
         db.close()
+
+# ---------------- EJECUCIÓN LOCAL ----------------
+if __name__ == "__main__":
+    port = int(os.environ.get("PORT", 8000))  # Render usa la variable de entorno PORT
+    uvicorn.run(app, host="0.0.0.0", port=port)
+
 
 
 @app.post("/empleados")
