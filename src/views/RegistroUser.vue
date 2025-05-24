@@ -103,7 +103,7 @@ async function registrarUsuario() {
     mensajeColor.value = 'green'
 
     setTimeout(() => {
-      window.location.href = '/login'
+      window.location.href = 'https://cafeteria-admin-rowd.onrender.com/login'
     }, 2000)
   } catch (err) {
     mensaje.value = 'Error al registrar. El correo ya existe.'
