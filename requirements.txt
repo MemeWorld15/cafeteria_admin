@@ -4,4 +4,3 @@ pydantic
 mysql-connector-python
 reportlab
 python-multipart
-multer
