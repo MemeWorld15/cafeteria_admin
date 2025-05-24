@@ -91,7 +91,7 @@ async function registrarUsuario() {
     formData.append('correo', correo.value)
     formData.append('grado', grado.value)
     formData.append('carrera', carrera.value)
-    formData.append('contrasena', contrasena.value) // <- CORREGIDO
+    formData.append('contrasena', contrasena.value)  // aquí sin ñ
 
     const res = await fetch('https://cafeteria-admin-rowd.onrender.com/registro', {
       method: "POST",
