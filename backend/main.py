@@ -79,7 +79,7 @@ def login(correo: str = Form(...), contrasena: str = Form(...)):  # <- CAMBIO
 def register(
     nombre: str = Form(...),
     correo: str = Form(...),
-    contrasena: str = Form(...),  # <- CAMBIO
+    contrasena: str = Form(...),   # sin ñ
     grado: str = Form(...),
     carrera: str = Form(...)
 ):
@@ -87,8 +87,8 @@ def register(
     cursor = db.cursor()
     try:
         cursor.execute(
-            "INSERT INTO usuarios (nombre, correo, contrasena, grado, carrera, rol) VALUES (%s, %s, %s, %s, %s, %s)",  # <- CAMBIO
-            (nombre, correo, contrasena, grado, carrera, 'cliente')
+            "INSERT INTO usuarios (nombre, correo, contraseña, grado, carrera, rol) VALUES (%s, %s, %s, %s, %s, %s)",
+            (nombre, correo, contrasena, grado, carrera, 'cliente')  # contrasena variable aquí
         )
         db.commit()
         return {"success": True}
@@ -102,11 +102,11 @@ def register(
         cursor.close()
         db.close()
 
-# ---------------- EJECUCIÓN LOCAL ----------------
-if __name__ == "__main__":
-    port = int(os.environ.get("PORT", 8000))  # Render usa la variable de entorno PORT
-    uvicorn.run("backend.main:app", host="0.0.0.0", port=port, reload=True)
+# El resto de tu código...
 
+if __name__ == "__main__":
+    port = int(os.environ.get("PORT", 8000))
+    uvicorn.run("backend.main:app", host="0.0.0.0", port=port, reload=True)
 
 
 
