@@ -50,7 +50,6 @@ import logo from '../assets/images/LogoCafe.png'
 import { useRouter } from 'vue-router'
 const router = useRouter()
 
-
 const nombre = ref('')
 const correo = ref('')
 const grado = ref('')
@@ -67,7 +66,6 @@ function validarCorreo(correo) {
 async function registrarUsuario() {
   mensaje.value = ''
 
-  // Validaciones frontend
   if (!nombre.value || !correo.value || !grado.value || !carrera.value || !contraseña.value || !confirmar.value) {
     mensaje.value = 'Todos los campos son obligatorios.'
     mensajeColor.value = 'red'
@@ -87,20 +85,25 @@ async function registrarUsuario() {
   }
 
   try {
-    const formData = new FormData()
-    formData.append('nombre', nombre.value)
-    formData.append('correo', correo.value)
-    formData.append('grado', grado.value)
-    formData.append('carrera', carrera.value)
-    formData.append('contraseña', contraseña.value)
-
     const res = await fetch('https://cafeteria-admin-rowd.onrender.com/registro', {
-       method: "POST",
-       body: formData,
-       mode: "cors"
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({
+        nombre: nombre.value,
+        correo: correo.value,
+        grado: grado.value,
+        carrera: carrera.value,
+        contraseña: contraseña.value
+      }),
+      mode: "cors"
     })
 
-    if (!res.ok) throw new Error()
+    if (!res.ok) {
+      const data = await res.json()
+      throw new Error(data?.mensaje || 'Error al registrar.')
+    }
 
     mensaje.value = 'Registro exitoso. Redirigiendo...'
     mensajeColor.value = 'green'
@@ -109,7 +112,9 @@ async function registrarUsuario() {
       router.push('/login')
     }, 2000)
   } catch (err) {
-    mensaje.value = 'Error al registrar. El correo ya existe.'
+    mensaje.value = err.message === 'Failed to fetch'
+      ? 'No se pudo conectar al servidor.'
+      : err.message
     mensajeColor.value = 'red'
   }
 }
