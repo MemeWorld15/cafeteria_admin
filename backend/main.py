@@ -75,32 +75,62 @@ def login(correo: str = Form(...), contraseña: str = Form(...)):
         }
     raise HTTPException(status_code=401, detail="Credenciales inválidas")
 
-@app.post("/registro")
-def register(
-    nombre: str = Form(...),
-    correo: str = Form(...),
-    contraseña: str = Form(...),
-    grado: str = Form(...),
-    carrera: str = Form(...)
-):
-    db = get_db_connection()
-    cursor = db.cursor()
-    try:
-        cursor.execute(
-            "INSERT INTO usuarios (nombre, correo, contraseña, grado, carrera, rol) VALUES (%s, %s, %s, %s, %s, %s)",
-            (nombre, correo, contraseña, grado, carrera, 'cliente')
-        )
-        db.commit()
-        return {"success": True}
-    except psycopg2.errors.UniqueViolation:
-        db.rollback()
-        raise HTTPException(status_code=400, detail="Correo ya registrado")
-    except Exception as e:
-        db.rollback()
-        raise HTTPException(status_code=500, detail="Error del servidor: " + str(e))
-    finally:
-        cursor.close()
-        db.close()
+async function registrarUsuario() {
+  mensaje.value = ''
+
+  if (!nombre.value || !correo.value || !grado.value || !carrera.value || !contraseña.value || !confirmar.value) {
+    mensaje.value = 'Todos los campos son obligatorios.'
+    mensajeColor.value = 'red'
+    return
+  }
+
+  if (!validarCorreo(correo.value)) {
+    mensaje.value = 'El correo debe ser @gmail.com o @unach.mx.'
+    mensajeColor.value = 'red'
+    return
+  }
+
+  if (contraseña.value !== confirmar.value) {
+    mensaje.value = 'Las contraseñas no coinciden.'
+    mensajeColor.value = 'red'
+    return
+  }
+
+  try {
+    // ✅ Creamos un formulario que pueda ser recibido como Form(...) por FastAPI
+    const formData = new FormData()
+    formData.append('nombre', nombre.value)
+    formData.append('correo', correo.value)
+    formData.append('grado', grado.value)
+    formData.append('carrera', carrera.value)
+    formData.append('contraseña', contraseña.value)
+
+    // ✅ Enviamos la solicitud como FormData (no JSON)
+    const res = await fetch('https://cafeteria-admin-rowd.onrender.com/registro', {
+      method: 'POST',
+      body: formData,
+      mode: 'cors' // Esto es correcto si tu backend lo permite
+    })
+
+    if (!res.ok) {
+      const data = await res.json()
+      throw new Error(data?.detail || 'Error al registrar.') // FastAPI usa "detail"
+    }
+
+    mensaje.value = 'Registro exitoso. Redirigiendo...'
+    mensajeColor.value = 'green'
+
+    setTimeout(() => {
+      router.push('/login')
+    }, 2000)
+  } catch (err) {
+    mensaje.value = err.message === 'Failed to fetch'
+      ? 'No se pudo conectar al servidor.'
+      : err.message
+    mensajeColor.value = 'red'
+  }
+}
+
 
 # ---------------- EJECUCIÓN LOCAL ----------------
 if __name__ == "__main__":
