@@ -47,6 +47,9 @@
 import { ref } from 'vue'
 import '../EstilosCss/registro.css'
 import logo from '../assets/images/LogoCafe.png'
+import { useRouter } from 'vue-router'
+const router = useRouter()
+
 
 const nombre = ref('')
 const correo = ref('')
@@ -103,7 +106,7 @@ async function registrarUsuario() {
     mensajeColor.value = 'green'
 
     setTimeout(() => {
-      window.location.href = '/login'
+      router.push('/login')
     }, 2000)
   } catch (err) {
     mensaje.value = 'Error al registrar. El correo ya existe.'
