@@ -66,13 +66,18 @@ function validarCorreo(correo) {
 
 async function registrarUsuario() {
   mensaje.value = ''
+  console.log('nombre:', nombre.value)
+  console.log('correo:', correo.value)
+  console.log('grado:', grado.value)
+  console.log('carrera:', carrera.value)
+  console.log('contrasena:', contrasena.value)
+  console.log('confirmar:', confirmar.value)
 
   if (!nombre.value || !correo.value || !grado.value || !carrera.value || !contrasena.value || !confirmar.value) {
     mensaje.value = 'Todos los campos son obligatorios.'
     mensajeColor.value = 'red'
     return
   }
-
   if (!validarCorreo(correo.value)) {
     mensaje.value = 'El correo debe ser @gmail.com o @unach.mx.'
     mensajeColor.value = 'red'
