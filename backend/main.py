@@ -75,7 +75,7 @@ def login(correo: str = Form(...), contraseña: str = Form(...)):
         }
     raise HTTPException(status_code=401, detail="Credenciales inválidas")
 
-@app.post("/register")
+@app.post("/registro")
 def register(
     nombre: str = Form(...),
     correo: str = Form(...),
