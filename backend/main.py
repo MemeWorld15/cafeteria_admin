@@ -105,7 +105,7 @@ def register(
 # ---------------- EJECUCIÓN LOCAL ----------------
 if __name__ == "__main__":
     port = int(os.environ.get("PORT", 8000))  # Render usa la variable de entorno PORT
-    uvicorn backend.main:app --host 0.0.0.0 --port 10000
+    uvicorn.run("backend.main:app", host="0.0.0.0", port=port, reload=True)
 
 
 
