@@ -4,3 +4,4 @@ pydantic
 mysql-connector-python
 reportlab
 python-multipart
+psycopg2-binary
