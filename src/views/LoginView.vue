@@ -32,7 +32,7 @@ import logo from '../assets/images/LogoCafe.png'
 import '../EstilosCss/login.css'
 
 const correo = ref('')
-const contraseña = ref('')
+const contrasena = ref('')
 const error = ref('')
 const router = useRouter()
 
