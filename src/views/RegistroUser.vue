@@ -100,7 +100,7 @@ async function registrarUsuario() {
     formData.append('carrera', carrera.value)
     formData.append('contrasena', contrasena.value)  // aquí sin ñ
 
-    const res = await fetch('https://cafeteria-admin-rowd.onrender.com/registro', {
+    const res = await fetch('https://cafeteria-admin-czwt.onrender.com/registro', {
       method: "POST",
       body: formData,
       mode: "cors"
