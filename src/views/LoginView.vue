@@ -50,7 +50,7 @@ const handleLogin = async () => {
   try {
     const formData = new FormData();
     formData.append("correo", correo.value);
-    formData.append("contraseña", contraseña.value);
+    formData.append("contrasena", contraseña.value);
 
     const res = await fetch("https://cafeteria-admin-czwt.onrender.com/login", {
       method: "POST",
