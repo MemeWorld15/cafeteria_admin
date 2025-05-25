@@ -12,6 +12,8 @@ import os
 from datetime import datetime
 import uvicorn
 from fastapi.middleware.cors import CORSMiddleware
+import psycopg2
+from psycopg2.extras import RealDictCursor
 
 
 app = FastAPI()
