@@ -12,7 +12,7 @@
         <h3>Ingrese a su cuenta</h3>
         <form @submit.prevent="handleLogin">
           <input v-model="correo" type="email" placeholder="Correo Electrónico" class="login-input" />
-          <input v-model="contraseña" type="password" placeholder="Contraseña" class="login-input" />
+          <input v-model="contrasena" type="password" placeholder="Contraseña" class="login-input" />
           <button type="submit" class="login-button">INICIAR SESIÓN</button>
         </form>
         <p class="login-registro-text">
@@ -52,7 +52,7 @@ const handleLogin = async () => {
     formData.append("correo", correo.value);
     formData.append("contraseña", contraseña.value);
 
-    const res = await fetch("https://cafeteria-admin-rowd.onrender.com/login", {
+    const res = await fetch("https://cafeteria-admin-czwt.onrender.com/login", {
       method: "POST",
       body: formData,
       mode: "cors"
