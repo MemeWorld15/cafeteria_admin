@@ -89,7 +89,7 @@ def register(
     cursor = db.cursor()
     try:
         cursor.execute(
-            "INSERT INTO usuarios (nombre, correo, contraseña, grado, carrera, rol) VALUES (%s, %s, %s, %s, %s, %s)",
+            "INSERT INTO usuarios (nombre, correo, contrasena, grado, carrera, rol) VALUES (%s, %s, %s, %s, %s, %s)",
             (nombre, correo, contrasena, grado, carrera, 'cliente')  # contrasena variable aquí
         )
         db.commit()
