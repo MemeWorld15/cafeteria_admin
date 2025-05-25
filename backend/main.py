@@ -525,12 +525,11 @@ UNIDADES_VALIDAS = {"kg", "g", "l", "ml", "piezas", "unidad", "taza"}
 # Conexión
 def get_db_connection():
     return psycopg2.connect(
-        dbname=os.getenv("DB_NAME"),
-        user=os.getenv("DB_USER"),
-        password=os.getenv("DB_PASSWORD"),
-        host=os.getenv("DB_HOST"),
-        port=os.getenv("DB_PORT"),
-        sslmode="require"
+        host="dpg-d0nqf2juibrs738t3sbg-a.oregon-postgres.render.com",             # Ej: "dpg-xxxxxx.render.com"
+        user="admin",          # Ej: "admin"
+        password="5iaR0WvAkuDojeqiERfKwhcQgJ0TdlmO",     # Tu contraseña
+        database="cafe_unach",
+        port="5432"
     )
 
 # ✅ GET Inventario
