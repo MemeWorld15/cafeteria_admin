@@ -12,6 +12,13 @@
         <h3>Ingrese a su cuenta</h3>
         <form @submit.prevent="handleLogin">
           <input v-model="correo" type="email" placeholder="Correo Electrónico" class="login-input" />
+            <div class="password-wrapper">
+              <input
+                :type="mostrarContraseña ? 'text' : 'password'"
+                  v-model="contraseña"
+                  placeholder="Contraseña"
+                  class="login-input"
+                />
           <input v-model="contrasena" type="password" placeholder="Contraseña" class="login-input" />
           <button type="submit" class="login-button">INICIAR SESIÓN</button>
         </form>
