@@ -107,3 +107,43 @@ h3 {
 .login-registro-link:active {
   color: #003d80;
 }
+@media (max-width: 768px) {
+  .login-container {
+    flex-direction: column;
+    width: 90%; /* Que use casi todo el ancho disponible */
+    height: auto;
+  }
+
+  .login-left,
+  .login-right {
+    width: 100%;
+    padding: 20px;
+  }
+
+  .login-logo {
+    width: 150px; /* Ajusta tamaño del logo en móvil */
+  }
+
+  .login-right {
+    padding: 20px;
+  }
+
+  h2 {
+    font-size: 16px;
+  }
+
+  h3 {
+    font-size: 20px;
+  }
+
+  .login-button {
+    font-size: 14px;
+    padding: 10px;
+  }
+
+  .login-input {
+    font-size: 14px;
+    padding: 10px;
+  }
+}
+
