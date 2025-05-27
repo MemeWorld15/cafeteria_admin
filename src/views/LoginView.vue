@@ -12,16 +12,26 @@
         <h3>Ingrese a su cuenta</h3>
         <form @submit.prevent="handleLogin">
           <input v-model="correo" type="email" placeholder="Correo Electrónico" class="login-input" />
-            <div class="password-wrapper">
-              <input
-                :type="mostrarContraseña ? 'text' : 'password'"
-                  v-model="contraseña"
-                  placeholder="Contraseña"
-                  class="login-input"
-                />
-          <input v-model="contrasena" type="password" placeholder="Contraseña" class="login-input" />
+
+          <!-- Campo de contraseña con botón para mostrar/ocultar -->
+          <div class="password-wrapper" style="position: relative;">
+            <input
+              :type="mostrarContrasena ? 'text' : 'password'"
+              v-model="contrasena"
+              placeholder="Contraseña"
+              class="login-input"
+            />
+            <i
+              class="fas"
+              :class="mostrarContrasena ? 'fa-eye-slash' : 'fa-eye'"
+              @click="toggleContrasena"
+              style="cursor: pointer; position: absolute; right: 10px; top: 12px;"
+            ></i>
+          </div>
+
           <button type="submit" class="login-button">INICIAR SESIÓN</button>
         </form>
+
         <p class="login-registro-text">
           ¿No tienes una cuenta?
           <router-link to="/registro" class="login-registro-link">Regístrate aquí</router-link>
@@ -41,18 +51,13 @@ import '../EstilosCss/login.css'
 const correo = ref('')
 const contrasena = ref('')
 const error = ref('')
+const mostrarContrasena = ref(false)
 const router = useRouter()
 
-/*NO USAR
-  const handleLogin = () => {
-  if (correo.value === 'admin@cafe.com' && contraseña.value === 'admin123') {
-    router.push('/administrador')
-  } else if (correo.value === 'cliente@cafe.com' && contraseña.value === 'cliente123') {
-    router.push('/cliente')
-  } else {
-    error.value = 'Credenciales inválidas'
-  }
-}*/
+const toggleContrasena = () => {
+  mostrarContrasena.value = !mostrarContrasena.value
+}
+
 const handleLogin = async () => {
   try {
     const formData = new FormData();
@@ -65,16 +70,13 @@ const handleLogin = async () => {
       mode: "cors"
     });
 
-
     if (!res.ok) throw new Error("Credenciales inválidas");
 
     const data = await res.json();
 
-   localStorage.setItem("usuario_id", data.usuario_id);
-   localStorage.setItem('usuario_rol', data.rol)
-   localStorage.setItem("usuario_nombre", data.nombre);
-
-
+    localStorage.setItem("usuario_id", data.usuario_id);
+    localStorage.setItem("usuario_rol", data.rol);
+    localStorage.setItem("usuario_nombre", data.nombre);
 
     if (data.rol === "admin") {
       router.push("/administrador");
@@ -87,5 +89,4 @@ const handleLogin = async () => {
     error.value = "Correo o contraseña incorrectos.";
   }
 };
-
 </script>
