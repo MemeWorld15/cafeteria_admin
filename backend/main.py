@@ -112,6 +112,8 @@ if __name__ == "__main__":
 
 
 
+# ------------------ EMPLEADOS ------------------
+
 @app.post("/empleados")
 def crear_empleado(
     nombre: str = Form(...),
@@ -127,13 +129,11 @@ def crear_empleado(
     foto = f"https://i.pravatar.cc/150?img={abs(hash(correo)) % 70 + 1}"
 
     try:
-        # Insertar en empleados
         cursor.execute("""
             INSERT INTO empleados (nombre, correo, ocupacion, rendimiento, contraseña, foto, creado_por)
             VALUES (%s, %s, %s, %s, %s, %s, %s)
         """, (nombre, correo, ocupacion, rendimiento, contraseña, foto, creado_por))
 
-        # Si es chef, también lo insertamos como usuario
         if ocupacion.lower() == "chef":
             cursor.execute("""
                 INSERT INTO usuarios (nombre, correo, contraseña, grado, carrera, rol)
@@ -142,7 +142,7 @@ def crear_empleado(
 
         db.commit()
         return {"success": True}
-    except mysql.connector.Error as e:
+    except psycopg2.Error as e:
         db.rollback()
         print("Error:", e)
         raise HTTPException(status_code=400, detail="Error al registrar empleado/usuario")
@@ -150,22 +150,22 @@ def crear_empleado(
         cursor.close()
         db.close()
 
-
 @app.get("/empleados")
 def obtener_empleados():
     db = get_db_connection()
-    cursor = db.cursor(dictionary=True)
+    cursor = db.cursor(cursor_factory=RealDictCursor)
     cursor.execute("SELECT * FROM empleados")
     empleados = cursor.fetchall()
     cursor.close()
     db.close()
     return empleados
 
-# MENU
+# ------------------ MENÚ ------------------
+
 @app.get("/menu")
 def obtener_menu():
     db = get_db_connection()
-    cursor = db.cursor(dictionary=True)
+    cursor = db.cursor(cursor_factory=RealDictCursor)
     cursor.execute("SELECT * FROM categorias")
     categorias = cursor.fetchall()
 
@@ -179,11 +179,12 @@ def obtener_menu():
     db.close()
     return menu
 
-# CATEGORÍAS
+# ------------------ CATEGORÍAS ------------------
+
 @app.get("/categorias")
 def listar_categorias():
     db = get_db_connection()
-    cursor = db.cursor(dictionary=True)
+    cursor = db.cursor(cursor_factory=RealDictCursor)
     cursor.execute("SELECT * FROM categorias")
     categorias = cursor.fetchall()
     cursor.close()
@@ -198,8 +199,9 @@ def agregar_categoria(nombre: str = Form(...)):
         cursor.execute("INSERT INTO categorias (nombre) VALUES (%s)", (nombre,))
         db.commit()
         return {"success": True}
-    except mysql.connector.Error:
-        raise HTTPException(status_code=400, detail="Categoría ya existe")
+    except psycopg2.Error as e:
+        db.rollback()
+        raise HTTPException(status_code=400, detail="Categoría ya existe o error interno")
     finally:
         cursor.close()
         db.close()
@@ -212,7 +214,8 @@ def editar_categoria(categoria_id: int, nombre: str = Form(...)):
         cursor.execute("UPDATE categorias SET nombre = %s WHERE id = %s", (nombre, categoria_id))
         db.commit()
         return {"success": True}
-    except mysql.connector.Error:
+    except psycopg2.Error:
+        db.rollback()
         raise HTTPException(status_code=400, detail="No se pudo actualizar la categoría")
     finally:
         cursor.close()
@@ -226,23 +229,37 @@ def eliminar_categoria(categoria_id: int):
         cursor.execute("DELETE FROM categorias WHERE id = %s", (categoria_id,))
         db.commit()
         return {"success": True}
-    except mysql.connector.Error:
+    except psycopg2.Error:
+        db.rollback()
         raise HTTPException(status_code=400, detail="No se pudo eliminar la categoría")
     finally:
         cursor.close()
         db.close()
 
-# PRODUCTOS
+# ------------------ PRODUCTOS ------------------
+
 @app.post("/productos")
-def agregar_producto(nombre: str = Form(...), descripcion: str = Form(...), precio: float = Form(...), categoria_id: int = Form(...)):
+def agregar_producto(
+    nombre: str = Form(...),
+    descripcion: str = Form(...),
+    precio: float = Form(...),
+    categoria_id: int = Form(...)
+):
     db = get_db_connection()
     cursor = db.cursor()
-    cursor.execute("INSERT INTO productos (nombre, descripcion, precio, categoria_id) VALUES (%s, %s, %s, %s)",
-                   (nombre, descripcion, precio, categoria_id))
-    db.commit()
-    cursor.close()
-    db.close()
-    return {"success": True}
+    try:
+        cursor.execute(
+            "INSERT INTO productos (nombre, descripcion, precio, categoria_id) VALUES (%s, %s, %s, %s)",
+            (nombre, descripcion, precio, categoria_id)
+        )
+        db.commit()
+        return {"success": True}
+    except psycopg2.Error:
+        db.rollback()
+        raise HTTPException(status_code=400, detail="Error al agregar producto")
+    finally:
+        cursor.close()
+        db.close()
 
 @app.put("/productos/{producto_id}")
 def editar_producto(
