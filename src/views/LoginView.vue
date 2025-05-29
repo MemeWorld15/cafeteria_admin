@@ -47,6 +47,7 @@ import { ref } from 'vue'
 import { useRouter } from 'vue-router'
 import logo from '../assets/images/LogoCafe.png'
 import '../EstilosCss/login.css'
+import { login } from '../api' 
 
 const correo = ref('')
 const contrasena = ref('')
@@ -60,33 +61,26 @@ const toggleContrasena = () => {
 
 const handleLogin = async () => {
   try {
-    const formData = new FormData();
-    formData.append("correo", correo.value);
-    formData.append("contrasena", contrasena.value);
+    const res = await login(correo.value, contrasena.value)
 
-    const res = await fetch("https://cafeteria-admin-czwt.onrender.com/login", {
-      method: "POST",
-      body: formData,
-      mode: "cors"
-    });
+    if (!res.ok) throw new Error()
 
-    if (!res.ok) throw new Error("Credenciales inválidas");
+    const data = await res.json()
 
-    const data = await res.json();
+    localStorage.setItem('usuario_id', data.usuario_id)
+    localStorage.setItem('usuario_rol', data.rol)
+    localStorage.setItem('usuario_nombre', data.nombre)
 
-    localStorage.setItem("usuario_id", data.usuario_id);
-    localStorage.setItem("usuario_rol", data.rol);
-    localStorage.setItem("usuario_nombre", data.nombre);
-
-    if (data.rol === "admin") {
-      router.push("/administrador");
-    } else if (data.rol === "chef") {
-      router.push("/cocina");
+    if (data.rol === 'admin') {
+      router.push('/administrador')
+    } else if (data.rol === 'chef') {
+      router.push('/cocina')
     } else {
-      router.push("/menu");
+      router.push('/menu')
     }
   } catch (err) {
-    error.value = "Correo o contraseña incorrectos.";
+    error.value = 'Correo o contraseña incorrectos.'
   }
-};
+}
 </script>
+
