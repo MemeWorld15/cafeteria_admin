@@ -50,7 +50,6 @@ import { ref } from 'vue'
 import '../EstilosCss/registro.css'
 import logo from '../assets/images/LogoCafe.png'
 import { useRouter } from 'vue-router'
-import { registrarUsuario } from '../api'
 
 const router = useRouter()
 
@@ -67,8 +66,14 @@ function validarCorreo(correo) {
   return correo.endsWith('@gmail.com') || correo.endsWith('@unach.mx')
 }
 
-async function handleRegistro() {
+async function registrarUsuario() {
   mensaje.value = ''
+  console.log('nombre:', nombre.value)
+  console.log('correo:', correo.value)
+  console.log('grado:', grado.value)
+  console.log('carrera:', carrera.value)
+  console.log('contrasena:', contrasena.value)
+  console.log('confirmar:', confirmar.value)
 
   if (!nombre.value || !correo.value || !grado.value || !carrera.value || !contrasena.value || !confirmar.value) {
     mensaje.value = 'Todos los campos son obligatorios.'
@@ -93,9 +98,13 @@ async function handleRegistro() {
     formData.append('correo', correo.value)
     formData.append('grado', grado.value)
     formData.append('carrera', carrera.value)
-    formData.append('contrasena', contrasena.value)
+    formData.append('contrasena', contrasena.value)  // aquí sin ñ
 
-    const res = await registrarUsuario(formData) //uso centralizado
+    const res = await fetch('https://cafeteria-admin-czwt.onrender.com/registro', {
+      method: "POST",
+      body: formData,
+      mode: "cors"
+    })
 
     if (!res.ok) {
       const data = await res.json()
