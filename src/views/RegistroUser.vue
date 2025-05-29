@@ -44,12 +44,12 @@
   </div>
 </template>
 
-
 <script setup>
 import { ref } from 'vue'
+import { useRouter } from 'vue-router'
 import '../EstilosCss/registro.css'
 import logo from '../assets/images/LogoCafe.png'
-import { useRouter } from 'vue-router'
+import { registrarUsuario as apiRegistro } from '../api' // importa desde api.js
 
 const router = useRouter()
 
@@ -68,18 +68,13 @@ function validarCorreo(correo) {
 
 async function registrarUsuario() {
   mensaje.value = ''
-  console.log('nombre:', nombre.value)
-  console.log('correo:', correo.value)
-  console.log('grado:', grado.value)
-  console.log('carrera:', carrera.value)
-  console.log('contrasena:', contrasena.value)
-  console.log('confirmar:', confirmar.value)
 
   if (!nombre.value || !correo.value || !grado.value || !carrera.value || !contrasena.value || !confirmar.value) {
     mensaje.value = 'Todos los campos son obligatorios.'
     mensajeColor.value = 'red'
     return
   }
+
   if (!validarCorreo(correo.value)) {
     mensaje.value = 'El correo debe ser @gmail.com o @unach.mx.'
     mensajeColor.value = 'red'
@@ -98,13 +93,9 @@ async function registrarUsuario() {
     formData.append('correo', correo.value)
     formData.append('grado', grado.value)
     formData.append('carrera', carrera.value)
-    formData.append('contrasena', contrasena.value)  // aquí sin ñ
+    formData.append('contrasena', contrasena.value)
 
-    const res = await fetch('https://cafeteria-admin-czwt.onrender.com/registro', {
-      method: "POST",
-      body: formData,
-      mode: "cors"
-    })
+    const res = await apiRegistro(formData) // aqui  se llama la función centralizada
 
     if (!res.ok) {
       const data = await res.json()
