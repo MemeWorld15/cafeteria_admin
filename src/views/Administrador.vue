@@ -203,35 +203,38 @@ import '../EstilosCss/AdminStylo.css'
 import GraficasTop from './GraficasTop.vue'
 import Inventario from './Inventario.vue'
 
-// importar funciones de la API centralizada
-import {
-  fetchCategorias,
-  fetchProductos,
-  fetchOrdenes,
-  crearNuevaCategoria,
-  actualizarCategoria,
-  eliminarCategoriaPorId,
-  crearProducto,
-  actualizarProducto,
-  eliminarProductoPorId,
-  crearEmpleado as crearEmpleadoAPI
-} from '../api'
+
 
 const isCollapsed = ref(false)
 const vistaActual = ref('menu')
 
-const cambiarVista = (vista) => { vistaActual.value = vista }
-const toggleSidebar = () => { isCollapsed.value = !isCollapsed.value }
+const cambiarVista = (vista) => {
+  vistaActual.value = vista
+}
+
+const toggleSidebar = () => {
+  isCollapsed.value = !isCollapsed.value
+}
 
 const isDarkMode = ref(false)
+
 const toggleDarkMode = () => {
   isDarkMode.value = !isDarkMode.value
   document.body.classList.toggle('dark-mode', isDarkMode.value)
   localStorage.setItem('modo_oscuro', isDarkMode.value ? 'true' : 'false')
 }
 
+
+
 // Empleados
-const nuevoEmpleado = ref({ nombre: '', correo: '', ocupacion: '', rendimiento: '', contraseña: '' })
+const nuevoEmpleado = ref({
+  nombre: '',
+  correo: '',
+  ocupacion: '',
+  rendimiento: '',
+  contraseña: ''
+})
+
 const mensaje = ref('')
 const mensajeColor = ref('green')
 
@@ -239,6 +242,7 @@ const crearEmpleado = async () => {
   mensaje.value = ''
   try {
     const creadorId = parseInt(localStorage.getItem('usuario_id') || '0')
+
     if (!creadorId) {
       mensaje.value = 'Error: usuario no autenticado.'
       mensajeColor.value = 'red'
@@ -246,16 +250,34 @@ const crearEmpleado = async () => {
     }
 
     const formData = new FormData()
-    Object.entries(nuevoEmpleado.value).forEach(([key, val]) => formData.append(key, val))
+    Object.entries(nuevoEmpleado.value).forEach(([key, val]) =>
+      formData.append(key, val)
+    )
     formData.append('creado_por', creadorId)
 
-    const res = await crearEmpleadoAPI(formData)
-    if (!res.ok) throw new Error()
+    const res = await fetch('http://localhost:8000/empleados', {
+      method: 'POST',
+      body: formData
+    })
+
+    if (!res.ok) {
+      const errorData = await res.json()
+      console.error(errorData)
+      throw new Error()
+    }
 
     mensaje.value = 'Empleado creado exitosamente.'
     mensajeColor.value = 'green'
-    nuevoEmpleado.value = { nombre: '', correo: '', ocupacion: '', rendimiento: '', contraseña: '' }
-  } catch {
+
+    // Resetear el formulario
+    nuevoEmpleado.value = {
+      nombre: '',
+      correo: '',
+      ocupacion: '',
+      rendimiento: '',
+      contraseña: ''
+    }
+  } catch (err) {
     mensaje.value = 'Error al registrar empleado.'
     mensajeColor.value = 'red'
   }
@@ -270,86 +292,156 @@ const generarContrasena = () => {
   nuevoEmpleado.value.contraseña = password
 }
 
+
 // Menú
 const nuevaCategoria = ref('')
 const nuevoProducto = ref({ nombre: '', descripcion: '', precio: '', categoria_id: '' })
 const categorias = ref([])
 const productos = ref([])
-const ordenes = ref([])
 const mensajeMenu = ref('')
-const mensajeColor = ref('green')
 const productoEditando = ref(null)
-const categoriaEditando = ref(null)
+const ordenes = ref([])
 const nombreUsuario = ref('')
+
 
 const crearCategoria = async () => {
   mensajeMenu.value = ''
   try {
-    await crearNuevaCategoria(nuevaCategoria.value)
+    const formData = new FormData()
+    formData.append('nombre', nuevaCategoria.value)
+    const res = await fetch('http://localhost:8000/categorias', {
+      method: 'POST',
+      body: formData
+    })
+    if (!res.ok) throw new Error()
     mensajeMenu.value = 'Categoría agregada.'
     mensajeColor.value = 'green'
     nuevaCategoria.value = ''
     obtenerCategorias()
-  } catch {
+  } catch (err) {
     mensajeMenu.value = 'Error al agregar categoría.'
     mensajeColor.value = 'red'
   }
 }
+const crearProducto = async () => {
+  mensajeMenu.value = ''
+  try {
+    const formData = new FormData()
+    for (const [key, val] of Object.entries(nuevoProducto.value)) {
+      formData.append(key, val)
+    }
+
+    const res = await fetch('http://localhost:8000/productos', {
+      method: 'POST',
+      body: formData
+    })
+
+    if (!res.ok) throw new Error()
+
+    mensajeMenu.value = 'Producto agregado.'
+    mensajeColor.value = 'green'
+    nuevoProducto.value = { nombre: '', descripcion: '', precio: '', categoria_id: '' }
+    obtenerProductos()
+  } catch (err) {
+    mensajeMenu.value = 'Error al agregar producto.'
+    mensajeColor.value = 'red'
+  }
+}
+
 
 const obtenerCategorias = async () => {
-  categorias.value = await fetchCategorias()
-}
-
-const eliminarCategoria = async (id) => {
-  if (!confirm("¿Eliminar esta categoría?")) return
-  await eliminarCategoriaPorId(id)
-  mensajeMenu.value = 'Categoría eliminada.'
-  obtenerCategorias()
-}
-
-const iniciarEdicionCategoria = (cat) => { categoriaEditando.value = { ...cat } }
-const cancelarEdicionCategoria = () => { categoriaEditando.value = null }
-
-const guardarEdicionCategoria = async () => {
-  await actualizarCategoria(categoriaEditando.value.id, categoriaEditando.value.nombre)
-  mensajeMenu.value = 'Categoría actualizada.'
-  categoriaEditando.value = null
-  obtenerCategorias()
-}
-
-const crearProductoNuevo = async () => {
-  const formData = new FormData()
-  Object.entries(nuevoProducto.value).forEach(([key, val]) => formData.append(key, val))
-  await crearProducto(formData)
-  mensajeMenu.value = 'Producto agregado.'
-  nuevoProducto.value = { nombre: '', descripcion: '', precio: '', categoria_id: '' }
-  obtenerProductos()
+  const res = await fetch('http://localhost:8000/categorias')
+  categorias.value = await res.json()
 }
 
 const obtenerProductos = async () => {
-  productos.value = await fetchProductos()
+  const res = await fetch('http://localhost:8000/productos')
+  productos.value = await res.json()
+}
+
+const obtenerOrdenes = async () => {
+  const res = await fetch('http://localhost:8000/ordenes')
+  ordenes.value = await res.json()
+}
+
+const eliminarCategoria = async (id) => {
+  if (!confirm("¿Eliminar esta categoría? Esto podría afectar productos asociados.")) return
+
+  const res = await fetch(`http://localhost:8000/categorias/${id}`, {
+    method: 'DELETE'
+  })
+
+  if (res.ok) {
+    mensajeMenu.value = 'Categoría eliminada.'
+    mensajeColor.value = 'green'
+    obtenerCategorias()
+  } else {
+    mensajeMenu.value = 'No se pudo eliminar la categoría.'
+    mensajeColor.value = 'red'
+  }
+}
+
+const editarProducto = (prod) => {
+  productoEditando.value = { ...prod }
+}
+
+const guardarEdicion = async () => {
+  const formData = new FormData()
+  for (const [key, val] of Object.entries(productoEditando.value)) {
+    formData.append(key, val)
+  }
+  const res = await fetch(`http://localhost:8000/productos/${productoEditando.value.id}`, {
+    method: 'PUT',
+    body: formData
+  })
+  if (res.ok) {
+    mensajeMenu.value = 'Producto actualizado.'
+    mensajeColor.value = 'green'
+    productoEditando.value = null
+    obtenerProductos()
+  }
 }
 
 const eliminarProducto = async (id) => {
   if (!confirm("¿Eliminar este producto?")) return
-  await eliminarProductoPorId(id)
-  mensajeMenu.value = 'Producto eliminado.'
-  obtenerProductos()
+  const res = await fetch(`http://localhost:8000/productos/${id}`, {
+    method: 'DELETE'
+  })
+  if (res.ok) {
+    mensajeMenu.value = 'Producto eliminado.'
+    mensajeColor.value = 'green'
+    obtenerProductos()
+  }
 }
 
-const editarProducto = (prod) => { productoEditando.value = { ...prod } }
+const categoriaEditando = ref(null)
 
-const guardarEdicion = async () => {
+const iniciarEdicionCategoria = (categoria) => {
+  categoriaEditando.value = { ...categoria }
+}
+
+const cancelarEdicionCategoria = () => {
+  categoriaEditando.value = null
+}
+
+const guardarEdicionCategoria = async () => {
   const formData = new FormData()
-  Object.entries(productoEditando.value).forEach(([key, val]) => formData.append(key, val))
-  await actualizarProducto(productoEditando.value.id, formData)
-  mensajeMenu.value = 'Producto actualizado.'
-  productoEditando.value = null
-  obtenerProductos()
-}
+  formData.append('nombre', categoriaEditando.value.nombre)
 
-const obtenerOrdenes = async () => {
-  ordenes.value = await fetchOrdenes()
+  const res = await fetch(`http://localhost:8000/categorias/${categoriaEditando.value.id}`, {
+    method: 'PUT',
+    body: formData
+  })
+
+  if (res.ok) {
+    mensajeMenu.value = 'Categoría actualizada.'
+    mensajeColor.value = 'green'
+    categoriaEditando.value = null
+    obtenerCategorias()
+  } else {
+    mensajeMenu.value = 'Error al actualizar categoría.'
+    mensajeColor.value = 'red'
+  }
 }
 
 onMounted(() => {
@@ -357,8 +449,8 @@ onMounted(() => {
   obtenerCategorias()
   obtenerProductos()
   obtenerOrdenes()
-  if (localStorage.getItem('modo_oscuro') === 'true') {
-    isDarkMode.value = true
+  isDarkMode.value = localStorage.getItem('modo_oscuro') === 'true'
+  if (isDarkMode.value) {
     document.body.classList.add('dark-mode')
   }
 })
