@@ -13,3 +13,10 @@ export const login = (correo, contrasena) => {
     mode: 'cors' // para render
   });
 };
+// ---------------------- REGISTRO ----------------------
+export const registrarUsuario = (formData) =>
+  fetch(`${BASE_URL}/registro`, {
+    method: 'POST',
+    body: formData,
+    mode: 'cors'
+  });
