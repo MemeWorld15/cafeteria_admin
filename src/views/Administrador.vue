@@ -203,7 +203,6 @@ import '../EstilosCss/AdminStylo.css'
 import GraficasTop from './GraficasTop.vue'
 import Inventario from './Inventario.vue'
 
-// importa funciones de la API centralizada
 import {
   fetchCategorias,
   fetchProductos,
@@ -219,7 +218,6 @@ import {
 
 const isCollapsed = ref(false)
 const vistaActual = ref('menu')
-
 const cambiarVista = (vista) => { vistaActual.value = vista }
 const toggleSidebar = () => { isCollapsed.value = !isCollapsed.value }
 
@@ -230,8 +228,14 @@ const toggleDarkMode = () => {
   localStorage.setItem('modo_oscuro', isDarkMode.value ? 'true' : 'false')
 }
 
-// Empleados
-const nuevoEmpleado = ref({ nombre: '', correo: '', ocupacion: '', rendimiento: '', contraseña: '' })
+// ----------- EMPLEADOS -----------
+const nuevoEmpleado = ref({
+  nombre: '',
+  correo: '',
+  ocupacion: '',
+  rendimiento: '',
+  contrasena: '' //  debe ser sin ñ
+})
 const mensaje = ref('')
 const mensajeColor = ref('green')
 
@@ -254,7 +258,13 @@ const crearEmpleado = async () => {
 
     mensaje.value = 'Empleado creado exitosamente.'
     mensajeColor.value = 'green'
-    nuevoEmpleado.value = { nombre: '', correo: '', ocupacion: '', rendimiento: '', contraseña: '' }
+    nuevoEmpleado.value = {
+      nombre: '',
+      correo: '',
+      ocupacion: '',
+      rendimiento: '',
+      contrasena: ''
+    }
   } catch {
     mensaje.value = 'Error al registrar empleado.'
     mensajeColor.value = 'red'
@@ -267,10 +277,10 @@ const generarContrasena = () => {
   for (let i = 0; i < 8; i++) {
     password += caracteres.charAt(Math.floor(Math.random() * caracteres.length))
   }
-  nuevoEmpleado.value.contraseña = password
+  nuevoEmpleado.value.contrasena = password
 }
 
-// Menú
+// ----------- MENU Y PRODUCTOS -----------
 const nuevaCategoria = ref('')
 const nuevoProducto = ref({ nombre: '', descripcion: '', precio: '', categoria_id: '' })
 const categorias = ref([])
@@ -287,12 +297,12 @@ const crearCategoria = async () => {
   try {
     await crearNuevaCategoria(nuevaCategoria.value)
     mensajeMenu.value = 'Categoría agregada.'
-    mensajeColor.value = 'green'
+    mensajeColorMenu.value = 'green'
     nuevaCategoria.value = ''
-    obtenerCategorias()
+    await obtenerCategorias()
   } catch {
     mensajeMenu.value = 'Error al agregar categoría.'
-    mensajeColor.value = 'red'
+    mensajeColorMenu.value = 'red'
   }
 }
 
@@ -304,26 +314,44 @@ const eliminarCategoria = async (id) => {
   if (!confirm("¿Eliminar esta categoría?")) return
   await eliminarCategoriaPorId(id)
   mensajeMenu.value = 'Categoría eliminada.'
-  obtenerCategorias()
+  mensajeColorMenu.value = 'green'
+  await obtenerCategorias()
 }
 
-const iniciarEdicionCategoria = (cat) => { categoriaEditando.value = { ...cat } }
-const cancelarEdicionCategoria = () => { categoriaEditando.value = null }
+const iniciarEdicionCategoria = (cat) => {
+  categoriaEditando.value = { ...cat }
+}
+
+const cancelarEdicionCategoria = () => {
+  categoriaEditando.value = null
+}
 
 const guardarEdicionCategoria = async () => {
-  await actualizarCategoria(categoriaEditando.value.id, categoriaEditando.value.nombre)
-  mensajeMenu.value = 'Categoría actualizada.'
-  categoriaEditando.value = null
-  obtenerCategorias()
+  try {
+    await actualizarCategoria(categoriaEditando.value.id, categoriaEditando.value.nombre)
+    mensajeMenu.value = 'Categoría actualizada.'
+    mensajeColorMenu.value = 'green'
+    categoriaEditando.value = null
+    await obtenerCategorias()
+  } catch {
+    mensajeMenu.value = 'Error al actualizar categoría.'
+    mensajeColorMenu.value = 'red'
+  }
 }
 
 const crearProductoNuevo = async () => {
-  const formData = new FormData()
-  Object.entries(nuevoProducto.value).forEach(([key, val]) => formData.append(key, val))
-  await crearProducto(formData)
-  mensajeMenu.value = 'Producto agregado.'
-  nuevoProducto.value = { nombre: '', descripcion: '', precio: '', categoria_id: '' }
-  obtenerProductos()
+  try {
+    const formData = new FormData()
+    Object.entries(nuevoProducto.value).forEach(([key, val]) => formData.append(key, val))
+    await crearProducto(formData)
+    mensajeMenu.value = 'Producto agregado.'
+    mensajeColorMenu.value = 'green'
+    nuevoProducto.value = { nombre: '', descripcion: '', precio: '', categoria_id: '' }
+    await obtenerProductos()
+  } catch {
+    mensajeMenu.value = 'Error al agregar producto.'
+    mensajeColorMenu.value = 'red'
+  }
 }
 
 const obtenerProductos = async () => {
@@ -332,20 +360,34 @@ const obtenerProductos = async () => {
 
 const eliminarProducto = async (id) => {
   if (!confirm("¿Eliminar este producto?")) return
-  await eliminarProductoPorId(id)
-  mensajeMenu.value = 'Producto eliminado.'
-  obtenerProductos()
+  try {
+    await eliminarProductoPorId(id)
+    mensajeMenu.value = 'Producto eliminado.'
+    mensajeColorMenu.value = 'green'
+    await obtenerProductos()
+  } catch {
+    mensajeMenu.value = 'Error al eliminar producto.'
+    mensajeColorMenu.value = 'red'
+  }
 }
 
-const editarProducto = (prod) => { productoEditando.value = { ...prod } }
+const editarProducto = (prod) => {
+  productoEditando.value = { ...prod }
+}
 
 const guardarEdicion = async () => {
-  const formData = new FormData()
-  Object.entries(productoEditando.value).forEach(([key, val]) => formData.append(key, val))
-  await actualizarProducto(productoEditando.value.id, formData)
-  mensajeMenu.value = 'Producto actualizado.'
-  productoEditando.value = null
-  obtenerProductos()
+  try {
+    const formData = new FormData()
+    Object.entries(productoEditando.value).forEach(([key, val]) => formData.append(key, val))
+    await actualizarProducto(productoEditando.value.id, formData)
+    mensajeMenu.value = 'Producto actualizado.'
+    mensajeColorMenu.value = 'green'
+    productoEditando.value = null
+    await obtenerProductos()
+  } catch {
+    mensajeMenu.value = 'Error al actualizar producto.'
+    mensajeColorMenu.value = 'red'
+  }
 }
 
 const obtenerOrdenes = async () => {
