@@ -39,7 +39,12 @@ export const eliminarCategoriaPorId = (id) =>
 // PRODUCTOS
 export const fetchProductos = () => fetch(`${BASE_URL}/productos`).then(res => res.json())
 export const crearProducto = (formData) =>
-  fetch(`${BASE_URL}/productos`, { method: 'POST', body: formData })
+  fetch(`${BASE_URL}/productos`, {
+    method: 'POST',
+    body: formData,
+    mode: 'cors'
+  });
+
 export const actualizarProducto = (id, formData) =>
   fetch(`${BASE_URL}/productos/${id}`, { method: 'PUT', body: formData })
 export const eliminarProductoPorId = (id) =>
