@@ -56,3 +56,7 @@ export const fetchOrdenes = () => fetch(`${BASE_URL}/ordenes`).then(res => res.j
 // EMPLEADOS
 export const crearEmpleado = (formData) =>
   fetch(`${BASE_URL}/empleados`, { method: 'POST', body: formData })
+
+export const fetchEmpleados = () =>
+  fetch(`${BASE_URL}/empleados`).then(res => res.json())
+
