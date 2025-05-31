@@ -137,7 +137,7 @@
 
 
           <h3 style="margin-top: 2rem;">Agregar Producto</h3>
-          <form @submit.prevent="crearProducto">
+          <form @submit.prevent="crearProductoNuevo">
             <input v-model="nuevoProducto.nombre" type="text" placeholder="Nombre del producto" required />
             <textarea v-model="nuevoProducto.descripcion" placeholder="Descripción" required></textarea>
             <input v-model="nuevoProducto.precio" type="number" placeholder="Precio" required />
