@@ -32,20 +32,20 @@
 
 <script setup>
 import { onMounted, ref } from 'vue'
+import { fetchEmpleados } from '../api' // importa desde tu API central
 
 const empleados = ref([])
-const defaultAvatar = 'https://i.pravatar.cc/50?img=11' // backup img
+const defaultAvatar = 'https://i.pravatar.cc/50?img=11' // imagen por defecto
 
 onMounted(async () => {
   try {
-    const res = await fetch('http://localhost:8000/empleados')
-    if (!res.ok) throw new Error('Error al cargar empleados')
-    empleados.value = await res.json()
+    empleados.value = await fetchEmpleados()
   } catch (err) {
-    console.error('Error:', err)
+    console.error('Error al cargar empleados:', err)
   }
 })
 </script>
+
 
 <style scoped>
 .usuarios-card {
