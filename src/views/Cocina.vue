@@ -121,63 +121,78 @@ import { ref, onMounted } from 'vue'
 import logo from '../assets/images/LogoCafe.png'
 import '../EstilosCss/cocinastyle.css'
 
+import {
+  fetchOrdenes,
+  fetchProductos,
+  toggleDisponibilidadProducto,
+  eliminarProductoPorId,
+  marcarOrdenComoEntregada
+} from '../api'
 
 const vista = ref('ordenes')
 const ordenes = ref([])
+const productos = ref([])
 const nombreUsuario = ref('')
 const rolUsuario = ref('')
 
-
+// modo oscuro
 const toggleDarkMode = () => {
   document.body.classList.toggle('dark-mode')
 }
 
+//  Cargar productos
+const obtenerProductos = async () => {
+  try {
+    productos.value = await fetchProductos()
+  } catch (err) {
+    console.error('Error al obtener productos:', err)
+  }
+}
 
+// Cargar órdenes
 const cargarOrdenes = async () => {
   try {
-    const res = await fetch('http://localhost:8000/ordenes')
-    ordenes.value = await res.json()
+    ordenes.value = await fetchOrdenes()
   } catch (err) {
     console.error('Error cargando órdenes:', err)
   }
 }
 
+//  Marcar orden como entregada
 const marcarEntregado = async (id) => {
   try {
-    await fetch(`http://localhost:8000/ordenes/${id}/entregado`, {
-      method: 'PUT'
-    })
-    cargarOrdenes()
+    await marcarOrdenComoEntregada(id)
+    await cargarOrdenes()
   } catch (err) {
     console.error('Error al marcar como entregado:', err)
   }
 }
-const productos = ref([])
 
-const obtenerProductos = async () => {
-  const res = await fetch('http://localhost:8000/productos')
-  productos.value = await res.json()
-}
-
+// Activar/desactivar disponibilidad
 const toggleDisponible = async (id) => {
-  await fetch(`http://localhost:8000/productos/${id}/toggle-disponible`, { method: 'PUT' })
-  obtenerProductos()
+  try {
+    await toggleDisponibilidadProducto(id)
+    await obtenerProductos()
+  } catch (err) {
+    console.error('Error al cambiar disponibilidad:', err)
+  }
 }
 
+//  Eliminar producto
 const eliminarProducto = async (id) => {
   if (!confirm("¿Eliminar este producto?")) return
-  await fetch(`http://localhost:8000/productos/${id}`, { method: 'DELETE' })
-  obtenerProductos()
+  try {
+    await eliminarProductoPorId(id)
+    await obtenerProductos()
+  } catch (err) {
+    console.error('Error al eliminar producto:', err)
+  }
 }
-
 
 onMounted(() => {
   nombreUsuario.value = localStorage.getItem('usuario_nombre') || 'Usuario'
   rolUsuario.value = localStorage.getItem('usuario_rol') || 'Rol'
-
   cargarOrdenes()
   obtenerProductos()
-
-  
 })
 </script>
