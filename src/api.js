@@ -50,8 +50,20 @@ export const actualizarProducto = (id, formData) =>
 export const eliminarProductoPorId = (id) =>
   fetch(`${BASE_URL}/productos/${id}`, { method: 'DELETE' })
 
+export const toggleDisponibilidadProducto = (id) =>
+  fetch(`${BASE_URL}/productos/${id}/toggle-disponible`, {
+    method: 'PUT',
+    mode: 'cors'
+  });
 // ÓRDENES
-export const fetchOrdenes = () => fetch(`${BASE_URL}/ordenes`).then(res => res.json())
+export const fetchOrdenes = () =>
+  fetch(`${BASE_URL}/ordenes`).then(res => res.json());
+
+export const marcarOrdenComoEntregada = (id) =>
+  fetch(`${BASE_URL}/ordenes/${id}/entregado`, {
+    method: 'PUT',
+    mode: 'cors'
+  });
 
 // EMPLEADOS
 export const crearEmpleado = (formData) =>
