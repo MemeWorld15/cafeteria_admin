@@ -288,22 +288,29 @@ def toggle_disponibilidad(producto_id: int):
 def crear_orden(data: OrdenEntrada):
     db = get_db_connection()
     cursor = db.cursor()
-    cursor.execute("""
-        INSERT INTO ordenes (cliente, nota, usuario_id, entregado)
-        VALUES (%s, %s, %s, %s)
-    """, (data.cliente, data.nota, data.usuario_id, False))
-    orden_id = cursor.fetchone()[0] if cursor.rowcount else cursor.lastrowid
-
-    for prod in data.productos:
+    try:
         cursor.execute("""
-            INSERT INTO orden_productos (orden_id, nombre_producto, cantidad, precio_unitario)
+            INSERT INTO ordenes (cliente, nota, usuario_id, entregado)
             VALUES (%s, %s, %s, %s)
-        """, (orden_id, prod.nombre, prod.cantidad, prod.precio))
+            RETURNING id
+        """, (data.cliente, data.nota, data.usuario_id, False))
+        orden_id = cursor.fetchone()[0]  # ✅ Ahora sí funciona
 
-    db.commit()
-    cursor.close()
-    db.close()
-    return {"success": True, "orden_id": orden_id}
+        for prod in data.productos:
+            cursor.execute("""
+                INSERT INTO orden_productos (orden_id, nombre_producto, cantidad, precio_unitario)
+                VALUES (%s, %s, %s, %s)
+            """, (orden_id, prod.nombre, prod.cantidad, prod.precio))
+
+        db.commit()
+        return {"success": True, "orden_id": orden_id}
+    except Exception as e:
+        db.rollback()
+        raise HTTPException(status_code=500, detail=str(e))
+    finally:
+        cursor.close()
+        db.close()
+
 
 @app.get("/ordenes")
 def listar_ordenes():
