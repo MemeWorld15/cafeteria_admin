@@ -105,7 +105,7 @@
 
             <!--<input v-model="nuevoEmpleado.ocupacion" type="text" placeholder="Ocupación" required />-->
             <input v-model="nuevoEmpleado.rendimiento" type="text" placeholder="Teléfono" required />
-            <input v-model="nuevoEmpleado.contraseña" type="text" placeholder="Contraseña" required />
+            <input v-model="nuevoEmpleado.contrasena" type="text" placeholder="Contraseña" required />
             <button type="button" @click="generarContrasena">Generar Contraseña Aleatoria</button>
 
             <button type="submit">Registrar</button>
