@@ -143,6 +143,12 @@ import { ref, onMounted } from 'vue'
 import logo from '../assets/images/LogoCafe.png'
 import '../EstilosCss/menuc.css'
 
+import {
+  fetchMenu,
+  fetchOrdenesCliente,
+  enviarOrden as enviarOrdenAPI,
+  cancelarOrdenPorId
+} from '../api'
 
 const vista = ref('menu')
 const categorias = ref([])
@@ -150,14 +156,14 @@ const platillos = ref({})
 const categoriaSeleccionada = ref('Todas')
 const categoriaExpandida = ref({})
 const orden = ref([])
+
 const nombreCliente = ref(localStorage.getItem("usuario_nombre") || '')
 const notaOrden = ref('')
 const mensajeConfirmacion = ref('')
 const historialOrdenes = ref([])
 const nombreUsuario = ref(localStorage.getItem("usuario_nombre") || "Invitado")
-const rolUsuario = ref('')
-
-const usuario_id = localStorage.getItem("usuario_id") || null
+const rolUsuario = ref(localStorage.getItem("usuario_rol") || 'Cliente')
+const usuario_id = parseInt(localStorage.getItem("usuario_id") || '0')
 
 const toggleCategoria = (cat) => {
   categoriaExpandida.value[cat] = !categoriaExpandida.value[cat]
@@ -167,12 +173,9 @@ const toggleDarkMode = () => {
   document.body.classList.toggle('dark-mode')
 }
 
-
 const obtenerMenu = async () => {
-  const res = await fetch('http://localhost:8000/menu')
-  const data = await res.json()
-  platillos.value = data
-  categorias.value = Object.keys(data)
+  platillos.value = await fetchMenu()
+  categorias.value = Object.keys(platillos.value)
   categoriaSeleccionada.value = 'Todas'
 
   const expanded = {}
@@ -217,7 +220,7 @@ const enviarOrden = async () => {
   const payload = {
     cliente: nombreCliente.value,
     nota: notaOrden.value,
-    usuario_id: parseInt(usuario_id),  // 👈 importante
+    usuario_id,
     productos: orden.value.map(p => ({
       nombre: p.nombre,
       cantidad: p.cantidad,
@@ -225,12 +228,7 @@ const enviarOrden = async () => {
     }))
   }
 
-  const res = await fetch('http://localhost:8000/ordenar', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify(payload)
-  })
-
+  const res = await enviarOrdenAPI(payload)
   if (res.ok) {
     mensajeConfirmacion.value = 'Orden enviada correctamente.'
     orden.value = []
@@ -241,23 +239,17 @@ const enviarOrden = async () => {
     alert('Error al enviar la orden.')
   }
 }
+
 const cancelarOrden = async (ordenId) => {
   const confirmar = confirm("¿Seguro que quieres cancelar esta orden?")
   if (!confirmar) return
 
-  try {
-    const res = await fetch(`http://localhost:8000/ordenes/${ordenId}`, {
-      method: 'DELETE'
-    })
-
-    if (!res.ok) throw new Error("No se pudo cancelar la orden")
-
-    // Refrescar la lista
+  const res = await cancelarOrdenPorId(ordenId)
+  if (!res.ok) {
+    alert("Error al cancelar la orden.")
+  } else {
     await obtenerOrdenes()
     alert("Orden cancelada correctamente.")
-  } catch (err) {
-    console.error(err)
-    alert("Error al cancelar la orden.")
   }
 }
 
@@ -270,22 +262,17 @@ const puedeCancelar = (fechaRaw) => {
 
 const obtenerOrdenes = async () => {
   if (!usuario_id) return
-  const res = await fetch(`http://localhost:8000/ordenes/cliente/${usuario_id}`)
-  const data = await res.json()
+  const data = await fetchOrdenesCliente(usuario_id)
 
-  // Asegúrate de convertir las fechas a Date
   historialOrdenes.value = data.map(ord => ({
     ...ord,
-    fechaDate: new Date(ord.fecha_original || ord.fecha)  // Usa campo real de fecha si lo tienes
+    total: ord.productos.reduce((acc, p) => acc + p.precio_unitario * p.cantidad, 0).toFixed(2),
+    fechaDate: new Date(ord.fecha)
   }))
 }
-
 
 onMounted(() => {
   obtenerMenu()
   obtenerOrdenes()
-  nombreUsuario.value = localStorage.getItem("usuario_nombre") || "Invitado"
-  rolUsuario.value = localStorage.getItem('usuario_rol') || 'Cliente'
-
 })
 </script>
