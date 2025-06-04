@@ -110,29 +110,19 @@ if __name__ == "__main__":
     port = int(os.environ.get("PORT", 8000))
     uvicorn.run("backend.main:app", host="0.0.0.0", port=port, reload=True)
 
-#------------------------Menu------------------
 @app.get("/menu")
 def obtener_menu():
     db = get_db_connection()
     cursor = db.cursor(cursor_factory=RealDictCursor)
+
+    # Obtener todas las categorías
     cursor.execute("SELECT * FROM categorias")
     categorias = cursor.fetchall()
 
     menu = {}
     for cat in categorias:
-        cursor.execute("""
-            SELECT * FROM productos 
-            WHERE categoria_id = %s
-        """, (cat['id'],))
+        cursor.execute("SELECT * FROM productos WHERE categoria_id = %s", (cat['id'],))
         productos = cursor.fetchall()
-
-        # Asegúrate de castear a float o establecer 0.0 si falta
-        for p in productos:
-            if p["precio"] is None:
-                p["precio"] = 0.0
-            if p.get("disponible") is None:
-                p["disponible"] = True
-
         menu[cat['nombre']] = productos
 
     cursor.close()
