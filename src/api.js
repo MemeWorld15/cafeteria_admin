@@ -72,3 +72,25 @@ export const crearEmpleado = (formData) =>
 export const fetchEmpleados = () =>
   fetch(`${BASE_URL}/empleados`).then(res => res.json())
 
+// --------- MENÚ ---------
+export const fetchMenu = () =>
+  fetch(`${BASE_URL}/menu`, { method: 'GET', mode: 'cors' }).then(res => res.json())
+
+// --------- ÓRDENES DEL CLIENTE ---------
+export const fetchOrdenesCliente = (usuario_id) =>
+  fetch(`${BASE_URL}/ordenes/cliente/${usuario_id}`, { method: 'GET', mode: 'cors' }).then(res => res.json())
+
+export const enviarOrden = (payload) =>
+  fetch(`${BASE_URL}/ordenar`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(payload),
+    mode: 'cors'
+  })
+
+export const cancelarOrdenPorId = (id) =>
+  fetch(`${BASE_URL}/ordenes/${id}`, {
+    method: 'DELETE',
+    mode: 'cors'
+  })
+
