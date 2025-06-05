@@ -367,30 +367,20 @@ def obtener_ordenes_cliente(usuario_id: int):
     return ordenes
 
 @app.put("/ordenes/{orden_id}/entregado")
-def marcar_entregado(orden_id: int = Path(..., description="ID de la orden")):
+def marcar_entregado(orden_id: int):
     db = get_db_connection()
     cursor = db.cursor()
     try:
-        # Verificar si la orden existe
-        cursor.execute("SELECT entregado FROM ordenes WHERE id = %s", (orden_id,))
-        result = cursor.fetchone()
-
-        if not result:
-            raise HTTPException(status_code=404, detail="Orden no encontrada")
-
-        if result[0]:
-            return {"success": False, "message": "La orden ya fue marcada como entregada"}
-
-        # Marcar como entregada
         cursor.execute("UPDATE ordenes SET entregado = TRUE WHERE id = %s", (orden_id,))
         db.commit()
-        return {"success": True, "message": "Orden marcada como entregada"}
-    except Exception as e:
+        return {"success": True}
+    except:
         db.rollback()
-        raise HTTPException(status_code=500, detail=f"Error al actualizar orden: {str(e)}")
+        raise HTTPException(status_code=400, detail="No se pudo actualizar el estado de la orden")
     finally:
         cursor.close()
         db.close()
+
 
 # ---------------- GRAFICAS ----------------
 @app.get("/graficas/top-productos")
