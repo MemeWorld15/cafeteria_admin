@@ -63,7 +63,8 @@ export const marcarOrdenComoEntregada = (id) =>
   fetch(`${BASE_URL}/ordenes/${id}/entregado`, {
     method: 'PUT',
     mode: 'cors'
-  });
+  })
+
 
 // EMPLEADOS
 export const crearEmpleado = (formData) =>
