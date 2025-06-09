@@ -17,6 +17,14 @@
         <!--<span class="menu-name">{{ nombreUsuario }}</span>-->
         <!--<span class="menu-name">Gavano</span>-->
         <i class="fas fa-chevron-down"></i>
+        <div class="dropdown" @click="toggleDropdown">
+          <i class="fas fa-chevron-down"></i>
+          <div v-if="mostrarDropdown" class="dropdown-menu" @click.stop>
+            <p class="usuario-nombre">{{ nombreUsuario }}</p>
+            <hr />
+            <button class="logout-btn" @click="cerrarSesion">Cerrar sesión</button>
+          </div>
+        </div>
       </div>
     </header>
 
@@ -164,6 +172,8 @@ const historialOrdenes = ref([])
 const nombreUsuario = ref(localStorage.getItem("usuario_nombre") || "Invitado")
 const rolUsuario = ref(localStorage.getItem("usuario_rol") || 'Cliente')
 const usuario_id = parseInt(localStorage.getItem("usuario_id") || '0')
+const mostrarDropdown = ref(false)
+
 
 const toggleCategoria = (cat) => {
   categoriaExpandida.value[cat] = !categoriaExpandida.value[cat]
@@ -171,6 +181,15 @@ const toggleCategoria = (cat) => {
 
 const toggleDarkMode = () => {
   document.body.classList.toggle('dark-mode')
+}
+
+const toggleDropdown = () => {
+  mostrarDropdown.value = !mostrarDropdown.value
+}
+
+const cerrarSesion = () => {
+  localStorage.clear()
+  window.location.href = '/'  
 }
 
 const obtenerMenu = async () => {
