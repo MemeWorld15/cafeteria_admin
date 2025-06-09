@@ -235,6 +235,18 @@ const toggleDarkMode = () => {
   document.body.classList.toggle('dark-mode', isDarkMode.value)
   localStorage.setItem('modo_oscuro', isDarkMode.value ? 'true' : 'false')
 }
+//Cerrar sesion
+const mostrarDropdown = ref(false)
+
+const toggleDropdown = () => {
+  mostrarDropdown.value = !mostrarDropdown.value
+}
+
+const cerrarSesion = () => {
+  localStorage.clear()
+  window.location.href = '/' 
+}
+
 
 // ----------- EMPLEADOS -----------
 const nuevoEmpleado = ref({
