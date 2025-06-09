@@ -16,15 +16,15 @@
         <span class="menu-name">{{ nombreUsuario }}</span>
         <!--<span class="menu-name">{{ nombreUsuario }}</span>-->
         <!--<span class="menu-name">Gavano</span>-->
-        <i class="fas fa-chevron-down"></i>
+        <!--<i class="fas fa-chevron-down"></i>-->
         <div class="dropdown" @click="toggleDropdown">
-          <!--<i class="fas fa-chevron-down"></i>-->
+          <i class="fas fa-chevron-down"></i>
           <div v-if="mostrarDropdown" class="dropdown-menu" @click.stop>
             <p class="usuario-nombre">{{ nombreUsuario }}</p>
             <hr />
             <button class="logout-btn" @click="cerrarSesion">Cerrar sesión</button>
           </div>
-          </div>
+        </div>
       </div>
     </header>
 
