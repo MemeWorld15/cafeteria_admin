@@ -14,7 +14,15 @@
         <i class="fas fa-bell"></i>
         <i class="fas fa-user"></i>
         <span class="admin-name">{{ nombreUsuario }}</span>
-        <i class="fas fa-chevron-down"></i>
+        <!--<i class="fas fa-chevron-down"></i>-->
+        <div class="dropdown" @click="toggleDropdown">
+          <i class="fas fa-chevron-down"></i>
+          <div v-if="mostrarDropdown" class="dropdown-menu" @click.stop>
+            <p class="usuario-nombre">{{ nombreUsuario }}</p>
+            <hr />
+            <button class="logout-btn" @click="cerrarSesion">Cerrar sesión</button>
+          </div>
+        </div>
       </div>
     </header>
 
