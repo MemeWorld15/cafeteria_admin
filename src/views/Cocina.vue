@@ -11,12 +11,9 @@
         <i class="fas fa-bell"></i>
         <i class="fas fa-user"></i>
         <div class="cocina-user-info">
-        <span class="cocina-usuario">{{ nombreUsuario }}</span><br />
-        <span class="cocina-rol">{{ rolUsuario }}</span>
-      </div>
-
-
-        <!--<span class="cocina-username">Gavano</span>-->
+          <span class="cocina-usuario">{{ nombreUsuario }}</span><br />
+          <span class="cocina-rol">{{ rolUsuario }}</span>
+        </div>
         <i class="fas fa-chevron-down"></i>
       </div>
     </header>
@@ -38,80 +35,87 @@
         </div>
       </aside>
 
-      <!-- Contenido -->
-       
+      <!-- Órdenes -->
       <main class="cocina-contenido" v-if="vista === 'ordenes'">
         <h2>Órdenes - Café</h2>
-        <div class="scroll-tabla"> <!-- 👈 Añadido -->
+        <div class="scroll-tabla">
+          <table class="tabla-ordenes">
+            <thead>
+              <tr>
+                <th>Cliente</th>
+                <th>Productos</th>
+                <th>Mesa</th>
+                <th>Fecha</th>
+                <th>Hora</th>
+                <th>Status</th>
+                <th>Acción</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr v-for="orden in ordenes" :key="orden.id">
+                <td><strong>{{ orden.cliente }}</strong></td>
+                <td>
+                  <ul>
+                    <li v-for="prod in orden.productos" :key="prod.id">
+                      {{ prod.cantidad }} x {{ prod.nombre_producto }}
+                    </li>
+                  </ul>
+                </td>
+                <td>-</td>
+                <td>{{ orden.fecha }}</td>
+                <td>{{ orden.hora }}</td>
+                <td>
+                  <span :class="['estado', orden.entregado ? 'entregado' : 'no-entregado']">
+                    {{ orden.entregado ? 'Entregado' : 'En espera' }}
+                  </span>
+                </td>
+                <td>
+                  <button
+                    v-if="!orden.entregado"
+                    @click="marcarEntregado(orden.id)"
+                    class="btn-entregar"
+                  >
+                    Marcar como entregado
+                  </button>
+                  <span v-else class="entregado-msg">✅ Entregado</span>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </main>
+
+      <!-- Menú -->
+      <main class="cocina-contenido" v-if="vista === 'menu'">
+        <h2>Menú de Productos</h2>
         <table class="tabla-ordenes">
           <thead>
             <tr>
-              <th>Cliente</th>
-              <th>Productos</th>
-              <th>Mesa</th>
-              <th>Fecha</th>
-              <th>Hora</th>
-              <th>Status</th>
-              <th>Acción</th>
+              <th>Nombre</th>
+              <th>Precio</th>
+              <th>Estado</th>
+              <th>Acciones</th>
             </tr>
           </thead>
           <tbody>
-            <tr v-for="orden in ordenes" :key="orden.id">
-              <td><strong>{{ orden.cliente }}</strong></td>
+            <tr v-for="prod in productos" :key="prod.id">
+              <td>{{ prod.nombre }}</td>
+              <td>${{ prod.precio }}</td>
               <td>
-                <ul>
-                  <li v-for="prod in orden.productos" :key="prod.id">
-                    {{ prod.cantidad }} x {{ prod.nombre_producto }}
-                  </li>
-                </ul>
-              </td>
-              <td>-</td>
-              <td>{{ orden.fecha }}</td>
-              <td>{{ orden.hora }}</td>
-              <td>
-                <span :class="['estado', orden.entregado ? 'entregado' : 'no-entregado']">
-                  {{ orden.entregado ? 'Entregado' : 'En espera' }}
+                <span :class="prod.disponible ? 'activo' : 'inactivo'">
+                  {{ prod.disponible ? 'Disponible' : 'No disponible' }}
                 </span>
               </td>
               <td>
-                <button v-if="!orden.entregado" @click="marcarEntregado(orden.id)">Marcar como entregado</button>
+                <button @click="toggleDisponible(prod.id)">
+                  {{ prod.disponible ? 'Desactivar' : 'Activar' }}
+                </button>
+                <button @click="eliminarProducto(prod.id)">Eliminar</button>
               </td>
             </tr>
           </tbody>
         </table>
-        </div> <!-- 👈 Añadido -->
       </main>
-      <!-- Vista Menú -->
-<main class="cocina-contenido" v-if="vista === 'menu'">
-  <h2>Menú de Productos</h2>
-  <table class="tabla-ordenes">
-    <thead>
-      <tr>
-        <th>Nombre</th>
-        <th>Precio</th>
-        <th>Estado</th>
-        <th>Acciones</th>
-      </tr>
-    </thead>
-    <tbody>
-      <tr v-for="prod in productos" :key="prod.id">
-        <td>{{ prod.nombre }}</td>
-        <td>${{ prod.precio }}</td>
-        <td>
-          <span :class="prod.disponible ? 'activo' : 'inactivo'">
-            {{ prod.disponible ? 'Disponible' : 'No disponible' }}
-          </span>
-        </td>
-        <td>
-          <button @click="toggleDisponible(prod.id)">
-            {{ prod.disponible ? 'Desactivar' : 'Activar' }}
-          </button>
-          <button @click="eliminarProducto(prod.id)">Eliminar</button>
-        </td>
-      </tr>
-    </tbody>
-  </table>
-</main>
     </div>
   </div>
 </template>
@@ -135,12 +139,12 @@ const productos = ref([])
 const nombreUsuario = ref('')
 const rolUsuario = ref('')
 
-// modo oscuro
+// Modo oscuro
 const toggleDarkMode = () => {
   document.body.classList.toggle('dark-mode')
 }
 
-//  Cargar productos
+// Obtener productos
 const obtenerProductos = async () => {
   try {
     productos.value = await fetchProductos()
@@ -149,7 +153,7 @@ const obtenerProductos = async () => {
   }
 }
 
-// Cargar órdenes
+// Obtener órdenes
 const cargarOrdenes = async () => {
   try {
     ordenes.value = await fetchOrdenes()
@@ -158,17 +162,20 @@ const cargarOrdenes = async () => {
   }
 }
 
-//  Marcar orden como entregada
+// Marcar como entregado
 const marcarEntregado = async (id) => {
   try {
-    await marcarOrdenComoEntregada(id)
+    const res = await marcarOrdenComoEntregada(id)
+    if (!res.ok) throw new Error()
     await cargarOrdenes()
+    alert("✅ Orden marcada como entregada.")
   } catch (err) {
     console.error('Error al marcar como entregado:', err)
+    alert("❌ Error al marcar como entregado.")
   }
 }
 
-// Activar/desactivar disponibilidad
+// Cambiar disponibilidad
 const toggleDisponible = async (id) => {
   try {
     await toggleDisponibilidadProducto(id)
@@ -178,7 +185,7 @@ const toggleDisponible = async (id) => {
   }
 }
 
-//  Eliminar producto
+// Eliminar producto
 const eliminarProducto = async (id) => {
   if (!confirm("¿Eliminar este producto?")) return
   try {
@@ -196,3 +203,23 @@ onMounted(() => {
   obtenerProductos()
 })
 </script>
+
+<style scoped>
+.entregado-msg {
+  color: green;
+  font-weight: bold;
+}
+
+.btn-entregar {
+  background-color: #0a9f67;
+  color: white;
+  border: none;
+  padding: 6px 12px;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.btn-entregar:hover {
+  background-color: #098658;
+}
+</style>
