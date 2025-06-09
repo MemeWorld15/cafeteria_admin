@@ -6,7 +6,7 @@
         <img :src="logo" alt="Logo" />
         <span class="cocina-brand">Cafetería</span>
       </div>
-      <div class="cocina-user">
+      <div class="cocina-user" @click="toggleDropdown">
         <i class="fas fa-sun" @click="toggleDarkMode"></i>
         <i class="fas fa-bell"></i>
         <i class="fas fa-user"></i>
