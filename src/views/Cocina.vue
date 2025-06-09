@@ -144,12 +144,20 @@ const ordenes = ref([])
 const productos = ref([])
 const nombreUsuario = ref('')
 const rolUsuario = ref('')
-
+const mostrarDropdown = ref(false)
 // Modo oscuro
 const toggleDarkMode = () => {
   document.body.classList.toggle('dark-mode')
 }
+//Opciones 
+const toggleDropdown = () => {
+  mostrarDropdown.value = !mostrarDropdown.value
+}
 
+const cerrarSesion = () => {
+  localStorage.clear()
+  window.location.href = '/'
+}
 // Obtener productos
 const obtenerProductos = async () => {
   try {
