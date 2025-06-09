@@ -18,7 +18,7 @@
         <!--<span class="menu-name">Gavano</span>-->
         <i class="fas fa-chevron-down"></i>
         <div class="dropdown" @click="toggleDropdown">
-          <i class="fas fa-chevron-down"></i>
+          <!--<i class="fas fa-chevron-down"></i>-->
           <div v-if="mostrarDropdown" class="dropdown-menu" @click.stop>
             <p class="usuario-nombre">{{ nombreUsuario }}</p>
             <hr />
