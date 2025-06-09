@@ -15,6 +15,12 @@
           <span class="cocina-rol">{{ rolUsuario }}</span>
         </div>
         <i class="fas fa-chevron-down"></i>
+         <!-- Dropdown -->
+        <div v-if="mostrarDropdown" class="dropdown-menu" @click.stop>
+          <p class="usuario-nombre">{{ nombreUsuario }}</p>
+          <hr />
+          <button @click="cerrarSesion">Cerrar sesión</button>
+          </div>
       </div>
     </header>
 
