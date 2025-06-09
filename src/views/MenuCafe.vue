@@ -24,7 +24,6 @@
             <hr />
             <button class="logout-btn" @click="cerrarSesion">Cerrar sesión</button>
           </div>
-        </div>
       </div>
     </header>
 
