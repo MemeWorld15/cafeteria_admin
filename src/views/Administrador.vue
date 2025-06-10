@@ -210,7 +210,6 @@ import UsuariosCard from './UsuariosCard.vue'
 import '../EstilosCss/AdminStylo.css'
 import GraficasTop from './GraficasTop.vue'
 import Inventario from './Inventario.vue'
-import { useRouter } from 'vue-router'
 
 import {
   fetchCategorias,
@@ -225,7 +224,6 @@ import {
   crearEmpleado as crearEmpleadoAPI
 } from '../api'
 
-const router = useRouter()
 const isCollapsed = ref(false)
 const vistaActual = ref('menu')
 const cambiarVista = (vista) => { vistaActual.value = vista }
@@ -246,7 +244,7 @@ const toggleDropdown = () => {
 
 const cerrarSesion = () => {
   localStorage.clear()
-  window.location.href = '/'
+  window.location.href = '/' 
 }
 
 
