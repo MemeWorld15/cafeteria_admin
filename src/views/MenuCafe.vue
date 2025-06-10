@@ -291,6 +291,12 @@ const obtenerOrdenes = async () => {
 }
 
 onMounted(() => {
+  const rol = localStorage.getItem('usuario_rol')
+  if (rol !== 'cliente') {
+    router.push('/login')
+    return
+  }
+
   obtenerMenu()
   obtenerOrdenes()
 })
