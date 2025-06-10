@@ -91,13 +91,134 @@ import { ref, onMounted } from 'vue'
 import jsPDF from 'jspdf'
 import autoTable from 'jspdf-autotable'
 
+import {
+  fetchInventario,
+  agregarInsumo,
+  actualizarCantidadInsumo,
+  editarNombreUnidadInsumo,
+  eliminarInsumoPorId,
+  consumirInsumo,
+  descargarInventarioPDF
+} from '../api'
+
 const inventario = ref([])
 const nuevoInsumo = ref({ nombre: '', cantidad: '', unidad: '' })
 const unidadesDisponibles = ['kg', 'g', 'l', 'ml', 'piezas']
 
+// 📦 Obtener inventario
+const obtenerInventario = async () => {
+  try {
+    const data = await fetchInventario()
+    inventario.value = data.map(item => ({
+      ...item,
+      mostrarCampo: false,
+      cantidadConsumir: '',
+      unidadConsumir: '',
+      error: '',
+      editando: false,
+      nombreOriginal: item.nombre,
+      unidadOriginal: item.unidad
+    }))
+  } catch (error) {
+    console.error("Error cargando inventario", error)
+  }
+}
 
+// ➕ Agregar insumo
+const agregarNuevoInsumo = async () => {
+  const form = new FormData()
+  form.append('nombre', nuevoInsumo.value.nombre)
+  form.append('cantidad', nuevoInsumo.value.cantidad)
+  form.append('unidad', nuevoInsumo.value.unidad)
 
+  const res = await agregarInsumo(form)
+  if (res.ok) {
+    nuevoInsumo.value = { nombre: '', cantidad: '', unidad: '' }
+    await obtenerInventario()
+  }
+}
 
+// 🧮 Mostrar campo para consumir
+const mostrarCampoConsumo = (item) => {
+  item.mostrarCampo = true
+  item.cantidadConsumir = ''
+  item.unidadConsumir = ''
+  item.error = ''
+}
+
+// 🔄 Conversión de unidades compatibles
+const convertir = (valor, de, a) => {
+  const conversiones = {
+    kg: { g: v => v * 1000 },
+    g: { kg: v => v / 1000 },
+    l: { ml: v => v * 1000 },
+    ml: { l: v => v / 1000 }
+  }
+  return de === a ? valor : conversiones[de]?.[a]?.(valor)
+}
+
+// 🔥 Consumir insumo
+const consumir = async (item) => {
+  const { cantidadConsumir, unidadConsumir } = item
+  if (!cantidadConsumir || cantidadConsumir <= 0 || !unidadConsumir) {
+    item.error = 'Completa todos los campos.'
+    return
+  }
+
+  const usado = convertir(cantidadConsumir, unidadConsumir, item.unidad)
+  if (usado === undefined) {
+    item.error = 'Unidades incompatibles.'
+    return
+  }
+
+  if (item.cantidad - usado < 0) {
+    item.error = 'Cantidad insuficiente.'
+    return
+  }
+
+  const form = new FormData()
+  form.append('cantidad_usada', usado)
+  form.append('unidad', item.unidad)
+
+  const res = await consumirInsumo(item.id, form)
+  if (res.ok) obtenerInventario()
+}
+
+// 🗑️ Eliminar insumo
+const eliminarInsumo = async (id) => {
+  if (!confirm('¿Eliminar este insumo?')) return
+  await eliminarInsumoPorId(id)
+  obtenerInventario()
+}
+
+// ✏️ Edición
+const iniciarEdicion = (item) => {
+  item.editando = true
+  item.nombreOriginal = item.nombre
+  item.unidadOriginal = item.unidad
+}
+
+const cancelarEdicion = (item) => {
+  item.nombre = item.nombreOriginal
+  item.unidad = item.unidadOriginal
+  item.editando = false
+}
+
+const guardarEdicion = async (item) => {
+  const form = new FormData()
+  form.append('nombre', item.nombre)
+  form.append('unidad', item.unidad)
+
+  const res = await editarNombreUnidadInsumo(item.id, form)
+  if (res.ok) {
+    item.editando = false
+    obtenerInventario()
+  } else {
+    alert('Error al guardar los cambios.')
+  }
+}
+
+// 🖨️ PDF local
 const imprimirPDF = () => {
   const doc = new jsPDF()
   doc.text("Reporte de Inventario - Cafetería", 14, 15)
@@ -116,144 +237,15 @@ const imprimirPDF = () => {
 
   doc.save(`Inventario_${new Date().toLocaleDateString()}.pdf`)
 }
+
+// 🖨️ PDF del backend (opcional)
 const descargarPDF = () => {
-  window.open("http://localhost:8000/inventario/pdf", "_blank")
-}
-
-
-
-// Obtener datos
-const obtenerInventario = async () => {
-  const res = await fetch('http://localhost:8000/inventario')
-  const data = await res.json()
-  inventario.value = data.map(item => ({
-    ...item,
-    mostrarCampo: false,
-    cantidadConsumir: '',
-    unidadConsumir: '',
-    error: '',
-    editando: false,
-    nombreOriginal: item.nombre,
-    unidadOriginal: item.unidad
-  }))
-}
-
-// Agregar nuevo insumo
-const agregarInsumo = async () => {
-  const formData = new FormData()
-  formData.append('nombre', nuevoInsumo.value.nombre)
-  formData.append('cantidad', nuevoInsumo.value.cantidad)
-  formData.append('unidad', nuevoInsumo.value.unidad)
-
-  const res = await fetch('http://localhost:8000/inventario', {
-    method: 'POST',
-    body: formData
-  })
-
-  if (res.ok) {
-    obtenerInventario()
-    nuevoInsumo.value = { nombre: '', cantidad: '', unidad: '' }
-  }
-}
-
-// Mostrar campo de consumo
-const mostrarCampoConsumo = (item) => {
-  item.mostrarCampo = true
-  item.cantidadConsumir = ''
-  item.unidadConsumir = ''
-  item.error = ''
-}
-
-// Conversión entre unidades compatibles
-const convertir = (valor, de, a) => {
-  const conversiones = {
-    kg: { g: v => v * 1000 },
-    g: { kg: v => v / 1000 },
-    l: { ml: v => v * 1000 },
-    ml: { l: v => v / 1000 }
-  }
-  return de === a ? valor : conversiones[de]?.[a]?.(valor)
-}
-
-// Consumir cantidad
-const consumir = async (item) => {
-  const usado = item.cantidadConsumir
-  const unidadUsada = item.unidadConsumir
-  const actual = item.cantidad
-  const unidadActual = item.unidad
-
-  if (!usado || usado <= 0 || !unidadUsada) {
-    item.error = 'Completa los datos correctamente.'
-    return
-  }
-
-  let usadoConvertido = convertir(usado, unidadUsada, unidadActual)
-
-  if (usadoConvertido === undefined) {
-    item.error = 'Unidades incompatibles.'
-    return
-  }
-
-  const restante = actual - usadoConvertido
-
-  if (restante < 0) {
-    item.error = 'No puedes consumir más de lo disponible.'
-    return
-  }
-
-  const formData = new FormData()
-  formData.append('cantidad', restante)
-
-  const res = await fetch(`http://localhost:8000/inventario/${item.id}`, {
-    method: 'PUT',
-    body: formData
-  })
-
-  if (res.ok) {
-    obtenerInventario()
-  }
-}
-
-// Eliminar insumo
-const eliminarInsumo = async (id) => {
-  if (!confirm("¿Eliminar este insumo?")) return
-  await fetch(`http://localhost:8000/inventario/${id}`, { method: 'DELETE' })
-  obtenerInventario()
-}
-
-// Editar nombre/unidad
-const iniciarEdicion = (item) => {
-  item.editando = true
-  item.nombreOriginal = item.nombre
-  item.unidadOriginal = item.unidad
-}
-
-const cancelarEdicion = (item) => {
-  item.nombre = item.nombreOriginal
-  item.unidad = item.unidadOriginal
-  item.editando = false
-}
-
-const guardarEdicion = async (item) => {
-  const formData = new FormData()
-  formData.append('nombre', item.nombre)
-  formData.append('unidad', item.unidad)
-
-  const res = await fetch(`http://localhost:8000/inventario/${item.id}/editar`, {
-    method: 'PUT',
-    body: formData
-  })
-
-  if (res.ok) {
-    item.editando = false
-    obtenerInventario()
-  } else {
-    alert("Error al guardar los cambios.")
-  }
+  descargarInventarioPDF()
 }
 
 onMounted(obtenerInventario)
 </script>
+
 
 <style scoped>
 button {
