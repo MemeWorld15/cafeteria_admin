@@ -1,11 +1,12 @@
 import { createRouter, createWebHistory } from 'vue-router'
+
 import LoginView from '../views/LoginView.vue'
 import RegistroUser from '../views/RegistroUser.vue'
 import Administrador from '../views/Administrador.vue'
 import ClienteCompra from '../views/ClienteCompra.vue'
 import MenuCafe from '../views/MenuCafe.vue'
 import UsuariosCard from '../views/UsuariosCard.vue'
-import Cocina from '../views/Cocina.vue' // 👈 NUEVO
+import Cocina from '../views/Cocina.vue'
 
 const routes = [
   {
@@ -25,33 +26,63 @@ const routes = [
   {
     path: '/administrador',
     name: 'administrador',
-    component: Administrador
+    component: Administrador,
+    meta: { requiresAuth: true, role: 'admin' }
   },
   {
     path: '/cliente',
     name: 'cliente',
-    component: ClienteCompra
+    component: ClienteCompra,
+    meta: { requiresAuth: true, role: 'cliente' }
   },
   {
     path: '/menu',
     name: 'menu',
-    component: MenuCafe
+    component: MenuCafe,
+    meta: { requiresAuth: true, role: 'cliente' }
   },
   {
     path: '/empleados',
     name: 'empleados',
-    component: UsuariosCard
+    component: UsuariosCard,
+    meta: { requiresAuth: true, role: 'admin' }
   },
   {
-    path: '/cocina', // 👈 NUEVA RUTA
+    path: '/cocina',
     name: 'cocina',
-    component: Cocina
+    component: Cocina,
+    meta: { requiresAuth: true, role: 'chef' }
+  },
+  {
+    path: '/:pathMatch(.*)*',
+    redirect: '/login'
   }
 ]
 
 const router = createRouter({
   history: createWebHistory(),
   routes
+})
+
+//  Protección de rutas basada en el rol
+router.beforeEach((to, from, next) => {
+  const userRole = localStorage.getItem('usuario_rol')
+  const requiresAuth = to.meta.requiresAuth
+  const allowedRole = to.meta.role
+
+  if (requiresAuth) {
+    if (!userRole) {
+      // No hay sesión
+      return next('/login')
+    }
+
+    if (userRole !== allowedRole) {
+      alert('⛔ Acceso no autorizado.')
+      return next('/login')
+    }
+  }
+
+  next()
 })
 
 export default router
