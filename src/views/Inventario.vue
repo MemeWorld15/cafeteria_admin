@@ -3,7 +3,7 @@
     <h3>Inventario</h3>
 
     <!-- Formulario para agregar -->
-    <form @submit.prevent="agregarInsumo" class="form-inventario">
+    <form @submit.prevent="agregarNuevoInsumo" class="form-inventario">
       <input v-model="nuevoInsumo.nombre" type="text" placeholder="Nombre del insumo" required />
       <input v-model.number="nuevoInsumo.cantidad" type="number" placeholder="Cantidad" required />
       <select v-model="nuevoInsumo.unidad" required>
