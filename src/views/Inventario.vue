@@ -125,7 +125,7 @@ const obtenerInventario = async () => {
 }
 
 // ➕ Agregar insumo
-const agregarNuevoInsumo = async () => {
+const agregarInsumo = async () => {
   const form = new FormData()
   form.append('nombre', nuevoInsumo.value.nombre)
   form.append('cantidad', nuevoInsumo.value.cantidad)
