@@ -94,4 +94,37 @@ export const cancelarOrdenPorId = (id) =>
     method: 'DELETE',
     mode: 'cors'
   })
+// INVENTARIO
+export const fetchInventario = () =>
+  fetch(`${BASE_URL}/inventario`).then(res => res.json());
+
+export const agregarInsumo = (formData) =>
+  fetch(`${BASE_URL}/inventario`, {
+    method: 'POST',
+    body: formData
+  });
+
+export const actualizarCantidadInsumo = (id, formData) =>
+  fetch(`${BASE_URL}/inventario/${id}`, {
+    method: 'PUT',
+    body: formData
+  });
+
+export const editarNombreUnidadInsumo = (id, formData) =>
+  fetch(`${BASE_URL}/inventario/${id}/editar`, {
+    method: 'PUT',
+    body: formData
+  });
+
+export const eliminarInsumoPorId = (id) =>
+  fetch(`${BASE_URL}/inventario/${id}`, { method: 'DELETE' });
+
+export const consumirInsumo = (id, formData) =>
+  fetch(`${BASE_URL}/inventario/${id}/consumir`, {
+    method: 'POST',
+    body: formData
+  });
+
+export const descargarInventarioPDF = () =>
+  window.open(`${BASE_URL}/inventario/pdf`, "_blank");
 
