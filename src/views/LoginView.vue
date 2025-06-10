@@ -71,16 +71,16 @@ const handleLogin = async () => {
     localStorage.setItem('usuario_rol', data.rol)
     localStorage.setItem('usuario_nombre', data.nombre)
 
-    if (data.rol === 'admin') {
-      localStorage.setItem('usuario_rol', 'administrador') 
-        router.push('/administrador')
+   if (data.rol === 'admin') {
+      router.push('/administrador')
     } else if (data.rol === 'chef') {
-      localStorage.setItem('usuario_rol', 'chef')
-        router.push('/cocina')
+      router.push('/cocina')
     } else {
-      localStorage.setItem('usuario_rol', 'cliente')
-        router.push('/menu')
+      router.push('/menu')
     }
-
+  } catch (err) {
+    error.value = 'Correo o contraseña incorrectos.'
+  }
+}
 </script>
 
