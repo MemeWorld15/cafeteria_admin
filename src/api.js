@@ -101,7 +101,8 @@ export const fetchInventario = () =>
 export const agregarInsumo = (formData) =>
   fetch(`${BASE_URL}/inventario`, {
     method: 'POST',
-    body: formData
+    body: formData,
+    mode: 'cors'
   });
 
 export const actualizarCantidadInsumo = (id, formData) =>
