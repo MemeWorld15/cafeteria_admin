@@ -429,26 +429,25 @@ def producto_menos_pedido():
     return data
 
 # ---------------- INVENTARIO ----------------
-# ✅ GET Inventario
+UNIDADES_VALIDAS = ["kg", "g", "l", "ml", "piezas"]
+
 @app.get("/inventario")
 def listar_inventario():
     db = get_db_connection()
-    cursor = db.cursor(dictionary=True)
-    
+    cursor = db.cursor(cursor_factory=RealDictCursor)
     cursor.execute("SELECT * FROM inventario")
-    datos = cursor.fetchall()
+    items = cursor.fetchall()
     cursor.close()
     db.close()
-    return datos
+    return items
 
-# ✅ POST Inventario
 @app.post("/inventario")
 def agregar_insumo(nombre: str = Form(...), cantidad: float = Form(...), unidad: str = Form(...)):
     if cantidad < 0:
-        raise HTTPException(status_code=400, detail="La cantidad no puede ser negativa.")
+        raise HTTPException(status_code=400, detail="Cantidad inválida")
     if unidad not in UNIDADES_VALIDAS:
-        raise HTTPException(status_code=400, detail="Unidad no permitida.")
-
+        raise HTTPException(status_code=400, detail="Unidad no permitida")
+    
     db = get_db_connection()
     cursor = db.cursor()
     cursor.execute("INSERT INTO inventario (nombre, cantidad, unidad) VALUES (%s, %s, %s)", (nombre, cantidad, unidad))
@@ -457,12 +456,11 @@ def agregar_insumo(nombre: str = Form(...), cantidad: float = Form(...), unidad:
     db.close()
     return {"success": True}
 
-# ✅ PUT Inventario (actualizar cantidad directamente)
 @app.put("/inventario/{id}")
-def actualizar_insumo(id: int, cantidad: float = Form(...)):
+def actualizar_cantidad(id: int, cantidad: float = Form(...)):
     if cantidad < 0:
-        raise HTTPException(status_code=400, detail="La cantidad no puede ser negativa.")
-    
+        raise HTTPException(status_code=400, detail="Cantidad inválida")
+
     db = get_db_connection()
     cursor = db.cursor()
     cursor.execute("UPDATE inventario SET cantidad = %s WHERE id = %s", (cantidad, id))
@@ -471,7 +469,19 @@ def actualizar_insumo(id: int, cantidad: float = Form(...)):
     db.close()
     return {"success": True}
 
-# ✅ DELETE Inventario
+@app.put("/inventario/{id}/editar")
+def editar_nombre_unidad(id: int, nombre: str = Form(...), unidad: str = Form(...)):
+    if unidad not in UNIDADES_VALIDAS:
+        raise HTTPException(status_code=400, detail="Unidad no permitida")
+
+    db = get_db_connection()
+    cursor = db.cursor()
+    cursor.execute("UPDATE inventario SET nombre = %s, unidad = %s WHERE id = %s", (nombre, unidad, id))
+    db.commit()
+    cursor.close()
+    db.close()
+    return {"success": True}
+
 @app.delete("/inventario/{id}")
 def eliminar_insumo(id: int):
     db = get_db_connection()
@@ -482,59 +492,50 @@ def eliminar_insumo(id: int):
     db.close()
     return {"success": True}
 
-# ✅ CONSUMO PARCIAL DE INSUMO
 @app.post("/inventario/{id}/consumir")
 def consumir_insumo(id: int, cantidad_usada: float = Form(...), unidad: str = Form(...)):
     if cantidad_usada <= 0:
-        raise HTTPException(status_code=400, detail="Cantidad usada inválida.")
-    
-    db = get_db_connection()
-    cursor = db.cursor(dictionary=True)
+        raise HTTPException(status_code=400, detail="Cantidad usada inválida")
 
-    # Verifica que existe
+    db = get_db_connection()
+    cursor = db.cursor(cursor_factory=RealDictCursor)
     cursor.execute("SELECT cantidad, unidad FROM inventario WHERE id = %s", (id,))
     insumo = cursor.fetchone()
-    if not insumo:
-        raise HTTPException(status_code=404, detail="Insumo no encontrado.")
 
+    if not insumo:
+        raise HTTPException(status_code=404, detail="Insumo no encontrado")
     if unidad != insumo["unidad"]:
-        raise HTTPException(status_code=400, detail="Unidad no coincide con la registrada.")
+        raise HTTPException(status_code=400, detail="Unidad no coincide")
 
     nueva_cantidad = insumo["cantidad"] - cantidad_usada
     if nueva_cantidad < 0:
-        raise HTTPException(status_code=400, detail="No hay suficiente cantidad disponible.")
+        raise HTTPException(status_code=400, detail="No hay suficiente cantidad")
 
-    # Actualiza
     cursor.execute("UPDATE inventario SET cantidad = %s WHERE id = %s", (nueva_cantidad, id))
     db.commit()
     cursor.close()
     db.close()
-
     return {"success": True, "restante": nueva_cantidad}
 
 @app.get("/inventario/pdf")
 def generar_pdf_inventario():
     db = get_db_connection()
-    cursor = db.cursor(dictionary=True)
+    cursor = db.cursor(cursor_factory=RealDictCursor)
     cursor.execute("SELECT * FROM inventario")
     inventario = cursor.fetchall()
     cursor.close()
     db.close()
 
-    # Crear archivo PDF temporal
+    # Crear PDF
     pdf_path = "inventario.pdf"
     c = canvas.Canvas(pdf_path, pagesize=letter)
     width, height = letter
 
-    # Título
     c.setFont("Helvetica-Bold", 16)
     c.drawString(50, height - 50, "📋 Reporte de Inventario - Cafetería")
-
-    # Fecha
     c.setFont("Helvetica", 10)
     c.drawString(400, height - 50, f"Generado: {datetime.now().strftime('%d/%m/%Y %H:%M')}")
 
-    # Encabezados
     y = height - 80
     c.setFont("Helvetica-Bold", 11)
     c.drawString(50, y, "Nombre")
@@ -549,186 +550,13 @@ def generar_pdf_inventario():
         if y < 60:
             c.showPage()
             y = height - 60
-            c.setFont("Helvetica-Bold", 11)
-            c.drawString(50, y, "Nombre")
-            c.drawString(200, y, "Cantidad")
-            c.drawString(270, y, "Unidad")
-            c.drawString(350, y, "Estado")
-            c.setFont("Helvetica", 10)
-            y -= 20
-
         cantidad = item['cantidad']
-        estado = ""
-
-        if cantidad < 2:
-            estado = "❌ Muy bajo"
-        elif 2 <= cantidad <= 4:
-            estado = "⚠️ Rellenar stock"
-        else:
-            estado = "✅ Bien"
-
-        # Mostrar fila
+        estado = "✅ Bien" if cantidad > 4 else ("⚠️ Rellenar" if cantidad >= 2 else "❌ Bajo")
         c.drawString(50, y, item["nombre"])
         c.drawString(200, y, f"{cantidad:.2f}")
         c.drawString(270, y, item["unidad"])
         c.drawString(350, y, estado)
-
         y -= 20
 
     c.save()
-
-    return FileResponse(pdf_path, media_type='application/pdf', filename="inventario.pdf")
-# ---------------- MAIN ----------------
-if __name__ == "__main__":
-    port = int(os.environ.get("PORT", 8000))
-    uvicorn.run("main:app", host="0.0.0.0", port=port, reload=True)
-
-# ✅ GET Inventario
-@app.get("/inventario")
-def listar_inventario():
-    db = get_db_connection()
-    cursor = db.cursor(dictionary=True)
-    
-    cursor.execute("SELECT * FROM inventario")
-    datos = cursor.fetchall()
-    cursor.close()
-    db.close()
-    return datos
-
-# ✅ POST Inventario
-@app.post("/inventario")
-def agregar_insumo(nombre: str = Form(...), cantidad: float = Form(...), unidad: str = Form(...)):
-    if cantidad < 0:
-        raise HTTPException(status_code=400, detail="La cantidad no puede ser negativa.")
-    if unidad not in UNIDADES_VALIDAS:
-        raise HTTPException(status_code=400, detail="Unidad no permitida.")
-
-    db = get_db_connection()
-    cursor = db.cursor()
-    cursor.execute("INSERT INTO inventario (nombre, cantidad, unidad) VALUES (%s, %s, %s)", (nombre, cantidad, unidad))
-    db.commit()
-    cursor.close()
-    db.close()
-    return {"success": True}
-
-# ✅ PUT Inventario (actualizar cantidad directamente)
-@app.put("/inventario/{id}")
-def actualizar_insumo(id: int, cantidad: float = Form(...)):
-    if cantidad < 0:
-        raise HTTPException(status_code=400, detail="La cantidad no puede ser negativa.")
-    
-    db = get_db_connection()
-    cursor = db.cursor()
-    cursor.execute("UPDATE inventario SET cantidad = %s WHERE id = %s", (cantidad, id))
-    db.commit()
-    cursor.close()
-    db.close()
-    return {"success": True}
-
-# ✅ DELETE Inventario
-@app.delete("/inventario/{id}")
-def eliminar_insumo(id: int):
-    db = get_db_connection()
-    cursor = db.cursor()
-    cursor.execute("DELETE FROM inventario WHERE id = %s", (id,))
-    db.commit()
-    cursor.close()
-    db.close()
-    return {"success": True}
-
-# ✅ CONSUMO PARCIAL DE INSUMO
-@app.post("/inventario/{id}/consumir")
-def consumir_insumo(id: int, cantidad_usada: float = Form(...), unidad: str = Form(...)):
-    if cantidad_usada <= 0:
-        raise HTTPException(status_code=400, detail="Cantidad usada inválida.")
-    
-    db = get_db_connection()
-    cursor = db.cursor(dictionary=True)
-
-    # Verifica que existe
-    cursor.execute("SELECT cantidad, unidad FROM inventario WHERE id = %s", (id,))
-    insumo = cursor.fetchone()
-    if not insumo:
-        raise HTTPException(status_code=404, detail="Insumo no encontrado.")
-
-    if unidad != insumo["unidad"]:
-        raise HTTPException(status_code=400, detail="Unidad no coincide con la registrada.")
-
-    nueva_cantidad = insumo["cantidad"] - cantidad_usada
-    if nueva_cantidad < 0:
-        raise HTTPException(status_code=400, detail="No hay suficiente cantidad disponible.")
-
-    # Actualiza
-    cursor.execute("UPDATE inventario SET cantidad = %s WHERE id = %s", (nueva_cantidad, id))
-    db.commit()
-    cursor.close()
-    db.close()
-
-    return {"success": True, "restante": nueva_cantidad}
-
-@app.get("/inventario/pdf")
-def generar_pdf_inventario():
-    db = get_db_connection()
-    cursor = db.cursor(dictionary=True)
-    cursor.execute("SELECT * FROM inventario")
-    inventario = cursor.fetchall()
-    cursor.close()
-    db.close()
-
-    # Crear archivo PDF temporal
-    pdf_path = "inventario.pdf"
-    c = canvas.Canvas(pdf_path, pagesize=letter)
-    width, height = letter
-
-    # Título
-    c.setFont("Helvetica-Bold", 16)
-    c.drawString(50, height - 50, "📋 Reporte de Inventario - Cafetería")
-
-    # Fecha
-    c.setFont("Helvetica", 10)
-    c.drawString(400, height - 50, f"Generado: {datetime.now().strftime('%d/%m/%Y %H:%M')}")
-
-    # Encabezados
-    y = height - 80
-    c.setFont("Helvetica-Bold", 11)
-    c.drawString(50, y, "Nombre")
-    c.drawString(200, y, "Cantidad")
-    c.drawString(270, y, "Unidad")
-    c.drawString(350, y, "Estado")
-
-    c.setFont("Helvetica", 10)
-    y -= 20
-
-    for item in inventario:
-        if y < 60:
-            c.showPage()
-            y = height - 60
-            c.setFont("Helvetica-Bold", 11)
-            c.drawString(50, y, "Nombre")
-            c.drawString(200, y, "Cantidad")
-            c.drawString(270, y, "Unidad")
-            c.drawString(350, y, "Estado")
-            c.setFont("Helvetica", 10)
-            y -= 20
-
-        cantidad = item['cantidad']
-        estado = ""
-
-        if cantidad < 2:
-            estado = "❌ Muy bajo"
-        elif 2 <= cantidad <= 4:
-            estado = "⚠️ Rellenar stock"
-        else:
-            estado = "✅ Bien"
-
-        # Mostrar fila
-        c.drawString(50, y, item["nombre"])
-        c.drawString(200, y, f"{cantidad:.2f}")
-        c.drawString(270, y, item["unidad"])
-        c.drawString(350, y, estado)
-
-        y -= 20
-
-    c.save()
-
-    return FileResponse(pdf_path, media_type='application/pdf', filename="inventario.pdf")
+    return FileResponse(pdf_path, media_type="application/pdf", filename="inventario.pdf")
