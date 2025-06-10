@@ -416,7 +416,7 @@ const obtenerOrdenes = async () => {
 
 onMounted(() => {
   const rol = localStorage.getItem('usuario_rol')
-  if (rol !== 'administrador') {
+  if (rol !== 'admin') {
     router.push('/login')
     return
   }
