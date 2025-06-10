@@ -211,8 +211,14 @@ const eliminarProducto = async (id) => {
 }
 
 onMounted(() => {
+  const rol = localStorage.getItem('usuario_rol')
+  if (rol !== 'chef') {
+    router.push('/login')
+    return
+  }
+
   nombreUsuario.value = localStorage.getItem('usuario_nombre') || 'Usuario'
-  rolUsuario.value = localStorage.getItem('usuario_rol') || 'Rol'
+  rolUsuario.value = rol
   cargarOrdenes()
   obtenerProductos()
 })
