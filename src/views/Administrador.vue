@@ -244,7 +244,7 @@ const toggleDropdown = () => {
 
 const cerrarSesion = () => {
   localStorage.clear()
-  router.push('/login')
+  window.location.href = '/'
 }
 
 
