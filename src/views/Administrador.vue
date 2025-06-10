@@ -415,10 +415,17 @@ const obtenerOrdenes = async () => {
 }
 
 onMounted(() => {
+  const rol = localStorage.getItem('usuario_rol')
+  if (rol !== 'administrador') {
+    router.push('/login')
+    return
+  }
+
   nombreUsuario.value = localStorage.getItem('usuario_nombre') || 'Usuario'
   obtenerCategorias()
   obtenerProductos()
   obtenerOrdenes()
+
   if (localStorage.getItem('modo_oscuro') === 'true') {
     isDarkMode.value = true
     document.body.classList.add('dark-mode')
