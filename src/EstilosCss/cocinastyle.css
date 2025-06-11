@@ -1,137 +1,169 @@
+/* Global */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+html, body {
+  height: 100%;
+  overflow-y: auto; /* Permitir scroll global */
+  background-color: #f6f6f6; /* Fondo exterior uniforme */
+  font-family: 'Segoe UI', sans-serif;
+}
+
+/* Contenedor principal */
 .cocina-app {
-    display: flex;
-    flex-direction: column;
-    height: 100vh;
-    font-family: 'Segoe UI', sans-serif;
-    background-color: #fff;
-  }
-  
-  .cocina-topbar {
-    height: 60px;
-    background-color: #fff;
-    border-bottom: 1px solid #ddd;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 0 20px;
-  }
-  
-  .cocina-logo {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-  }
-  
-  .cocina-logo img {
-    width: 40px;
-  }
-  
-  .cocina-brand {
-    font-weight: bold;
-    font-size: 18px;
-  }
-  
-  .cocina-user {
-    display: flex;
-    align-items: center;
-    gap: 15px;
-  }
-  
-  .cocina-username {
-    font-weight: 500;
-  }
-  
-  .cocina-main {
-    display: flex;
-    flex: 1;
-  }
-  
-  .cocina-sidebar {
-    width: 220px;
-    border-right: 1px solid #ddd;
-    padding: 1rem 0;
-    display: flex;
-    flex-direction: column;
-  }
-  
-  .cocina-sidebar ul {
-    list-style: none;
-    padding: 0;
-    margin: 0;
-  }
-  
-  .cocina-sidebar li {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    padding: 12px 20px;
-    cursor: pointer;
-    color: #333;
-    transition: background 0.3s;
-  }
-  
-  .cocina-sidebar li:hover,
-  .cocina-sidebar li.active {
-    background-color: #a7e9af;
-    border-left: 4px solid #2e7d32;
-  }
-  
-  .cocina-sidebar span {
-    font-weight: 500;
-  }
-  
-  .cocina-settings {
-    margin-top: auto;
-    padding: 15px 20px;
-    cursor: pointer;
-    color: #333;
-  }
-  
-  .cocina-settings:hover {
-    background-color: #a7e9af;
-  }
-  
-  .cocina-contenido {
-    flex: 1;
-    padding: 2rem;
-  }
-  
-  .tabla-ordenes {
-    width: 100%;
-    border-collapse: collapse;
-    margin-top: 1rem;
-    font-size: 0.95rem;
-  }
-  
-  .tabla-ordenes th,
-  .tabla-ordenes td {
-    border: 1px solid #ddd;
-    padding: 10px;
-    text-align: left;
-  }
-  
-  .tabla-ordenes th {
-    background-color: #f0f0f0;
-    color: #333;
-  }
-  
-  .estado {
-    padding: 4px 10px;
-    border-radius: 6px;
-    font-size: 0.85rem;
-    font-weight: bold;
-  }
-  
-  .entregado {
-    background-color: #b0f2c2;
-    color: #088f35;
-  }
-  
-  .no-entregado {
-    background-color: #e0e0e0;
-    color: #555;
-  }
-  .btn-entregar {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+  background-color: #fff;
+}
+
+/* Topbar */
+.cocina-topbar {
+  height: 60px;
+  background-color: #fff;
+  border-bottom: 1px solid #ddd;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0 20px;
+  position: sticky;
+  top: 0;
+  z-index: 10;
+}
+
+/* Logo */
+.cocina-logo {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.cocina-logo img {
+  width: 40px;
+}
+
+.cocina-brand {
+  font-weight: bold;
+  font-size: 18px;
+}
+
+/* Usuario */
+.cocina-user {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  position: relative;
+  cursor: pointer;
+}
+
+.cocina-user-info {
+  display: flex;
+  flex-direction: column;
+  font-size: 14px;
+}
+
+.cocina-main {
+  display: flex;
+  flex: 1;
+  min-height: 0;
+}
+
+/* Sidebar */
+.cocina-sidebar {
+  width: 220px;
+  border-right: 1px solid #ddd;
+  padding: 1rem 0;
+  display: flex;
+  flex-direction: column;
+  background-color: #fff;
+}
+
+.cocina-sidebar ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.cocina-sidebar li {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 12px 20px;
+  cursor: pointer;
+  color: #333;
+  transition: background 0.3s;
+}
+
+.cocina-sidebar li:hover,
+.cocina-sidebar li.active {
+  background-color: #a7e9af;
+  border-left: 4px solid #2e7d32;
+}
+
+.cocina-sidebar span {
+  font-weight: 500;
+}
+
+.cocina-settings {
+  margin-top: auto;
+  padding: 15px 20px;
+  cursor: pointer;
+  color: #333;
+}
+
+.cocina-settings:hover {
+  background-color: #a7e9af;
+}
+
+/* Contenido */
+.cocina-contenido {
+  flex: 1;
+  padding: 2rem;
+  overflow-x: auto;
+}
+
+/* Tabla de órdenes */
+.tabla-ordenes {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 1rem;
+  font-size: 0.95rem;
+}
+
+.tabla-ordenes th,
+.tabla-ordenes td {
+  border: 1px solid #ddd;
+  padding: 10px;
+  text-align: left;
+}
+
+.tabla-ordenes th {
+  background-color: #f0f0f0;
+  color: #333;
+}
+
+.estado {
+  padding: 4px 10px;
+  border-radius: 6px;
+  font-size: 0.85rem;
+  font-weight: bold;
+}
+
+.entregado {
+  background-color: #b0f2c2;
+  color: #088f35;
+}
+
+.no-entregado {
+  background-color: #e0e0e0;
+  color: #555;
+}
+
+/* Botón entregar */
+.btn-entregar {
   background-color: #2e7d32;
   color: white;
   border: none;
@@ -145,19 +177,23 @@
 .btn-entregar:hover {
   background-color: #256b29;
 }
+
+/* Scroll en tablas */
 .scroll-tabla {
-  max-height: 450px; /* ajusta según tu diseño */
+  max-height: 450px;
   overflow-y: auto;
   border: 1px solid #ccc;
   border-radius: 6px;
 }
+
+/* Dropdown menú */
 .dropdown-menu {
   position: absolute;
   right: 1rem;
-  top: 4rem;
+  top: 3.5rem;
   background: white;
   border: 1px solid #ccc;
-  box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
   padding: 0.75rem;
   border-radius: 5px;
   z-index: 999;
@@ -184,3 +220,54 @@
   background: #f2f2f2;
 }
 
+/* Responsive */
+@media (max-width: 768px) {
+  .cocina-main {
+    flex-direction: column;
+  }
+
+  .cocina-sidebar {
+    width: 100%;
+    flex-direction: row;
+    border-right: none;
+    border-bottom: 1px solid #ddd;
+    justify-content: space-around;
+  }
+
+  .cocina-sidebar ul {
+    display: flex;
+    width: 100%;
+    justify-content: space-around;
+  }
+
+  .cocina-sidebar li {
+    padding: 10px;
+    justify-content: center;
+    font-size: 0.9rem;
+  }
+
+  .cocina-settings {
+    display: none;
+  }
+
+  .cocina-contenido {
+    padding: 1rem;
+  }
+
+  .tabla-ordenes th,
+  .tabla-ordenes td {
+    font-size: 0.85rem;
+    padding: 8px;
+  }
+
+  .scroll-tabla {
+    max-height: unset;
+    overflow: auto;
+  }
+
+  .dropdown-menu {
+    right: 0.5rem;
+    top: 3.5rem;
+    min-width: 140px;
+  }
+}
