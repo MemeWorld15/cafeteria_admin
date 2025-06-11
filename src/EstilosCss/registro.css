@@ -9,6 +9,8 @@ html, body {
   min-height: 100vh;
   overflow-x: hidden;
   overflow-y: auto;
+  background: linear-gradient(to right, #1a3c34, #2d5748); /* ⬅️ Aplica el fondo global */
+  font-family: Arial, sans-serif;
 }
 
 /* Página principal */
