@@ -48,7 +48,7 @@
 import { ref } from 'vue'
 import { useRouter } from 'vue-router'
 import '../EstilosCss/registro.css'
-//import '../EstilosCss/responsive.css'
+import '../EstilosCss/responsive.css'
 import logo from '../assets/images/LogoCafe.png'
 import { registrarUsuario as apiRegistro } from '../api' // importa desde api.js
 
