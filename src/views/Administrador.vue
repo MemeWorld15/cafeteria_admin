@@ -208,7 +208,7 @@ import { ref, onMounted } from 'vue'
 import logo from '../assets/images/LogoCafe.png'
 import UsuariosCard from './UsuariosCard.vue'
 import '../EstilosCss/AdminStylo.css'
-import '../EstilosCss/responsive.css'
+//import '../EstilosCss/responsive.css'
 import GraficasTop from './GraficasTop.vue'
 import Inventario from './Inventario.vue'
 
