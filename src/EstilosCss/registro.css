@@ -5,11 +5,10 @@
   box-sizing: border-box;
 }
 
-/* Contenedor global */
 html, body {
-  height: 100%;
-  font-family: Arial, sans-serif;
-  background: linear-gradient(to right, #1a3c34, #2d5748);
+  min-height: 100vh;
+  overflow-x: hidden;
+  overflow-y: auto;
 }
 
 /* Página principal */
