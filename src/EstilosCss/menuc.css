@@ -1,12 +1,27 @@
-.menu-app {
-  display: flex;
-  flex-direction: column;
-  height: 100vh;
+/* Reset y base */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+html, body {
+  height: 100%;
+  overflow-y: auto;
   font-family: 'Inter', sans-serif;
-  background-color: #f9f9f9;
+  background-color: #f6f6f6;
   color: #333;
 }
 
+/* Estructura principal */
+.menu-app {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+  background-color: #f9f9f9;
+}
+
+/* Topbar */
 .menu-topbar {
   height: 60px;
   background-color: white;
@@ -15,6 +30,9 @@
   justify-content: space-between;
   align-items: center;
   padding: 0 20px;
+  position: sticky;
+  top: 0;
+  z-index: 10;
 }
 
 .menu-topbar-logo {
@@ -38,19 +56,32 @@
   color: #555;
 }
 
+.top-right {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  color: #333;
+}
+
+.menu-name {
+  font-weight: 500;
+}
+
+/* Layout general */
 .menu-main-body {
   display: flex;
   flex: 1;
-  height: calc(100vh - 60px);
+  flex-wrap: wrap;
   padding: 1rem 2rem;
-  overflow: hidden;
+  gap: 1rem;
 }
 
+/* Sidebar */
 .menu-sidebar {
   width: 15%;
+  min-width: 200px;
   padding-right: 1rem;
   overflow-y: auto;
-  max-height: calc(100vh - 80px);
 }
 
 .menu-sidebar h3 {
@@ -61,15 +92,14 @@
 
 .menu-sidebar ul {
   list-style: none;
-  padding-left: 0;
 }
 
 .menu-sidebar li {
   margin-bottom: 0.5rem;
-  color: #666;
-  cursor: pointer;
   padding: 8px 12px;
   border-radius: 6px;
+  cursor: pointer;
+  color: #666;
   transition: all 0.3s;
 }
 
@@ -81,11 +111,13 @@
   font-weight: 600;
 }
 
+/* Menú de productos */
 .menu-content {
-  width: 50%;
+  flex: 1;
   overflow-y: auto;
-  max-height: calc(100vh - 80px);
+  min-width: 300px;
   padding-right: 1rem;
+  max-height: calc(100vh - 100px);
 }
 
 .menu-buscar {
@@ -122,7 +154,6 @@
   border-bottom: 1px solid #ddd;
   padding-bottom: 0.2rem;
   display: flex;
-  align-items: center;
   justify-content: space-between;
 }
 
@@ -138,7 +169,6 @@
 }
 
 .menu-precio {
-  white-space: nowrap;
   display: flex;
   align-items: center;
   gap: 0.5rem;
@@ -159,15 +189,16 @@
   background-color: #256b29;
 }
 
+/* Órdenes */
 .menu-orden {
   width: 30%;
-  margin-left: 1rem;
+  min-width: 250px;
   background-color: #f6f6f6;
   border: 1px solid #ccc;
   padding: 1rem;
   border-radius: 10px;
   overflow-y: auto;
-  max-height: calc(100vh - 80px);
+  max-height: calc(100vh - 100px);
 }
 
 .menu-orden h3 {
@@ -178,10 +209,8 @@
 .menu-resumen p {
   display: flex;
   justify-content: space-between;
-  align-items: center;
   font-size: 0.95rem;
   margin: 0.3rem 0;
-  gap: 0.5rem;
 }
 
 .menu-resumen button {
@@ -222,18 +251,7 @@
   font-weight: bold;
 }
 
-.top-right {
-  display: flex;
-  align-items: center;
-  gap: 15px;
-  color: #333;
-}
-
-.menu-name {
-  font-weight: 500;
-}
-
-/* PESTAÑAS DEL MENÚ */
+/* Pestañas del menú */
 .menu-tabs {
   display: flex;
   justify-content: center;
@@ -248,7 +266,6 @@
   font-size: 1rem;
   font-weight: 500;
   cursor: pointer;
-  transition: all 0.3s ease;
   color: #444;
   border-bottom: 3px solid transparent;
 }
@@ -263,14 +280,14 @@
   background-color: #f1fef1;
 }
 
-/* HISTORIAL DE ÓRDENES */
+/* Historial de órdenes */
 .ordenes-historial {
   width: 100%;
   padding: 2rem;
   background-color: #fff;
   border-radius: 10px;
   overflow-y: auto;
-  height: calc(100vh - 140px); /* Ajusta según la altura de tu topbar + tabs */
+  height: calc(100vh - 140px);
 }
 
 .ordenes-historial h3 {
@@ -281,8 +298,6 @@
 
 .ordenes-lista {
   list-style: none;
-  padding: 0;
-  margin: 0;
 }
 
 .ordenes-lista li {
@@ -294,21 +309,9 @@
   font-size: 0.95rem;
   display: flex;
   justify-content: space-between;
-  align-items: center;
-}
-.cancelar-btn {
-  background-color: #d32f2f;
-  color: white;
-  border: none;
-  padding: 5px 10px;
-  border-radius: 5px;
-  cursor: pointer;
 }
 
-.cancelar-btn:hover {
-  background-color: #b71c1c;
-}
-
+/* Botón cancelar */
 .cancelar-btn {
   background-color: red;
   color: white;
@@ -318,19 +321,28 @@
   cursor: pointer;
 }
 
+.cancelar-btn:hover {
+  background-color: #b71c1c;
+}
+
 .cancelar-btn.desactivado {
   background-color: gray;
   cursor: not-allowed;
   opacity: 0.6;
 }
+
+/* Productos no disponibles */
 .menu-item.no-disponible {
   opacity: 0.5;
   pointer-events: none;
   background-color: #eee;
 }
+
 .menu-item.no-disponible strong {
   color: #999;
 }
+
+/* Dropdown menú */
 .dropdown-menu {
   position: absolute;
   right: 1rem;
@@ -364,3 +376,32 @@
   background: #f2f2f2;
 }
 
+/* Responsive */
+@media (max-width: 1024px) {
+  .menu-main-body {
+    flex-direction: column;
+    padding: 1rem;
+  }
+
+  .menu-sidebar,
+  .menu-content,
+  .menu-orden {
+    width: 100%;
+    max-width: 100%;
+  }
+
+  .menu-sidebar {
+    border-bottom: 1px solid #ddd;
+    padding-bottom: 1rem;
+  }
+
+  .menu-content,
+  .menu-orden {
+    margin-top: 1rem;
+  }
+
+  .ordenes-historial {
+    padding: 1rem;
+    height: auto;
+  }
+}
