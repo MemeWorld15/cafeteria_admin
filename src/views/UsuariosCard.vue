@@ -32,21 +32,33 @@
 </template>
 
 <script setup>
-import { onMounted, ref } from 'vue'
-import { fetchEmpleados } from '../api' // importa desde tu API central
+import { ref, onMounted } from 'vue'
+import { fetchEmpleados, eliminarEmpleadoPorId } from '../api'
 
 const empleados = ref([])
-const defaultAvatar = 'https://i.pravatar.cc/50?img=11' // imagen por defecto
+const defaultAvatar = 'https://i.pravatar.cc/50?img=11'
 
-onMounted(async () => {
+const cargarEmpleados = async () => {
   try {
     empleados.value = await fetchEmpleados()
   } catch (err) {
     console.error('Error al cargar empleados:', err)
   }
-})
-</script>
+}
 
+const eliminarEmpleado = async (id) => {
+  if (!confirm('¿Estás seguro de eliminar este empleado?')) return
+  try {
+    await eliminarEmpleadoPorId(id)
+    await cargarEmpleados()
+  } catch (err) {
+    console.error('Error al eliminar empleado:', err)
+    alert('Hubo un problema al intentar eliminar el empleado.')
+  }
+}
+
+onMounted(cargarEmpleados)
+</script>
 
 <style scoped>
 .usuarios-card {
