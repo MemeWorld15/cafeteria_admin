@@ -73,6 +73,9 @@ export const crearEmpleado = (formData) =>
 export const fetchEmpleados = () =>
   fetch(`${BASE_URL}/empleados`).then(res => res.json())
 
+export const eliminarEmpleadoPorId = (id) =>
+  fetch(`${BASE_URL}/empleados/${id}`, { method: 'DELETE' })
+
 // --------- MENÚ ---------
 export const fetchMenu = () =>
   fetch(`${BASE_URL}/menu`, { method: 'GET', mode: 'cors' }).then(res => res.json())
