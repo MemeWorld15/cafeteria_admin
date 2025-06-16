@@ -174,19 +174,33 @@ def listar_empleados():
     return empleados
 
 @app.delete("/empleados/{empleado_id}")
-def eliminar_empleado(empleado_id: int = Path(...)):
+def eliminar_empleado(empleado_id: int):
     db = get_db_connection()
-    cursor = db.cursor()
+    cursor = db.cursor(cursor_factory=RealDictCursor)
     try:
+        # Obtener correo y ocupación antes de eliminar
+        cursor.execute("SELECT correo, ocupacion FROM empleados WHERE id = %s", (empleado_id,))
+        empleado = cursor.fetchone()
+
+        if not empleado:
+            raise HTTPException(status_code=404, detail="Empleado no encontrado")
+
+        # Eliminar empleado
         cursor.execute("DELETE FROM empleados WHERE id = %s", (empleado_id,))
+
+        # Si era chef, eliminar también de la tabla usuarios
+        if empleado["ocupacion"].lower() == "chef":
+            cursor.execute("DELETE FROM usuarios WHERE correo = %s AND rol = 'chef'", (empleado["correo"],))
+
         db.commit()
-        return {"success": True, "message": "Empleado eliminado correctamente"}
+        return {"success": True, "message": "Empleado y usuario (si era chef) eliminados"}
     except Exception as e:
         db.rollback()
         raise HTTPException(status_code=400, detail=str(e))
     finally:
         cursor.close()
         db.close()
+
 
 # ---------------- CATEGORÍAS ----------------
 @app.get("/categorias")
