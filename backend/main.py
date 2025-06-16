@@ -173,6 +173,21 @@ def listar_empleados():
     db.close()
     return empleados
 
+@app.delete("/empleados/{empleado_id}")
+def eliminar_empleado(empleado_id: int = Path(...)):
+    db = get_db_connection()
+    cursor = db.cursor()
+    try:
+        cursor.execute("DELETE FROM empleados WHERE id = %s", (empleado_id,))
+        db.commit()
+        return {"success": True, "message": "Empleado eliminado correctamente"}
+    except Exception as e:
+        db.rollback()
+        raise HTTPException(status_code=400, detail=str(e))
+    finally:
+        cursor.close()
+        db.close()
+
 # ---------------- CATEGORÍAS ----------------
 @app.get("/categorias")
 def listar_categorias():
