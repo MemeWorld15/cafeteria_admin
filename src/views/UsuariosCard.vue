@@ -1,6 +1,10 @@
 <template>
   <div class="usuarios-card">
     <h3>Empleados Registrados</h3>
+    <!-- Mensaje de éxito o error -->
+    <p v-if="mensaje" :class="['alerta', mensajeColor]">
+      {{ mensaje }}
+    </p>
 
     <table v-if="empleados.length > 0">
       <thead>
@@ -50,12 +54,21 @@ const eliminarEmpleado = async (id) => {
   if (!confirm('¿Estás seguro de eliminar este empleado?')) return
   try {
     await eliminarEmpleadoPorId(id)
+    mensaje.value = 'El empleado ha sido eliminado.'
+    mensajeColor.value = 'green'
     await cargarEmpleados()
   } catch (err) {
     console.error('Error al eliminar empleado:', err)
-    alert('Hubo un problema al intentar eliminar el empleado.')
+    mensaje.value = 'Error al eliminar el empleado.'
+    mensajeColor.value = 'red'
   }
+
+  // Ocultar el mensaje después de unos segundos
+  setTimeout(() => {
+    mensaje.value = ''
+  }, 3000)
 }
+
 
 onMounted(cargarEmpleados)
 </script>
@@ -97,5 +110,24 @@ onMounted(cargarEmpleados)
 .trash-icon {
   color: #e74c3c;
   cursor: pointer;
+}
+/* Estilos para mensajes */
+.alerta {
+  padding: 0.8rem 1rem;
+  border-radius: 6px;
+  margin-bottom: 1rem;
+  font-weight: bold;
+}
+
+.success {
+  background-color: #e9f7ef;
+  color: #27ae60;
+  border: 1px solid #27ae60;
+}
+
+.error {
+  background-color: #fdecea;
+  color: #c0392b;
+  border: 1px solid #c0392b;
 }
 </style>
