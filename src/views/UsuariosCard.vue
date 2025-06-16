@@ -1,10 +1,9 @@
 <template>
   <div class="usuarios-card">
     <h3>Empleados Registrados</h3>
-    <!-- Mensaje de éxito o error -->
-    <p v-if="mensaje" :class="['alerta', mensajeColor]">
-      {{ mensaje }}
-    </p>
+
+    <!-- Mensaje de eliminación -->
+    <p v-if="mensaje" :class="['alerta', mensajeColor]">{{ mensaje }}</p>
 
     <table v-if="empleados.length > 0">
       <thead>
@@ -25,8 +24,9 @@
           <td>{{ emp.ocupacion }}</td>
           <td>{{ emp.correo }}</td>
           <td class="tel-verde">{{ emp.rendimiento }}</td>
-          <!--<td><i class="fas fa-trash-alt trash-icon"></i></td>-->
-          <td><i class="fas fa-trash-alt trash-icon" @click="eliminarEmpleado(emp.id)"></i></td>
+          <td>
+            <i class="fas fa-trash-alt trash-icon" @click="eliminarEmpleado(emp.id)"></i>
+          </td>
         </tr>
       </tbody>
     </table>
@@ -36,41 +36,48 @@
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue'
+import { onMounted, ref } from 'vue'
 import { fetchEmpleados, eliminarEmpleadoPorId } from '../api'
 
 const empleados = ref([])
 const defaultAvatar = 'https://i.pravatar.cc/50?img=11'
 
+// Mensaje de estado
+const mensaje = ref('')
+const mensajeColor = ref('success')
+
+// Cargar empleados desde la API
 const cargarEmpleados = async () => {
   try {
     empleados.value = await fetchEmpleados()
   } catch (err) {
-    console.error('Error al cargar empleados:', err)
+    mensaje.value = 'Error al cargar empleados.'
+    mensajeColor.value = 'error'
   }
 }
 
+// Eliminar empleado
 const eliminarEmpleado = async (id) => {
   if (!confirm('¿Estás seguro de eliminar este empleado?')) return
+
   try {
-    await eliminarEmpleadoPorId(id)
+    const res = await eliminarEmpleadoPorId(id)
+    if (!res.ok) throw new Error()
+
     mensaje.value = 'El empleado ha sido eliminado.'
-    mensajeColor.value = 'green'
-    await cargarEmpleados()
-  } catch (err) {
-    console.error('Error al eliminar empleado:', err)
-    mensaje.value = 'Error al eliminar el empleado.'
-    mensajeColor.value = 'red'
+    mensajeColor.value = 'success'
+    await cargarEmpleados() // actualizar la lista
+  } catch {
+    mensaje.value = 'Error al eliminar empleado.'
+    mensajeColor.value = 'error'
   }
 
-  // Ocultar el mensaje después de unos segundos
-  setTimeout(() => {
-    mensaje.value = ''
-  }, 3000)
+  setTimeout(() => (mensaje.value = ''), 3000)
 }
 
-
-onMounted(cargarEmpleados)
+onMounted(() => {
+  cargarEmpleados()
+})
 </script>
 
 <style scoped>
@@ -111,23 +118,19 @@ onMounted(cargarEmpleados)
   color: #e74c3c;
   cursor: pointer;
 }
-/* Estilos para mensajes */
+
+/* Mensajes */
 .alerta {
-  padding: 0.8rem 1rem;
-  border-radius: 6px;
-  margin-bottom: 1rem;
-  font-weight: bold;
+  margin-top: 0.5rem;
+  padding: 0.5rem;
+  border-radius: 4px;
 }
-
 .success {
-  background-color: #e9f7ef;
-  color: #27ae60;
-  border: 1px solid #27ae60;
+  background-color: #e0f9e5;
+  color: #2e7d32;
 }
-
 .error {
   background-color: #fdecea;
-  color: #c0392b;
-  border: 1px solid #c0392b;
+  color: #c62828;
 }
 </style>
