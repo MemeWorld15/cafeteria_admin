@@ -21,7 +21,8 @@
           <td>{{ emp.ocupacion }}</td>
           <td>{{ emp.correo }}</td>
           <td class="tel-verde">{{ emp.rendimiento }}</td>
-          <td><i class="fas fa-trash-alt trash-icon"></i></td>
+          <!--<td><i class="fas fa-trash-alt trash-icon"></i></td>-->
+          <td><i class="fas fa-trash-alt trash-icon" @click="eliminarEmpleado(emp.id)"></i></td>
         </tr>
       </tbody>
     </table>
