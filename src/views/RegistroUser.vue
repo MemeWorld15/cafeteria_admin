@@ -26,9 +26,39 @@
             <option>Administración</option>
           </select>
 
-          <!-- 🔧 CAMBIO aquí: contraseña -> contrasena -->
-          <input v-model="contrasena" type="password" placeholder="Contraseña" class="input-field" required />
-          <input v-model="confirmar" type="password" placeholder="Confirmar Contraseña" class="input-field" required />
+          <!-- Campo de contraseña con ojito -->
+          <div class="password-wrapper" style="position: relative;">
+            <input
+              :type="mostrarContrasena ? 'text' : 'password'"
+              v-model="contrasena"
+              placeholder="Contraseña"
+              class="input-field"
+              required
+            />
+            <i
+              class="fas"
+              :class="mostrarContrasena ? 'fa-eye-slash' : 'fa-eye'"
+              @click="mostrarContrasena = !mostrarContrasena"
+              style="position: absolute; right: 10px; top: 12px; cursor: pointer;"
+            ></i>
+          </div>
+
+          <!-- Campo de confirmar contraseña con ojito -->
+          <div class="password-wrapper" style="position: relative;">
+            <input
+              :type="mostrarConfirmar ? 'text' : 'password'"
+              v-model="confirmar"
+              placeholder="Confirmar Contraseña"
+              class="input-field"
+              required
+            />
+            <i
+              class="fas"
+              :class="mostrarConfirmar ? 'fa-eye-slash' : 'fa-eye'"
+              @click="mostrarConfirmar = !mostrarConfirmar"
+              style="position: absolute; right: 10px; top: 12px; cursor: pointer;"
+            ></i>
+          </div>
 
           <button type="submit" class="register-button">REGISTRARSE</button>
         </form>
@@ -48,9 +78,8 @@
 import { ref } from 'vue'
 import { useRouter } from 'vue-router'
 import '../EstilosCss/registro.css'
-//import '../EstilosCss/responsive.css'
 import logo from '../assets/images/LogoCafe.png'
-import { registrarUsuario as apiRegistro } from '../api' // importa desde api.js
+import { registrarUsuario as apiRegistro } from '../api'
 
 const router = useRouter()
 
@@ -62,6 +91,10 @@ const contrasena = ref('')
 const confirmar = ref('')
 const mensaje = ref('')
 const mensajeColor = ref('green')
+
+// Estado para mostrar/ocultar contraseña
+const mostrarContrasena = ref(false)
+const mostrarConfirmar = ref(false)
 
 function validarCorreo(correo) {
   return correo.endsWith('@gmail.com') || correo.endsWith('@unach.mx')
@@ -96,7 +129,7 @@ async function registrarUsuario() {
     formData.append('carrera', carrera.value)
     formData.append('contrasena', contrasena.value)
 
-    const res = await apiRegistro(formData) // aqui  se llama la función centralizada
+    const res = await apiRegistro(formData)
 
     if (!res.ok) {
       const data = await res.json()
