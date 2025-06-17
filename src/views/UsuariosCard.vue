@@ -12,6 +12,7 @@
           <th>Ocupación</th>
           <th>Correo</th>
           <th>Rendimiento</th>
+          <th>Contraseña</th>
           <th></th>
         </tr>
       </thead>
@@ -24,6 +25,17 @@
           <td>{{ emp.ocupacion }}</td>
           <td>{{ emp.correo }}</td>
           <td class="tel-verde">{{ emp.rendimiento }}</td>
+          <td>
+            <span>
+              {{ mostrarContrasenas[emp.id] ? emp.contrasena : '••••••' }}
+            </span>
+            <i
+              class="fas"
+              :class="mostrarContrasenas[emp.id] ? 'fa-eye-slash' : 'fa-eye'"
+              @click="toggleContrasena(emp.id)"
+              style="margin-left: 0.5rem; cursor: pointer;"
+            ></i>
+          </td>
           <td>
             <i class="fas fa-trash-alt trash-icon" @click="eliminarEmpleado(emp.id)"></i>
           </td>
@@ -42,11 +54,17 @@ import { fetchEmpleados, eliminarEmpleadoPorId } from '../api'
 const empleados = ref([])
 const defaultAvatar = 'https://i.pravatar.cc/50?img=11'
 
-// Mensaje de estado
 const mensaje = ref('')
 const mensajeColor = ref('success')
 
-// Cargar empleados desde la API
+// Mostrar/ocultar contraseña por empleado
+const mostrarContrasenas = ref({})
+
+const toggleContrasena = (id) => {
+  mostrarContrasenas.value[id] = !mostrarContrasenas.value[id]
+}
+
+// Cargar empleados desde API
 const cargarEmpleados = async () => {
   try {
     empleados.value = await fetchEmpleados()
@@ -66,7 +84,7 @@ const eliminarEmpleado = async (id) => {
 
     mensaje.value = 'El empleado ha sido eliminado.'
     mensajeColor.value = 'success'
-    await cargarEmpleados() // actualizar la lista
+    await cargarEmpleados()
   } catch {
     mensaje.value = 'Error al eliminar empleado.'
     mensajeColor.value = 'error'
@@ -125,10 +143,12 @@ onMounted(() => {
   padding: 0.5rem;
   border-radius: 4px;
 }
+
 .success {
   background-color: #e0f9e5;
   color: #2e7d32;
 }
+
 .error {
   background-color: #fdecea;
   color: #c62828;
