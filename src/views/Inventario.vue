@@ -117,6 +117,7 @@ import {
   editarNombreUnidadInsumo,
   eliminarInsumoPorId,
   consumirInsumo,
+  reabastecerInsumo,
   descargarInventarioPDF
 } from '../api'
 
@@ -239,8 +240,9 @@ const reabastecer = async (item) => {
   const form = new FormData()
   form.append('cantidad_agregada', aumento)
   form.append('unidad', item.unidad)
-
-  const res = await actualizarCantidadInsumo(item.id, form)
+  
+  //const res = await actualizarCantidadInsumo(item.id, form)
+  const res = await reabastecerInsumo(item.id, form)
   if (res.ok) {
     await obtenerInventario()
     item.mostrarCampoReabastecer = false
