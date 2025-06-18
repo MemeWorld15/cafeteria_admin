@@ -2,6 +2,16 @@
   <div class="admin-inventario">
     <h3>Inventario</h3>
 
+    <!-- Alerta de stock bajo -->
+    <div v-if="alertasStock.length" class="alerta-inventario">
+      <strong>⚠️ Atención:</strong> Hay {{ alertasStock.length }} insumo(s) con stock bajo.
+      <ul>
+        <li v-for="item in alertasStock" :key="item.id">
+          {{ item.nombre }} ({{ item.cantidad.toFixed(2) }} {{ item.unidad }})
+        </li>
+      </ul>
+    </div>
+
     <!-- Formulario para agregar -->
     <form @submit.prevent="agregarNuevoInsumo" class="form-inventario">
       <input v-model="nuevoInsumo.nombre" type="text" placeholder="Nombre del insumo" required />
@@ -12,7 +22,6 @@
       </select>
       <button type="submit">Agregar</button>
       <button class="secondary" @click="imprimirPDF" style="margin-top: 1rem;">🖨️ Imprimir Inventario</button>
-
     </form>
 
     <!-- Tabla -->
@@ -37,14 +46,10 @@
           </td>
 
           <td>
-  {{ item.cantidad.toFixed(2) }}
-  <span v-if="item.cantidad <= 4 && item.cantidad >= 2" style="color: #d35400; font-weight: bold;">
-    ⚠️ Rellenar stock
-  </span>
-  <span v-else-if="item.cantidad < 2" style="color: red; font-weight: bold;">
-    ❌ Muy bajo
-  </span>
-</td>
+            {{ item.cantidad.toFixed(2) }}
+            <span v-if="item.cantidad <= 4 && item.cantidad >= 2" style="color: #d35400; font-weight: bold;">⚠️ Rellenar stock</span>
+            <span v-else-if="item.cantidad < 2" style="color: red; font-weight: bold;">❌ Muy bajo</span>
+          </td>
 
           <td>
             <template v-if="item.editando">
@@ -65,10 +70,12 @@
             </template>
             <template v-else>
               <button @click="mostrarCampoConsumo(item)">Consumir</button>
+              <button @click="mostrarCampoReabastecer(item)">➕ Reabastecer</button>
               <button @click="iniciarEdicion(item)">✏️</button>
               <button @click="eliminarInsumo(item.id)">🗑️</button>
             </template>
 
+            <!-- Consumir -->
             <div v-if="item.mostrarCampo">
               <input type="number" v-model.number="item.cantidadConsumir" placeholder="Cantidad" style="width: 70px" />
               <select v-model="item.unidadConsumir">
@@ -79,6 +86,18 @@
               <button @click="item.mostrarCampo = false">Cancelar</button>
               <div v-if="item.error" style="color: red;">{{ item.error }}</div>
             </div>
+
+            <!-- Reabastecer -->
+            <div v-if="item.mostrarCampoReabastecer">
+              <input type="number" v-model.number="item.cantidadReabastecer" placeholder="Cantidad" style="width: 70px" />
+              <select v-model="item.unidadReabastecer">
+                <option disabled value="">Unidad</option>
+                <option v-for="u in unidadesDisponibles" :key="u">{{ u }}</option>
+              </select>
+              <button @click="reabastecer(item)">OK</button>
+              <button @click="item.mostrarCampoReabastecer = false">Cancelar</button>
+              <div v-if="item.errorReabastecer" style="color: red;">{{ item.errorReabastecer }}</div>
+            </div>
           </td>
         </tr>
       </tbody>
@@ -87,7 +106,7 @@
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue'
+import { ref, onMounted, watch } from 'vue'
 import jsPDF from 'jspdf'
 import autoTable from 'jspdf-autotable'
 
@@ -104,6 +123,7 @@ import {
 const inventario = ref([])
 const nuevoInsumo = ref({ nombre: '', cantidad: '', unidad: '' })
 const unidadesDisponibles = ['kg', 'g', 'l', 'ml', 'piezas']
+const alertasStock = ref([])
 
 // 📦 Obtener inventario
 const obtenerInventario = async () => {
@@ -112,16 +132,26 @@ const obtenerInventario = async () => {
     inventario.value = data.map(item => ({
       ...item,
       mostrarCampo: false,
+      mostrarCampoReabastecer: false,
       cantidadConsumir: '',
       unidadConsumir: '',
+      cantidadReabastecer: '',
+      unidadReabastecer: '',
       error: '',
+      errorReabastecer: '',
       editando: false,
       nombreOriginal: item.nombre,
       unidadOriginal: item.unidad
     }))
+    verificarStockBajo()
   } catch (error) {
     console.error("Error cargando inventario", error)
   }
+}
+
+// 🔔 Verificar stock bajo
+const verificarStockBajo = () => {
+  alertasStock.value = inventario.value.filter(item => item.cantidad < 4)
 }
 
 // ➕ Agregar insumo
@@ -146,7 +176,15 @@ const mostrarCampoConsumo = (item) => {
   item.error = ''
 }
 
-// 🔄 Conversión de unidades compatibles
+// ➕ Mostrar campo para reabastecer
+const mostrarCampoReabastecer = (item) => {
+  item.mostrarCampoReabastecer = true
+  item.cantidadReabastecer = ''
+  item.unidadReabastecer = ''
+  item.errorReabastecer = ''
+}
+
+// 🔄 Conversión de unidades
 const convertir = (valor, de, a) => {
   const conversiones = {
     kg: { g: v => v * 1000 },
@@ -184,6 +222,33 @@ const consumir = async (item) => {
   if (res.ok) obtenerInventario()
 }
 
+// 🔄 Reabastecer insumo
+const reabastecer = async (item) => {
+  const { cantidadReabastecer, unidadReabastecer } = item
+  if (!cantidadReabastecer || cantidadReabastecer <= 0 || !unidadReabastecer) {
+    item.errorReabastecer = 'Completa todos los campos.'
+    return
+  }
+
+  const aumento = convertir(cantidadReabastecer, unidadReabastecer, item.unidad)
+  if (aumento === undefined) {
+    item.errorReabastecer = 'Unidades incompatibles.'
+    return
+  }
+
+  const form = new FormData()
+  form.append('cantidad_agregada', aumento)
+  form.append('unidad', item.unidad)
+
+  const res = await actualizarCantidadInsumo(item.id, form)
+  if (res.ok) {
+    await obtenerInventario()
+    item.mostrarCampoReabastecer = false
+  } else {
+    item.errorReabastecer = 'Error al actualizar.'
+  }
+}
+
 // 🗑️ Eliminar insumo
 const eliminarInsumo = async (id) => {
   if (!confirm('¿Eliminar este insumo?')) return
@@ -218,7 +283,7 @@ const guardarEdicion = async (item) => {
   }
 }
 
-// 🖨️ PDF local
+// 🖨️ PDF
 const imprimirPDF = () => {
   const doc = new jsPDF()
   doc.text("Reporte de Inventario - Cafetería", 14, 15)
@@ -236,11 +301,6 @@ const imprimirPDF = () => {
   })
 
   doc.save(`Inventario_${new Date().toLocaleDateString()}.pdf`)
-}
-
-// 🖨️ PDF del backend (opcional)
-const descargarPDF = () => {
-  descargarInventarioPDF()
 }
 
 onMounted(obtenerInventario)
@@ -314,5 +374,18 @@ button.secondary:hover {
 .btn-pdf:hover {
   background-color: #45a049;
 }
+.alerta-inventario {
+  background-color: #fff3cd;
+  color: #856404;
+  border: 1px solid #ffeeba;
+  padding: 1rem;
+  margin: 1rem 0;
+  border-radius: 4px;
+}
+.alerta-inventario ul {
+  margin-top: 0.5rem;
+  padding-left: 1.2rem;
+}
+
 
 </style>
