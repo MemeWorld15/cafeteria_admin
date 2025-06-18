@@ -129,12 +129,13 @@ export const consumirInsumo = (id, formData) =>
     body: formData
   });
 
-export const actualizarCantidadInsumo = async (id, formData) => {
-  return await fetch(`/inventario/${id}/reabastecer`, {
+//  NUEVA función para reabastecer insumo
+export const reabastecerInsumo = (id, formData) =>
+  fetch(`${BASE_URL}/inventario/${id}/reabastecer`, {
     method: 'POST',
     body: formData
-  })
-}
+  });
+
 
 
 export const descargarInventarioPDF = () =>
