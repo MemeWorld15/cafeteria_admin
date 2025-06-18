@@ -545,6 +545,30 @@ def consumir_insumo(id: int, cantidad_usada: float = Form(...), unidad: str = Fo
     cursor.close()
     db.close()
     return {"success": True, "restante": nueva_cantidad}
+    
+@app.post("/inventario/{id}/reabastecer")
+def reabastecer_insumo(id: int, cantidad_agregada: float = Form(...), unidad: str = Form(...)):
+    if cantidad_agregada <= 0:
+        raise HTTPException(status_code=400, detail="Cantidad agregada inválida")
+
+    db = get_db_connection()
+    cursor = db.cursor(cursor_factory=RealDictCursor)
+    cursor.execute("SELECT cantidad, unidad FROM inventario WHERE id = %s", (id,))
+    insumo = cursor.fetchone()
+
+    if not insumo:
+        raise HTTPException(status_code=404, detail="Insumo no encontrado")
+    if unidad != insumo["unidad"]:
+        raise HTTPException(status_code=400, detail="Unidad no coincide")
+
+    nueva_cantidad = insumo["cantidad"] + cantidad_agregada
+    cursor.execute("UPDATE inventario SET cantidad = %s WHERE id = %s", (nueva_cantidad, id))
+    db.commit()
+    cursor.close()
+    db.close()
+
+    return {"success": True, "nueva_cantidad": nueva_cantidad}
+
 
 @app.get("/inventario/pdf")
 def generar_pdf_inventario():
