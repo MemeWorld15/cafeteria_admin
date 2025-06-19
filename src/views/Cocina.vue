@@ -15,6 +15,7 @@
           <span class="cocina-rol">{{ rolUsuario }}</span>
         </div>
         <i class="fas fa-chevron-down"></i>
+        <!-- Dropdown -->
         <div v-if="mostrarDropdown" class="dropdown-menu" @click.stop>
           <p class="usuario-nombre">{{ nombreUsuario }}</p>
           <hr />
@@ -94,30 +95,26 @@
       <main class="cocina-contenido" v-if="vista === 'menu'">
         <h2>Menú de Productos</h2>
 
-        <!-- Botón para mostrar formulario -->
-        <button @click="mostrarFormularioNuevo = !mostrarFormularioNuevo" class="btn-agregar">
-          {{ mostrarFormularioNuevo ? 'Cancelar' : '➕ Agregar nuevo producto' }}
-        </button>
-
         <!-- Formulario para agregar producto -->
-        <div v-if="mostrarFormularioNuevo" class="formulario-nuevo">
-          <input v-model="nuevoProducto.nombre" placeholder="Nombre del producto" />
-          <input v-model="nuevoProducto.precio" type="number" step="0.01" placeholder="Precio" />
-          <select v-model="nuevoProducto.categoria_id">
-            <option disabled value="">Seleccione una categoría</option>
-            <option v-for="cat in categorias" :key="cat.id" :value="cat.id">
-              {{ cat.nombre }}
-            </option>
+        <h3>Agregar Platillo</h3>
+        <form @submit.prevent="crearProductoNuevo" class="form-platillo">
+          <input v-model="nuevoProducto.nombre" type="text" placeholder="Nombre del platillo" required />
+          <textarea v-model="nuevoProducto.descripcion" placeholder="Descripción del platillo" required></textarea>
+          <input v-model="nuevoProducto.precio" type="number" min="0.01" step="0.01" placeholder="Precio" required />
+          <select v-model="nuevoProducto.categoria_id" required>
+            <option disabled value="">Seleccionar categoría</option>
+            <option v-for="cat in categorias" :key="cat.id" :value="cat.id">{{ cat.nombre }}</option>
           </select>
-          <button @click="agregarProducto">Guardar producto</button>
-        </div>
+          <button type="submit">Agregar</button>
+        </form>
+        <p v-if="mensaje" :style="{ color: mensajeColor }">{{ mensaje }}</p>
 
+        <!-- Lista de productos -->
         <table class="tabla-ordenes">
           <thead>
             <tr>
               <th>Nombre</th>
               <th>Precio</th>
-              <th>Categoría</th>
               <th>Estado</th>
               <th>Acciones</th>
             </tr>
@@ -127,18 +124,13 @@
               <td>{{ prod.nombre }}</td>
               <td>${{ prod.precio }}</td>
               <td>
-                {{
-                  categorias.find(cat => cat.id === prod.categoria_id)?.nombre || 'Sin categoría'
-                }}
-              </td>
-              <td>
                 <span :class="prod.disponible ? 'activo' : 'inactivo'">
-                  {{ prod.disponible ? 'Disponible' : 'No disponible' }}
+                  {{ prod.disponible ? 'Disponible' : 'Agotado' }}
                 </span>
               </td>
               <td>
                 <button @click="toggleDisponible(prod.id)">
-                  {{ prod.disponible ? 'Desactivar' : 'Activar' }}
+                  {{ prod.disponible ? 'Marcar como Agotado' : 'Marcar como Disponible' }}
                 </button>
                 <button @click="eliminarProducto(prod.id)">Eliminar</button>
               </td>
@@ -154,37 +146,39 @@
 import { ref, onMounted } from 'vue'
 import logo from '../assets/images/LogoCafe.png'
 import '../EstilosCss/cocinastyle.css'
+
 import {
   fetchOrdenes,
   fetchProductos,
+  fetchCategorias,
   toggleDisponibilidadProducto,
   eliminarProductoPorId,
   marcarOrdenComoEntregada,
-  crearProducto,
-  fetchCategorias
+  crearProducto
 } from '../api'
 
+// Estados
 const vista = ref('ordenes')
 const ordenes = ref([])
 const productos = ref([])
 const categorias = ref([])
+const nuevoProducto = ref({
+  nombre: '',
+  descripcion: '',
+  precio: '',
+  categoria_id: ''
+})
 const nombreUsuario = ref('')
 const rolUsuario = ref('')
 const mostrarDropdown = ref(false)
+const mensaje = ref('')
+const mensajeColor = ref('green')
 
-const mostrarFormularioNuevo = ref(false)
-const nuevoProducto = ref({
-  nombre: '',
-  precio: 0,
-  categoria_id: ''
-})
-
-// Modo oscuro
+// Funciones
 const toggleDarkMode = () => {
   document.body.classList.toggle('dark-mode')
 }
 
-// Opciones 
 const toggleDropdown = () => {
   mostrarDropdown.value = !mostrarDropdown.value
 }
@@ -194,16 +188,6 @@ const cerrarSesion = () => {
   window.location.href = '/'
 }
 
-// Obtener productos
-const obtenerProductos = async () => {
-  try {
-    productos.value = await fetchProductos()
-  } catch (err) {
-    console.error('Error al obtener productos:', err)
-  }
-}
-
-// Obtener órdenes
 const cargarOrdenes = async () => {
   try {
     ordenes.value = await fetchOrdenes()
@@ -212,7 +196,14 @@ const cargarOrdenes = async () => {
   }
 }
 
-// Obtener categorías
+const obtenerProductos = async () => {
+  try {
+    productos.value = await fetchProductos()
+  } catch (err) {
+    console.error('Error al obtener productos:', err)
+  }
+}
+
 const obtenerCategorias = async () => {
   try {
     categorias.value = await fetchCategorias()
@@ -221,7 +212,6 @@ const obtenerCategorias = async () => {
   }
 }
 
-// Marcar como entregado
 const marcarEntregado = async (id) => {
   try {
     const res = await marcarOrdenComoEntregada(id)
@@ -234,7 +224,6 @@ const marcarEntregado = async (id) => {
   }
 }
 
-// Cambiar disponibilidad
 const toggleDisponible = async (id) => {
   try {
     await toggleDisponibilidadProducto(id)
@@ -244,7 +233,6 @@ const toggleDisponible = async (id) => {
   }
 }
 
-// Eliminar producto
 const eliminarProducto = async (id) => {
   if (!confirm("¿Eliminar este producto?")) return
   try {
@@ -255,35 +243,35 @@ const eliminarProducto = async (id) => {
   }
 }
 
-// Agregar nuevo producto
-const agregarProducto = async () => {
-  if (!nuevoProducto.value.nombre || nuevoProducto.value.precio <= 0 || !nuevoProducto.value.categoria_id) {
-    alert("❌ Todos los campos son obligatorios")
-    return
-  }
-
-  const formData = new FormData()
-  formData.append('nombre', nuevoProducto.value.nombre)
-  formData.append('precio', nuevoProducto.value.precio)
-  formData.append('disponible', true)
-  formData.append('categoria_id', nuevoProducto.value.categoria_id)
-
+const crearProductoNuevo = async () => {
+  mensaje.value = ''
   try {
+    const precio = parseFloat(nuevoProducto.value.precio)
+    if (isNaN(precio) || precio <= 0) {
+      mensaje.value = 'El precio debe ser mayor a cero.'
+      mensajeColor.value = 'red'
+      return
+    }
+
+    const formData = new FormData()
+    Object.entries(nuevoProducto.value).forEach(([key, val]) => formData.append(key, val))
+
     await crearProducto(formData)
+    mensaje.value = '✅ Producto agregado correctamente.'
+    mensajeColor.value = 'green'
+    nuevoProducto.value = { nombre: '', descripcion: '', precio: '', categoria_id: '' }
     await obtenerProductos()
-    mostrarFormularioNuevo.value = false
-    nuevoProducto.value = { nombre: '', precio: 0, categoria_id: '' }
-    alert("✅ Producto agregado correctamente")
   } catch (err) {
-    console.error('Error al agregar producto:', err)
-    alert("❌ Error al agregar producto")
+    console.error('Error al crear producto:', err)
+    mensaje.value = '❌ Error al agregar producto.'
+    mensajeColor.value = 'red'
   }
 }
 
 onMounted(() => {
   const rol = localStorage.getItem('usuario_rol')
   if (rol !== 'chef') {
-    router.push('/login')
+    window.location.href = '/login'
     return
   }
 
@@ -314,36 +302,27 @@ onMounted(() => {
   background-color: #098658;
 }
 
-.formulario-nuevo {
-  margin: 1rem 0;
+.form-platillo {
+  margin-bottom: 2rem;
   display: flex;
   flex-direction: column;
   gap: 10px;
+  max-width: 500px;
 }
 
-.formulario-nuevo input,
-.formulario-nuevo select {
-  padding: 6px;
-  border: 1px solid #ccc;
-  border-radius: 4px;
+.form-platillo input,
+.form-platillo textarea,
+.form-platillo select {
+  padding: 8px;
+  font-size: 1rem;
 }
 
-.formulario-nuevo button {
+.form-platillo button {
   background-color: #0a9f67;
   color: white;
+  padding: 8px;
   border: none;
-  padding: 6px 12px;
-  border-radius: 4px;
   cursor: pointer;
-}
-
-.btn-agregar {
-  margin-bottom: 1rem;
-  padding: 8px 14px;
-  background-color: #007bff;
-  color: white;
-  border: none;
   border-radius: 4px;
-  cursor: pointer;
 }
 </style>
