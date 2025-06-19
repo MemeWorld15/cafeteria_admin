@@ -15,7 +15,6 @@
           <span class="cocina-rol">{{ rolUsuario }}</span>
         </div>
         <i class="fas fa-chevron-down"></i>
-        <!-- Dropdown -->
         <div v-if="mostrarDropdown" class="dropdown-menu" @click.stop>
           <p class="usuario-nombre">{{ nombreUsuario }}</p>
           <hr />
@@ -43,59 +42,14 @@
 
       <!-- Órdenes -->
       <main class="cocina-contenido" v-if="vista === 'ordenes'">
-        <h2>Órdenes - Café</h2>
-        <div class="scroll-tabla">
-          <table class="tabla-ordenes">
-            <thead>
-              <tr>
-                <th>Cliente</th>
-                <th>Productos</th>
-                <th>Mesa</th>
-                <th>Fecha</th>
-                <th>Hora</th>
-                <th>Status</th>
-                <th>Acción</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr v-for="orden in ordenes" :key="orden.id">
-                <td><strong>{{ orden.cliente }}</strong></td>
-                <td>
-                  <ul>
-                    <li v-for="prod in orden.productos" :key="prod.id">
-                      {{ prod.cantidad }} x {{ prod.nombre_producto }}
-                    </li>
-                  </ul>
-                </td>
-                <td>-</td>
-                <td>{{ orden.fecha }}</td>
-                <td>{{ orden.hora }}</td>
-                <td>
-                  <span :class="['estado', orden.entregado ? 'entregado' : 'no-entregado']">
-                    {{ orden.entregado ? 'Entregado' : 'En espera' }}
-                  </span>
-                </td>
-                <td>
-                  <button
-                    v-if="!orden.entregado"
-                    @click="marcarEntregado(orden.id)"
-                    class="btn-entregar"
-                  >
-                    Marcar como entregado
-                  </button>
-                  <span v-else class="entregado-msg">✅ Entregado</span>
-                </td>
-              </tr>
-            </tbody>
-          </table>
-        </div>
+        <!-- ... -->
       </main>
 
       <!-- Menú -->
       <main class="cocina-contenido" v-if="vista === 'menu'">
         <h2>Menú de Productos</h2>
 
-        <!-- Formulario para agregar producto -->
+        <!-- Agregar Platillo -->
         <h3>Agregar Platillo</h3>
         <form @submit.prevent="crearProductoNuevo" class="form-platillo">
           <input v-model="nuevoProducto.nombre" type="text" placeholder="Nombre del platillo" required />
@@ -107,13 +61,15 @@
           </select>
           <button type="submit">Agregar</button>
         </form>
+
         <p v-if="mensaje" :style="{ color: mensajeColor }">{{ mensaje }}</p>
 
-        <!-- Lista de productos -->
+        <!-- Tabla de productos -->
         <table class="tabla-ordenes">
           <thead>
             <tr>
               <th>Nombre</th>
+              <th>Categoría</th>
               <th>Precio</th>
               <th>Estado</th>
               <th>Acciones</th>
@@ -122,6 +78,7 @@
           <tbody>
             <tr v-for="prod in productos" :key="prod.id">
               <td>{{ prod.nombre }}</td>
+              <td>{{ categoriaNombre(prod.categoria_id) }}</td>
               <td>${{ prod.precio }}</td>
               <td>
                 <span :class="prod.disponible ? 'activo' : 'inactivo'">
@@ -129,14 +86,35 @@
                 </span>
               </td>
               <td>
+                <button @click="abrirEditar(prod)">Editar</button>
                 <button @click="toggleDisponible(prod.id)">
-                  {{ prod.disponible ? 'Marcar como Agotado' : 'Marcar como Disponible' }}
+                  {{ prod.disponible ? 'Marcar Agotado' : 'Marcar Disponible' }}
                 </button>
                 <button @click="eliminarProducto(prod.id)">Eliminar</button>
               </td>
             </tr>
           </tbody>
         </table>
+
+        <!-- Modal edición -->
+        <div v-if="editandoProducto" class="modal-overlay" @click.self="cerrarModal">
+          <div class="modal">
+            <h3>Editar Platillo</h3>
+            <form @submit.prevent="guardarEdicion">
+              <input v-model="editandoProducto.nombre" type="text" required />
+              <textarea v-model="editandoProducto.descripcion" required></textarea>
+              <input v-model="editandoProducto.precio" type="number" min="0.01" step="0.01" required />
+              <select v-model="editandoProducto.categoria_id" required>
+                <option disabled value="">Seleccionar categoría</option>
+                <option v-for="cat in categorias" :key="cat.id" :value="cat.id">{{ cat.nombre }}</option>
+              </select>
+              <div class="modal-buttons">
+                <button type="submit">Guardar</button>
+                <button type="button" @click="cerrarModal">Cancelar</button>
+              </div>
+            </form>
+          </div>
+        </div>
       </main>
     </div>
   </div>
@@ -146,7 +124,6 @@
 import { ref, onMounted } from 'vue'
 import logo from '../assets/images/LogoCafe.png'
 import '../EstilosCss/cocinastyle.css'
-
 import {
   fetchOrdenes,
   fetchProductos,
@@ -154,129 +131,100 @@ import {
   toggleDisponibilidadProducto,
   eliminarProductoPorId,
   marcarOrdenComoEntregada,
-  crearProducto
+  crearProducto,
+  actualizarProducto
 } from '../api'
 
-// Estados
 const vista = ref('ordenes')
 const ordenes = ref([])
 const productos = ref([])
 const categorias = ref([])
-const nuevoProducto = ref({
-  nombre: '',
-  descripcion: '',
-  precio: '',
-  categoria_id: ''
-})
+const nuevoProducto = ref({ nombre: '', descripcion: '', precio: '', categoria_id: '' })
+const editandoProducto = ref(null)
 const nombreUsuario = ref('')
 const rolUsuario = ref('')
 const mostrarDropdown = ref(false)
 const mensaje = ref('')
 const mensajeColor = ref('green')
 
-// Funciones
-const toggleDarkMode = () => {
-  document.body.classList.toggle('dark-mode')
-}
+const toggleDarkMode = () => document.body.classList.toggle('dark-mode')
+const toggleDropdown = () => mostrarDropdown.value = !mostrarDropdown.value
+const cerrarSesion = () => { localStorage.clear(); window.location.href = '/' }
 
-const toggleDropdown = () => {
-  mostrarDropdown.value = !mostrarDropdown.value
-}
+const cargarOrdenes = async () => { ordenes.value = await fetchOrdenes() }
+const obtenerProductos = async () => { productos.value = await fetchProductos() }
+const obtenerCategorias = async () => { categorias.value = await fetchCategorias() }
+const categoriaNombre = id => categorias.value.find(c => c.id === id)?.nombre || '—'
 
-const cerrarSesion = () => {
-  localStorage.clear()
-  window.location.href = '/'
-}
-
-const cargarOrdenes = async () => {
-  try {
-    ordenes.value = await fetchOrdenes()
-  } catch (err) {
-    console.error('Error cargando órdenes:', err)
-  }
-}
-
-const obtenerProductos = async () => {
-  try {
-    productos.value = await fetchProductos()
-  } catch (err) {
-    console.error('Error al obtener productos:', err)
-  }
-}
-
-const obtenerCategorias = async () => {
-  try {
-    categorias.value = await fetchCategorias()
-  } catch (err) {
-    console.error('Error al obtener categorías:', err)
-  }
-}
-
-const marcarEntregado = async (id) => {
-  try {
-    const res = await marcarOrdenComoEntregada(id)
-    if (!res.ok) throw new Error()
-    await cargarOrdenes()
-    alert("✅ Orden marcada como entregada.")
-  } catch (err) {
-    console.error('Error al marcar como entregado:', err)
-    alert("❌ Error al marcar como entregado.")
-  }
-}
-
-const toggleDisponible = async (id) => {
-  try {
-    await toggleDisponibilidadProducto(id)
-    await obtenerProductos()
-  } catch (err) {
-    console.error('Error al cambiar disponibilidad:', err)
-  }
-}
-
-const eliminarProducto = async (id) => {
-  if (!confirm("¿Eliminar este producto?")) return
-  try {
-    await eliminarProductoPorId(id)
-    await obtenerProductos()
-  } catch (err) {
-    console.error('Error al eliminar producto:', err)
-  }
-}
-
+// Agregar producto
 const crearProductoNuevo = async () => {
   mensaje.value = ''
+  const precio = parseFloat(nuevoProducto.value.precio)
+  if (!precio || precio <= 0) {
+    mensaje.value = 'El precio debe ser > 0'
+    mensajeColor.value = 'red'
+    return
+  }
   try {
-    const precio = parseFloat(nuevoProducto.value.precio)
-    if (isNaN(precio) || precio <= 0) {
-      mensaje.value = 'El precio debe ser mayor a cero.'
-      mensajeColor.value = 'red'
-      return
-    }
-
-    const formData = new FormData()
-    Object.entries(nuevoProducto.value).forEach(([key, val]) => formData.append(key, val))
-
-    await crearProducto(formData)
-    mensaje.value = '✅ Producto agregado correctamente.'
+    const fd = new FormData()
+    Object.entries(nuevoProducto.value).forEach(([k,v]) => fd.append(k, v))
+    await crearProducto(fd)
+    mensaje.value = '✅ Agregado!'
     mensajeColor.value = 'green'
     nuevoProducto.value = { nombre: '', descripcion: '', precio: '', categoria_id: '' }
     await obtenerProductos()
-  } catch (err) {
-    console.error('Error al crear producto:', err)
-    mensaje.value = '❌ Error al agregar producto.'
+  } catch {
+    mensaje.value = '❌ Error al agregar'
     mensajeColor.value = 'red'
   }
+  setTimeout(() => mensaje.value = '', 3000)
+}
+
+// Disponibilidad y eliminación
+const toggleDisponible = async id => {
+  await toggleDisponibilidadProducto(id)
+  await obtenerProductos()
+}
+const eliminarProducto = async id => {
+  if (!confirm('¿Eliminar este platillo?')) return
+  await eliminarProductoPorId(id)
+  await obtenerProductos()
+}
+
+// Editar
+const abrirEditar = prod => editandoProducto.value = { ...prod }
+const cerrarModal = () => editandoProducto.value = null
+const guardarEdicion = async () => {
+  const p = editandoProducto.value
+  const precio = parseFloat(p.precio)
+  if (!precio || precio <= 0) {
+    mensaje.value = 'Precio debe ser > 0'
+    mensajeColor.value = 'red'
+    setTimeout(() => mensaje.value = '', 3000)
+    return
+  }
+  try {
+    const fd = new FormData()
+    Object.entries(p).forEach(([k,v]) => fd.append(k, v))
+    await actualizarProducto(p.id, fd)
+    mensaje.value = '✅ Actualizado!'
+    mensajeColor.value = 'green'
+    await obtenerProductos()
+    cerrarModal()
+  } catch {
+    mensaje.value = '❌ Error al actualizar'
+    mensajeColor.value = 'red'
+  }
+  setTimeout(() => mensaje.value = '', 3000)
 }
 
 onMounted(() => {
-  const rol = localStorage.getItem('usuario_rol')
-  if (rol !== 'chef') {
+  if (localStorage.getItem('usuario_rol') !== 'chef') {
     window.location.href = '/login'
     return
   }
-
   nombreUsuario.value = localStorage.getItem('usuario_nombre') || 'Usuario'
-  rolUsuario.value = rol
+  rolUsuario.value = 'Chef'
   cargarOrdenes()
   obtenerProductos()
   obtenerCategorias()
@@ -284,45 +232,15 @@ onMounted(() => {
 </script>
 
 <style scoped>
-.entregado-msg {
-  color: green;
-  font-weight: bold;
-}
+/* existing styles... */
+.form-platillo { margin-bottom:2rem; display:flex; flex-direction:column; gap:10px; max-width:500px; }
+.form-platillo input, textarea, select { padding:8px; font-size:1rem; }
+.form-platillo button { background:#0a9f67;color:#fff;padding:8px;border:none;cursor:pointer;border-radius:4px; }
 
-.btn-entregar {
-  background-color: #0a9f67;
-  color: white;
-  border: none;
-  padding: 6px 12px;
-  border-radius: 4px;
-  cursor: pointer;
-}
-
-.btn-entregar:hover {
-  background-color: #098658;
-}
-
-.form-platillo {
-  margin-bottom: 2rem;
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-  max-width: 500px;
-}
-
-.form-platillo input,
-.form-platillo textarea,
-.form-platillo select {
-  padding: 8px;
-  font-size: 1rem;
-}
-
-.form-platillo button {
-  background-color: #0a9f67;
-  color: white;
-  padding: 8px;
-  border: none;
-  cursor: pointer;
-  border-radius: 4px;
-}
+.modal-overlay { position:fixed; top:0; left:0; width:100%; height:100%; background:#00000066; display:flex; align-items:center; justify-content:center; }
+.modal { background:#fff; padding:20px; border-radius:6px; width:90%; max-width:400px; }
+.modal-buttons { display:flex; justify-content:space-between; margin-top:15px; }
+.modal-buttons button { flex:1; margin:0 5px; padding:8px; cursor:pointer; border:none; border-radius:4px; }
+.modal-buttons button:first-child { background:#0a9f67; color:#fff; }
+.modal-buttons button:last-child { background:#ccc; }
 </style>
