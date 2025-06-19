@@ -15,12 +15,11 @@
           <span class="cocina-rol">{{ rolUsuario }}</span>
         </div>
         <i class="fas fa-chevron-down"></i>
-         <!-- Dropdown -->
         <div v-if="mostrarDropdown" class="dropdown-menu" @click.stop>
           <p class="usuario-nombre">{{ nombreUsuario }}</p>
           <hr />
           <button @click="cerrarSesion">Cerrar sesión</button>
-          </div>
+        </div>
       </div>
     </header>
 
@@ -94,6 +93,19 @@
       <!-- Menú -->
       <main class="cocina-contenido" v-if="vista === 'menu'">
         <h2>Menú de Productos</h2>
+
+        <!-- NUEVO: Botón para mostrar formulario -->
+        <button @click="mostrarFormularioNuevo = !mostrarFormularioNuevo" class="btn-agregar">
+          {{ mostrarFormularioNuevo ? 'Cancelar' : '➕ Agregar nuevo producto' }}
+        </button>
+
+        <!-- NUEVO: Formulario para agregar producto -->
+        <div v-if="mostrarFormularioNuevo" class="formulario-nuevo">
+          <input v-model="nuevoProducto.nombre" placeholder="Nombre del producto" />
+          <input v-model="nuevoProducto.precio" type="number" step="0.01" placeholder="Precio" />
+          <button @click="agregarProducto">Guardar producto</button>
+        </div>
+
         <table class="tabla-ordenes">
           <thead>
             <tr>
@@ -130,13 +142,13 @@
 import { ref, onMounted } from 'vue'
 import logo from '../assets/images/LogoCafe.png'
 import '../EstilosCss/cocinastyle.css'
-
 import {
   fetchOrdenes,
   fetchProductos,
   toggleDisponibilidadProducto,
   eliminarProductoPorId,
-  marcarOrdenComoEntregada
+  marcarOrdenComoEntregada,
+  crearProducto
 } from '../api'
 
 const vista = ref('ordenes')
@@ -145,10 +157,16 @@ const productos = ref([])
 const nombreUsuario = ref('')
 const rolUsuario = ref('')
 const mostrarDropdown = ref(false)
+
+// NUEVO: control para mostrar formulario de producto
+const mostrarFormularioNuevo = ref(false)
+const nuevoProducto = ref({ nombre: '', precio: 0 })
+
 // Modo oscuro
 const toggleDarkMode = () => {
   document.body.classList.toggle('dark-mode')
 }
+
 //Opciones 
 const toggleDropdown = () => {
   mostrarDropdown.value = !mostrarDropdown.value
@@ -158,6 +176,7 @@ const cerrarSesion = () => {
   localStorage.clear()
   window.location.href = '/'
 }
+
 // Obtener productos
 const obtenerProductos = async () => {
   try {
@@ -210,6 +229,30 @@ const eliminarProducto = async (id) => {
   }
 }
 
+// NUEVO: Agregar producto
+const agregarProducto = async () => {
+  if (!nuevoProducto.value.nombre || nuevoProducto.value.precio <= 0) {
+    alert("❌ Nombre y precio válidos requeridos")
+    return
+  }
+
+  const formData = new FormData()
+  formData.append('nombre', nuevoProducto.value.nombre)
+  formData.append('precio', nuevoProducto.value.precio)
+  formData.append('disponible', true)
+
+  try {
+    await crearProducto(formData)
+    await obtenerProductos()
+    mostrarFormularioNuevo.value = false
+    nuevoProducto.value = { nombre: '', precio: 0 }
+    alert("✅ Producto agregado correctamente")
+  } catch (err) {
+    console.error('Error al agregar producto:', err)
+    alert("❌ Error al agregar producto")
+  }
+}
+
 onMounted(() => {
   const rol = localStorage.getItem('usuario_rol')
   if (rol !== 'chef') {
@@ -241,5 +284,38 @@ onMounted(() => {
 
 .btn-entregar:hover {
   background-color: #098658;
+}
+
+/* NUEVO: estilos para formulario */
+.formulario-nuevo {
+  margin: 1rem 0;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.formulario-nuevo input {
+  padding: 6px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+}
+
+.formulario-nuevo button {
+  background-color: #0a9f67;
+  color: white;
+  border: none;
+  padding: 6px 12px;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.btn-agregar {
+  margin-bottom: 1rem;
+  padding: 8px 14px;
+  background-color: #007bff;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
 }
 </style>
