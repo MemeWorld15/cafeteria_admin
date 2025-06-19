@@ -94,15 +94,21 @@
       <main class="cocina-contenido" v-if="vista === 'menu'">
         <h2>Menú de Productos</h2>
 
-        <!-- NUEVO: Botón para mostrar formulario -->
+        <!-- Botón para mostrar formulario -->
         <button @click="mostrarFormularioNuevo = !mostrarFormularioNuevo" class="btn-agregar">
           {{ mostrarFormularioNuevo ? 'Cancelar' : '➕ Agregar nuevo producto' }}
         </button>
 
-        <!-- NUEVO: Formulario para agregar producto -->
+        <!-- Formulario para agregar producto -->
         <div v-if="mostrarFormularioNuevo" class="formulario-nuevo">
           <input v-model="nuevoProducto.nombre" placeholder="Nombre del producto" />
           <input v-model="nuevoProducto.precio" type="number" step="0.01" placeholder="Precio" />
+          <select v-model="nuevoProducto.categoria_id">
+            <option disabled value="">Seleccione una categoría</option>
+            <option v-for="cat in categorias" :key="cat.id" :value="cat.id">
+              {{ cat.nombre }}
+            </option>
+          </select>
           <button @click="agregarProducto">Guardar producto</button>
         </div>
 
@@ -111,6 +117,7 @@
             <tr>
               <th>Nombre</th>
               <th>Precio</th>
+              <th>Categoría</th>
               <th>Estado</th>
               <th>Acciones</th>
             </tr>
@@ -119,6 +126,11 @@
             <tr v-for="prod in productos" :key="prod.id">
               <td>{{ prod.nombre }}</td>
               <td>${{ prod.precio }}</td>
+              <td>
+                {{
+                  categorias.find(cat => cat.id === prod.categoria_id)?.nombre || 'Sin categoría'
+                }}
+              </td>
               <td>
                 <span :class="prod.disponible ? 'activo' : 'inactivo'">
                   {{ prod.disponible ? 'Disponible' : 'No disponible' }}
@@ -148,26 +160,31 @@ import {
   toggleDisponibilidadProducto,
   eliminarProductoPorId,
   marcarOrdenComoEntregada,
-  crearProducto
+  crearProducto,
+  fetchCategorias
 } from '../api'
 
 const vista = ref('ordenes')
 const ordenes = ref([])
 const productos = ref([])
+const categorias = ref([])
 const nombreUsuario = ref('')
 const rolUsuario = ref('')
 const mostrarDropdown = ref(false)
 
-// NUEVO: control para mostrar formulario de producto
 const mostrarFormularioNuevo = ref(false)
-const nuevoProducto = ref({ nombre: '', precio: 0 })
+const nuevoProducto = ref({
+  nombre: '',
+  precio: 0,
+  categoria_id: ''
+})
 
 // Modo oscuro
 const toggleDarkMode = () => {
   document.body.classList.toggle('dark-mode')
 }
 
-//Opciones 
+// Opciones 
 const toggleDropdown = () => {
   mostrarDropdown.value = !mostrarDropdown.value
 }
@@ -192,6 +209,15 @@ const cargarOrdenes = async () => {
     ordenes.value = await fetchOrdenes()
   } catch (err) {
     console.error('Error cargando órdenes:', err)
+  }
+}
+
+// Obtener categorías
+const obtenerCategorias = async () => {
+  try {
+    categorias.value = await fetchCategorias()
+  } catch (err) {
+    console.error('Error al obtener categorías:', err)
   }
 }
 
@@ -229,10 +255,10 @@ const eliminarProducto = async (id) => {
   }
 }
 
-// NUEVO: Agregar producto
+// Agregar nuevo producto
 const agregarProducto = async () => {
-  if (!nuevoProducto.value.nombre || nuevoProducto.value.precio <= 0) {
-    alert("❌ Nombre y precio válidos requeridos")
+  if (!nuevoProducto.value.nombre || nuevoProducto.value.precio <= 0 || !nuevoProducto.value.categoria_id) {
+    alert("❌ Todos los campos son obligatorios")
     return
   }
 
@@ -240,12 +266,13 @@ const agregarProducto = async () => {
   formData.append('nombre', nuevoProducto.value.nombre)
   formData.append('precio', nuevoProducto.value.precio)
   formData.append('disponible', true)
+  formData.append('categoria_id', nuevoProducto.value.categoria_id)
 
   try {
     await crearProducto(formData)
     await obtenerProductos()
     mostrarFormularioNuevo.value = false
-    nuevoProducto.value = { nombre: '', precio: 0 }
+    nuevoProducto.value = { nombre: '', precio: 0, categoria_id: '' }
     alert("✅ Producto agregado correctamente")
   } catch (err) {
     console.error('Error al agregar producto:', err)
@@ -264,6 +291,7 @@ onMounted(() => {
   rolUsuario.value = rol
   cargarOrdenes()
   obtenerProductos()
+  obtenerCategorias()
 })
 </script>
 
@@ -286,7 +314,6 @@ onMounted(() => {
   background-color: #098658;
 }
 
-/* NUEVO: estilos para formulario */
 .formulario-nuevo {
   margin: 1rem 0;
   display: flex;
@@ -294,7 +321,8 @@ onMounted(() => {
   gap: 10px;
 }
 
-.formulario-nuevo input {
+.formulario-nuevo input,
+.formulario-nuevo select {
   padding: 6px;
   border: 1px solid #ccc;
   border-radius: 4px;
