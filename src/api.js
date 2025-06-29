@@ -140,4 +140,7 @@ export const reabastecerInsumo = (id, formData) =>
 
 export const descargarInventarioPDF = () =>
   window.open(`${BASE_URL}/inventario/pdf`, "_blank");
+// -------------------------------- ARQUEO DEL DÍA -------------------------------
+export const fetchArqueoDelDia = () =>
+  fetch(`${BASE_URL}/arqueo/dia`, { method: 'GET', mode: 'cors' }).then(res => res.json());
 
