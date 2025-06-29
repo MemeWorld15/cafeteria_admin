@@ -3,27 +3,27 @@
     <!-- Contenido de Caja -->
     <main class="caja-contenido">
       <!-- Arqueo de Caja -->
-      <div v-if="vista === 'arqueo'">
+      <div v-if="vista === 'arqueo'" class="arqueo-section">
         <h2>Arqueo y Corte de Caja</h2>
-        <div class="arqueo-section">
-          <p><strong>Total efectivo ingresado:</strong> ${{ totalEfectivo }}</p>
-          <p><strong>Total con tarjetas:</strong> ${{ totalTarjeta }}</p>
-          <p><strong>Total general:</strong> ${{ totalGeneral }}</p>
+        <div class="arqueo-details">
+          <p><strong>Total efectivo ingresado:</strong> ${{ totalEfectivo.toFixed(2) }}</p>
+          <p><strong>Total con tarjetas:</strong> ${{ totalTarjeta.toFixed(2) }}</p>
+          <p><strong>Total general:</strong> ${{ totalGeneral.toFixed(2) }}</p>
           <button @click="realizarCorte" class="btn-corte">Realizar corte del día</button>
         </div>
       </div>
 
       <!-- Historial de cortes -->
-      <div v-if="vista === 'cortes'">
+      <div v-if="vista === 'cortes'" class="cortes-section">
         <h2>Historial de Cortes</h2>
         <div v-if="cortesRealizados.length > 0">
-          <ul>
-            <li v-for="corte in cortesRealizados" :key="corte.id">
-              <strong>{{ corte.fecha }}</strong> - ${{ corte.total }} <span class="estado-corte">{{ corte.estado }}</span>
+          <ul class="cortes-list">
+            <li v-for="corte in cortesRealizados" :key="corte.id" class="corte-item">
+              <strong>{{ corte.fecha }}</strong> - ${{ corte.total.toFixed(2) }} <span class="estado-corte">{{ corte.estado }}</span>
             </li>
           </ul>
         </div>
-        <div v-else>
+        <div v-else class="no-cortes">
           <p>No hay cortes realizados aún.</p>
         </div>
       </div>
@@ -101,36 +101,75 @@ onMounted(() => {
   display: flex;
   flex-direction: column;
   height: 100vh;
+  background: #f4f4f4; /* Fondo general */
 }
 
 .caja-contenido {
   flex: 1;
   padding: 20px;
+  max-width: 1200px;
+  margin: 0 auto;
 }
 
-.arqueo-section {
-  background: #f9f9f9;
+.arqueo-section, .cortes-section {
+  background: #fff;
   padding: 20px;
-  border-radius: 6px;
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  border-radius: 8px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  margin-bottom: 20px;
 }
 
-.arqueo-section p {
-  margin-bottom: 10px;
+.arqueo-section h2, .cortes-section h2 {
+  font-size: 1.5rem;
+  color: #333;
+}
+
+.arqueo-details p {
+  font-size: 1rem;
+  margin: 10px 0;
+}
+
+.arqueo-details p strong {
+  color: #0a9f67;
 }
 
 .btn-corte {
   background-color: #0a9f67;
   color: white;
-  padding: 10px 20px;
+  padding: 12px 20px;
   border: none;
   border-radius: 6px;
   cursor: pointer;
+  font-size: 1rem;
+  transition: background-color 0.3s ease;
+}
+
+.btn-corte:hover {
+  background-color: #0a7c53;
+}
+
+.cortes-list {
+  list-style-type: none;
+  padding: 0;
+}
+
+.corte-item {
+  display: flex;
+  justify-content: space-between;
+  padding: 10px 0;
+  border-bottom: 1px solid #ddd;
 }
 
 .estado-corte {
-  font-size: 0.9rem;
-  color: green;
+  font-size: 1rem;
   font-weight: bold;
+  color: green;
+}
+
+.no-cortes {
+  font-size: 1rem;
+  color: #666;
+  text-align: center;
+  padding: 20px;
 }
 </style>
