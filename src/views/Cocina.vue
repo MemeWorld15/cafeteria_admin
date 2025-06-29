@@ -33,6 +33,10 @@
           <li :class="{ active: vista === 'ordenes' }" @click="vista = 'ordenes'">
             <i class="fas fa-receipt"></i><span>Órdenes</span>
           </li>
+          <!-- Nueva opción Caja -->
+          <li :class="{ active: vista === 'caja' }" @click="vista = 'caja'">
+          <i class="fas fa-cash-register"></i><span>Caja</span>
+          </li>
         </ul>
       </aside>
 
@@ -173,6 +177,72 @@
           </div>
         </div>
       </main>
+<main class="cocina-contenido" v-if="vista === 'caja'">
+  <!-- Aquí puedes pegar el contenido de tu Caja.vue directamente o importar el componente de Caja -->
+  <div class="caja-app">
+    <!-- Topbar de Caja -->
+    <header class="caja-topbar">
+      <div class="caja-logo">
+        <img :src="logo" alt="Logo" />
+        <span class="caja-brand">Caja</span>
+      </div>
+      <div class="caja-user" @click="toggleDropdown">
+        <i class="fas fa-sun" @click="toggleDarkMode"></i>
+        <i class="fas fa-bell"></i>
+        <i class="fas fa-user"></i>
+        <div class="caja-user-info">
+          <span class="caja-usuario">{{ nombreUsuario }}</span><br />
+          <span class="caja-rol">{{ rolUsuario }}</span>
+        </div>
+        <i class="fas fa-chevron-down"></i>
+        <div v-if="mostrarDropdown" class="dropdown-menu" @click.stop>
+          <p>{{ nombreUsuario }}</p>
+          <hr />
+          <button @click="cerrarSesion">Cerrar sesión</button>
+        </div>
+      </div>
+    </header>
+
+    <!-- Sidebar de Caja -->
+    <aside class="caja-sidebar">
+      <ul>
+        <li :class="{ active: vista === 'arqueo' }" @click="vista = 'arqueo'">
+          <i class="fas fa-cash-register"></i><span>Arqueo</span>
+        </li>
+        <li :class="{ active: vista === 'cortes' }" @click="vista = 'cortes'">
+          <i class="fas fa-history"></i><span>Cortes</span>
+        </li>
+      </ul>
+    </aside>
+
+    <!-- Arqueo de Caja -->
+    <main class="caja-contenido" v-if="vista === 'arqueo'">
+      <h2>Arqueo y Corte de Caja</h2>
+      <div class="arqueo-section">
+        <p><strong>Total efectivo ingresado:</strong> ${{ totalEfectivo }}</p>
+        <p><strong>Total con tarjetas:</strong> ${{ totalTarjeta }}</p>
+        <p><strong>Total general:</strong> ${{ totalGeneral }}</p>
+        <button @click="realizarCorte" class="btn-corte">Realizar corte del día</button>
+      </div>
+    </main>
+
+    <!-- Historial de cortes -->
+    <main class="caja-contenido" v-if="vista === 'cortes'">
+      <h2>Historial de Cortes</h2>
+      <div v-if="cortesRealizados.length > 0">
+        <ul>
+          <li v-for="corte in cortesRealizados" :key="corte.id">
+            <strong>{{ corte.fecha }}</strong> - ${{ corte.total }} <span class="estado-corte">{{ corte.estado }}</span>
+          </li>
+        </ul>
+      </div>
+      <div v-else>
+        <p>No hay cortes realizados aún.</p>
+      </div>
+    </main>
+  </div>
+  </main>
+
     </div>
   </div>
 </template>
@@ -181,6 +251,8 @@
 import { ref, computed, onMounted } from 'vue'
 import logo from '../assets/images/LogoCafe.png'
 import '../EstilosCss/cocinastyle.css'
+import Caja from './Caja.vue'  // Ajusta la ruta según tu estructura de carpetas
+
 import {
   fetchOrdenes,
   fetchProductos,
