@@ -203,18 +203,6 @@
       </div>
     </header>
 
-    <!-- Sidebar de Caja -->
-    <aside class="caja-sidebar">
-      <ul>
-        <li :class="{ active: vista === 'arqueo' }" @click="vista = 'arqueo'">
-          <i class="fas fa-cash-register"></i><span>Arqueo</span>
-        </li>
-        <li :class="{ active: vista === 'cortes' }" @click="vista = 'cortes'">
-          <i class="fas fa-history"></i><span>Cortes</span>
-        </li>
-      </ul>
-    </aside>
-
     <!-- Arqueo de Caja -->
     <main class="caja-contenido" v-if="vista === 'arqueo'">
       <h2>Arqueo y Corte de Caja</h2>
