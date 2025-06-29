@@ -1,10 +1,5 @@
 <template>
   <div class="caja-app">
-    <!-- Topbar (ahora simplificado) -->
-    <header class="caja-topbar">
-      <span class="caja-brand">Caja</span>
-    </header>
-
     <!-- Contenido de Caja -->
     <main class="caja-contenido">
       <!-- Arqueo de Caja -->
@@ -106,20 +101,6 @@ onMounted(() => {
   display: flex;
   flex-direction: column;
   height: 100vh;
-}
-
-.caja-topbar {
-  background: #0a9f67;
-  padding: 10px;
-  color: white;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-}
-
-.caja-brand {
-  font-size: 1.5rem;
-  font-weight: bold;
 }
 
 .caja-contenido {
