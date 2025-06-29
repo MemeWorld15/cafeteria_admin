@@ -33,16 +33,8 @@
           <li :class="{ active: vista === 'ordenes' }" @click="vista = 'ordenes'">
             <i class="fas fa-receipt"></i><span>Órdenes</span>
           </li>
-          <li :class="{ active: vista === 'caja' }" @click="vista = 'caja'">
-            <i class="fas fa-cash-register"></i><span>Caja</span>
-          </li>
         </ul>
       </aside>
-
-      <!-- Caja -->
-      <main class="cocina-contenido" v-if="vista === 'caja'">
-        <Caja />
-      </main>
 
       <!-- Órdenes agrupadas por fecha y turno -->
       <main class="cocina-contenido" v-if="vista === 'ordenes'">
@@ -189,7 +181,16 @@
 import { ref, computed, onMounted } from 'vue'
 import logo from '../assets/images/LogoCafe.png'
 import '../EstilosCss/cocinastyle.css'
-import Caja from './Caja.vue'  // Importa el componente Caja.vue
+import {
+  fetchOrdenes,
+  fetchProductos,
+  fetchCategorias,
+  toggleDisponibilidadProducto,
+  eliminarProductoPorId,
+  marcarOrdenComoEntregada,
+  crearProducto,
+  actualizarProducto
+} from '../api'
 
 const vista = ref('ordenes')
 const ordenes = ref([])
@@ -203,19 +204,115 @@ const mostrarDropdown = ref(false)
 const mensaje = ref('')
 const mensajeColor = ref('green')
 
+// Ordenes agrupadas por fecha y turno
+const ordenesAgrupadas = computed(() => {
+  const agrupadas = {}
+  ordenes.value.forEach(o => {
+    const fecha = o.fecha
+    const hora = parseInt(o.hora.split(':')[0])
+    let turno = ''
+    if (hora >= 6 && hora < 14) turno = 'Mañana'
+    else if (hora >= 14 && hora < 22) turno = 'Tarde'
+    else turno = 'Noche'
+
+    if (!agrupadas[fecha]) agrupadas[fecha] = {}
+    if (!agrupadas[fecha][turno]) agrupadas[fecha][turno] = []
+    agrupadas[fecha][turno].push(o)
+  })
+  return agrupadas
+})
+
+const toggleDarkMode = () => document.body.classList.toggle('dark-mode')
+const toggleDropdown = () => (mostrarDropdown.value = !mostrarDropdown.value)
+const cerrarSesion = () => {
+  localStorage.clear()
+  window.location.href = '/'
+}
+
 const cargarOrdenes = async () => {
   ordenes.value = await fetchOrdenes()
 }
-
 const obtenerProductos = async () => {
   productos.value = await fetchProductos()
 }
-
 const obtenerCategorias = async () => {
   categorias.value = await fetchCategorias()
 }
-
 const categoriaNombre = id => categorias.value.find(c => c.id === id)?.nombre || '—'
+
+const crearProductoNuevo = async () => {
+  mensaje.value = ''
+  const p = parseFloat(nuevoProducto.value.precio)
+  if (isNaN(p) || p <= 0) {
+    mensaje.value = 'Precio debe ser > 0'
+    mensajeColor.value = 'red'
+    setTimeout(() => (mensaje.value = ''), 3000)
+    return
+  }
+  try {
+    const fd = new FormData()
+    Object.entries(nuevoProducto.value).forEach(([k, v]) => fd.append(k, v))
+    await crearProducto(fd)
+    mensaje.value = '✅ Agregado'
+    mensajeColor.value = 'green'
+    Object.assign(nuevoProducto.value, { nombre: '', descripcion: '', precio: '', categoria_id: '' })
+    await obtenerProductos()
+  } catch {
+    mensaje.value = '❌ Error al agregar'
+    mensajeColor.value = 'red'
+  }
+  setTimeout(() => (mensaje.value = ''), 3000)
+}
+
+const toggleDisponible = async id => {
+  await toggleDisponibilidadProducto(id)
+  await obtenerProductos()
+}
+
+const eliminarProducto = async id => {
+  if (!confirm('¿Eliminar este platillo?')) return
+  await eliminarProductoPorId(id)
+  await obtenerProductos()
+}
+
+const abrirEditar = prod => (editandoProducto.value = { ...prod })
+const cerrarModal = () => (editandoProducto.value = null)
+
+const guardarEdicion = async () => {
+  const p = editandoProducto.value
+  const price = parseFloat(p.precio)
+  if (isNaN(price) || price <= 0) {
+    mensaje.value = 'Precio debe ser > 0'
+    mensajeColor.value = 'red'
+    setTimeout(() => (mensaje.value = ''), 3000)
+    return
+  }
+  try {
+    const fd = new FormData()
+    Object.entries(p).forEach(([k, v]) => fd.append(k, v))
+    await actualizarProducto(p.id, fd)
+    mensaje.value = '✅ Actualizado'
+    mensajeColor.value = 'green'
+    await obtenerProductos()
+    cerrarModal()
+  } catch {
+    mensaje.value = '❌ Error al actualizar'
+    mensajeColor.value = 'red'
+  }
+  setTimeout(() => (mensaje.value = ''), 3000)
+}
+
+const marcarEntregado = async id => {
+  try {
+    const res = await marcarOrdenComoEntregada(id)
+    if (res.ok) {
+      await cargarOrdenes()
+      alert('✅ Orden entregada')
+    } else alert('❌ Error al entregar')
+  } catch {
+    alert('❌ Error al entregar')
+  }
+}
 
 onMounted(() => {
   if (localStorage.getItem('usuario_rol') !== 'chef') {
