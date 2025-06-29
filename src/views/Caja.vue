@@ -85,7 +85,7 @@ const cargarCortes = async () => {
 
 // Cargar información al montar el componente
 onMounted(() => {
-  if (localStorage.getItem('usuario_rol') !== 'Caja') {
+  if (localStorage.getItem('usuario_rol') !== 'chef') {
     window.location.href = '/login'
     return
   }
