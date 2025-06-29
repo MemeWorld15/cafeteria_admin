@@ -180,29 +180,7 @@
 <main class="cocina-contenido" v-if="vista === 'caja'">
   <!-- Aquí puedes pegar el contenido de tu Caja.vue directamente o importar el componente de Caja -->
   <div class="caja-app">
-    <!-- Topbar de Caja -->
-    <header class="caja-topbar">
-      <div class="caja-logo">
-        <img :src="logo" alt="Logo" />
-        <span class="caja-brand">Caja</span>
-      </div>
-      <div class="caja-user" @click="toggleDropdown">
-        <i class="fas fa-sun" @click="toggleDarkMode"></i>
-        <i class="fas fa-bell"></i>
-        <i class="fas fa-user"></i>
-        <div class="caja-user-info">
-          <span class="caja-usuario">{{ nombreUsuario }}</span><br />
-          <span class="caja-rol">{{ rolUsuario }}</span>
-        </div>
-        <i class="fas fa-chevron-down"></i>
-        <div v-if="mostrarDropdown" class="dropdown-menu" @click.stop>
-          <p>{{ nombreUsuario }}</p>
-          <hr />
-          <button @click="cerrarSesion">Cerrar sesión</button>
-        </div>
-      </div>
-    </header>
-
+    
     <!-- Arqueo de Caja -->
     <main class="caja-contenido" v-if="vista === 'arqueo'">
       <h2>Arqueo y Corte de Caja</h2>
