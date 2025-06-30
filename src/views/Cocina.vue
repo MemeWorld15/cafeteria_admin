@@ -200,7 +200,7 @@ import {
   actualizarProducto
 } from '../api'
 
-const vista = ref('ordenes')
+const vistaPrincipal = ref('ordenes')
 const ordenes = ref([])
 const productos = ref([])
 const categorias = ref([])
