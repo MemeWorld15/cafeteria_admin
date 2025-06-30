@@ -33,22 +33,19 @@
           <li :class="{ active: vista === 'ordenes' }" @click="vista = 'ordenes'">
             <i class="fas fa-receipt"></i><span>Órdenes</span>
           </li>
-          <!-- Nueva opción Caja -->
           <li :class="{ active: vista === 'caja' }" @click="vista = 'caja'">
-          <i class="fas fa-cash-register"></i><span>Caja</span>
+            <i class="fas fa-cash-register"></i><span>Caja</span>
           </li>
         </ul>
       </aside>
 
-      <!-- Órdenes agrupadas por fecha y turno -->
+      <!-- Órdenes -->
       <main class="cocina-contenido" v-if="vista === 'ordenes'">
         <h2>Órdenes - Café</h2>
         <div v-for="(turnos, fecha) in ordenesAgrupadas" :key="fecha" class="bloque-fecha">
           <h3 class="fecha-title">📅 {{ fecha }}</h3>
-
           <div v-for="(ordenesTurno, turno) in turnos" :key="turno" class="bloque-turno">
             <h4 class="turno-title">🕐 Turno: {{ turno }}</h4>
-
             <div class="scroll-tabla">
               <table class="tabla-ordenes">
                 <thead>
@@ -96,7 +93,7 @@
         </div>
       </main>
 
-      <!-- Menú de productos -->
+      <!-- Menú -->
       <main class="cocina-contenido" v-if="vista === 'menu'">
         <h2>Menú de Productos</h2>
 
@@ -177,38 +174,11 @@
           </div>
         </div>
       </main>
-<main class="cocina-contenido" v-if="vista === 'caja'">
-  <!-- Aquí puedes pegar el contenido de tu Caja.vue directamente o importar el componente de Caja -->
-  <div class="caja-app">
-    
-    <!-- Arqueo de Caja -->
-    <main class="caja-contenido" v-if="vista === 'arqueo'">
-      <h2>Arqueo y Corte de Caja</h2>
-      <div class="arqueo-section">
-        <p><strong>Total efectivo ingresado:</strong> ${{ totalEfectivo }}</p>
-        <p><strong>Total con tarjetas:</strong> ${{ totalTarjeta }}</p>
-        <p><strong>Total general:</strong> ${{ totalGeneral }}</p>
-        <button @click="realizarCorte" class="btn-corte">Realizar corte del día</button>
-      </div>
-    </main>
 
-    <!-- Historial de cortes -->
-    <main class="caja-contenido" v-if="vista === 'cortes'">
-      <h2>Historial de Cortes</h2>
-      <div v-if="cortesRealizados.length > 0">
-        <ul>
-          <li v-for="corte in cortesRealizados" :key="corte.id">
-            <strong>{{ corte.fecha }}</strong> - ${{ corte.total }} <span class="estado-corte">{{ corte.estado }}</span>
-          </li>
-        </ul>
-      </div>
-      <div v-else>
-        <p>No hay cortes realizados aún.</p>
-      </div>
-    </main>
-  </div>
-  </main>
-
+      <!-- Caja -->
+      <main class="cocina-contenido" v-if="vista === 'caja'">
+        <Caja />
+      </main>
     </div>
   </div>
 </template>
@@ -217,7 +187,7 @@
 import { ref, computed, onMounted } from 'vue'
 import logo from '../assets/images/LogoCafe.png'
 import '../EstilosCss/cocinastyle.css'
-import Caja from './Caja.vue'  // Ajusta la ruta según tu estructura de carpetas
+import Caja from './Caja.vue'
 
 import {
   fetchOrdenes,
@@ -242,7 +212,6 @@ const mostrarDropdown = ref(false)
 const mensaje = ref('')
 const mensajeColor = ref('green')
 
-// Ordenes agrupadas por fecha y turno
 const ordenesAgrupadas = computed(() => {
   const agrupadas = {}
   ordenes.value.forEach(o => {
