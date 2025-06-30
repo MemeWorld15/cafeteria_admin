@@ -1,3 +1,4 @@
+
 <template>
   <div class="admin-app">
     <!-- Topbar -->
@@ -53,9 +54,7 @@
             <li :class="{ active: vistaActual === 'inventario' }" @click="cambiarVista('inventario')">
               <i class="fas fa-box-open"></i><span>Inventario</span>
             </li>
-            <li :class="{ active: vistaActual === 'caja' }" @click="cambiarVista('caja')">
-              <i class="fas fa-cash-register"></i><span>Caja</span>
-            </li>
+            
 
           </ul>
         </nav>
@@ -198,8 +197,6 @@
           <p v-if="mensajeMenu" :style="{ color: mensajeColor, marginTop: '1rem' }">{{ mensajeMenu }}</p>
         </div>
         <GraficasTop v-if="vistaActual === 'graficas'" />
-        <!-- ✅ NUEVA VISTA DE CAJA -->
-        <Caja v-if="vistaActual === 'caja'" />
         <Inventario v-if="vistaActual === 'inventario'" />
       </div>
     </div>
@@ -211,7 +208,6 @@
 import { ref, onMounted } from 'vue'
 import logo from '../assets/images/LogoCafe.png'
 import UsuariosCard from './UsuariosCard.vue'
-import Caja from './Caja.vue'
 import '../EstilosCss/AdminStylo.css'
 //import '../EstilosCss/responsive.css'
 import GraficasTop from './GraficasTop.vue'
