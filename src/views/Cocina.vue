@@ -33,18 +33,19 @@
           <li :class="{ active: vista === 'ordenes' }" @click="vista = 'ordenes'">
             <i class="fas fa-receipt"></i><span>Órdenes</span>
           </li>
+          <li :class="{ active: vista === 'caja' }" @click="vista = 'caja'">
+            <i class="fas fa-cash-register"></i><span>Caja</span>
+          </li>
         </ul>
       </aside>
 
-      <!-- Órdenes agrupadas por fecha y turno -->
+      <!-- Vista Órdenes -->
       <main class="cocina-contenido" v-if="vista === 'ordenes'">
         <h2>Órdenes - Café</h2>
         <div v-for="(turnos, fecha) in ordenesAgrupadas" :key="fecha" class="bloque-fecha">
           <h3 class="fecha-title">📅 {{ fecha }}</h3>
-
           <div v-for="(ordenesTurno, turno) in turnos" :key="turno" class="bloque-turno">
             <h4 class="turno-title">🕐 Turno: {{ turno }}</h4>
-
             <div class="scroll-tabla">
               <table class="tabla-ordenes">
                 <thead>
@@ -92,7 +93,7 @@
         </div>
       </main>
 
-      <!-- Menú de productos -->
+      <!-- Vista Menú -->
       <main class="cocina-contenido" v-if="vista === 'menu'">
         <h2>Menú de Productos</h2>
 
@@ -173,6 +174,11 @@
           </div>
         </div>
       </main>
+
+      <!-- Vista Caja -->
+      <main class="cocina-contenido" v-if="vista === 'caja'">
+        <Caja />
+      </main>
     </div>
   </div>
 </template>
@@ -181,6 +187,8 @@
 import { ref, computed, onMounted } from 'vue'
 import logo from '../assets/images/LogoCafe.png'
 import '../EstilosCss/cocinastyle.css'
+import Caja from './Caja.vue'
+
 import {
   fetchOrdenes,
   fetchProductos,
@@ -204,7 +212,6 @@ const mostrarDropdown = ref(false)
 const mensaje = ref('')
 const mensajeColor = ref('green')
 
-// Ordenes agrupadas por fecha y turno
 const ordenesAgrupadas = computed(() => {
   const agrupadas = {}
   ordenes.value.forEach(o => {
@@ -326,6 +333,7 @@ onMounted(() => {
   obtenerCategorias()
 })
 </script>
+
 
 <style scoped>
 .entregado-msg {
