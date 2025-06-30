@@ -1,14 +1,8 @@
 <template>
   <div class="caja-app">
     <main class="caja-contenido">
-      <!-- Selector de vista -->
-      <div class="caja-tabs">
-        <button @click="vistaCaja = 'arqueo'">Arqueo</button>
-        <button @click="vistaCaja = 'cortes'">Cortes</button>
-      </div>
-
       <!-- Arqueo -->
-      <div v-if="vistaCaja === 'arqueo'" class="arqueo-section">
+      <div class="arqueo-section">
         <h2>Arqueo y Corte de Caja</h2>
         <div class="arqueo-details">
           <p><strong>Total efectivo ingresado:</strong> ${{ totalEfectivo.toFixed(2) }}</p>
@@ -19,7 +13,7 @@
       </div>
 
       <!-- Cortes -->
-      <div v-if="vistaCaja === 'cortes'" class="cortes-section">
+      <div class="cortes-section">
         <h2>Historial de Cortes</h2>
         <div v-if="cortesRealizados.length > 0">
           <ul class="cortes-list">
@@ -41,12 +35,13 @@
 import { ref, onMounted } from 'vue'
 import { fetchArqueoDelDia, realizarCorteCaja, fetchCortes } from '../api'
 
-const vistaCaja = ref('arqueo')
+// Estado del arqueo
 const totalEfectivo = ref(0)
 const totalTarjeta = ref(0)
 const totalGeneral = ref(0)
 const cortesRealizados = ref([])
 
+// Carga los datos del arqueo
 const cargarArqueo = async () => {
   try {
     const arqueo = await fetchArqueoDelDia()
@@ -58,6 +53,7 @@ const cargarArqueo = async () => {
   }
 }
 
+// Realiza el corte
 const realizarCorte = async () => {
   try {
     const corte = await realizarCorteCaja(totalEfectivo.value, totalTarjeta.value)
@@ -73,6 +69,7 @@ const realizarCorte = async () => {
   }
 }
 
+// Carga los cortes previos
 const cargarCortes = async () => {
   try {
     const cortes = await fetchCortes()
@@ -82,6 +79,7 @@ const cargarCortes = async () => {
   }
 }
 
+// Carga inicial
 onMounted(() => {
   cargarArqueo()
   cargarCortes()
@@ -89,11 +87,12 @@ onMounted(() => {
 </script>
 
 <style scoped>
+/* (Estilos originales sin cambios) */
 .caja-app {
   display: flex;
   flex-direction: column;
   height: 100vh;
-  background: #f4f4f4; /* Fondo general */
+  background: #f4f4f4;
 }
 
 .caja-contenido {
