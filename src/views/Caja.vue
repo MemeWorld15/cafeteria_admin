@@ -1,9 +1,14 @@
 <template>
   <div class="caja-app">
-    <!-- Contenido de Caja -->
     <main class="caja-contenido">
-      <!-- Arqueo de Caja -->
-      <div v-if="vista === 'arqueo'" class="arqueo-section">
+      <!-- Selector de vista -->
+      <div class="caja-tabs">
+        <button @click="vistaCaja = 'arqueo'">Arqueo</button>
+        <button @click="vistaCaja = 'cortes'">Cortes</button>
+      </div>
+
+      <!-- Arqueo -->
+      <div v-if="vistaCaja === 'arqueo'" class="arqueo-section">
         <h2>Arqueo y Corte de Caja</h2>
         <div class="arqueo-details">
           <p><strong>Total efectivo ingresado:</strong> ${{ totalEfectivo.toFixed(2) }}</p>
@@ -13,13 +18,14 @@
         </div>
       </div>
 
-      <!-- Historial de cortes -->
-      <div v-if="vista === 'cortes'" class="cortes-section">
+      <!-- Cortes -->
+      <div v-if="vistaCaja === 'cortes'" class="cortes-section">
         <h2>Historial de Cortes</h2>
         <div v-if="cortesRealizados.length > 0">
           <ul class="cortes-list">
             <li v-for="corte in cortesRealizados" :key="corte.id" class="corte-item">
-              <strong>{{ corte.fecha }}</strong> - ${{ corte.total.toFixed(2) }} <span class="estado-corte">{{ corte.estado }}</span>
+              <strong>{{ corte.fecha }}</strong> - ${{ corte.total.toFixed(2) }} 
+              <span class="estado-corte">{{ corte.estado }}</span>
             </li>
           </ul>
         </div>
@@ -35,17 +41,12 @@
 import { ref, onMounted } from 'vue'
 import { fetchArqueoDelDia, realizarCorteCaja, fetchCortes } from '../api'
 
-const vista = ref('arqueo')
+const vistaCaja = ref('arqueo')
 const totalEfectivo = ref(0)
 const totalTarjeta = ref(0)
 const totalGeneral = ref(0)
 const cortesRealizados = ref([])
 
-const nombreUsuario = ref('')
-const rolUsuario = ref('')
-const mostrarDropdown = ref(false)
-
-// Función para cargar arqueo del día
 const cargarArqueo = async () => {
   try {
     const arqueo = await fetchArqueoDelDia()
@@ -57,14 +58,13 @@ const cargarArqueo = async () => {
   }
 }
 
-// Función para realizar el corte de caja
 const realizarCorte = async () => {
   try {
     const corte = await realizarCorteCaja(totalEfectivo.value, totalTarjeta.value)
     if (corte.success) {
       alert('Corte realizado exitosamente')
-      cargarArqueo() // Actualizar los totales
-      cargarCortes() // Actualizar el historial de cortes
+      cargarArqueo()
+      cargarCortes()
     } else {
       alert('Error al realizar el corte')
     }
@@ -73,7 +73,6 @@ const realizarCorte = async () => {
   }
 }
 
-// Función para cargar el historial de cortes realizados
 const cargarCortes = async () => {
   try {
     const cortes = await fetchCortes()
@@ -83,14 +82,7 @@ const cargarCortes = async () => {
   }
 }
 
-// Cargar información al montar el componente
 onMounted(() => {
-  if (localStorage.getItem('usuario_rol') !== 'chef') {
-    window.location.href = '/login'
-    return
-  }
-  nombreUsuario.value = localStorage.getItem('usuario_nombre') || 'Usuario'
-  rolUsuario.value = 'Caja'
   cargarArqueo()
   cargarCortes()
 })
