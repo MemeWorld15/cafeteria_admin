@@ -319,11 +319,11 @@ def crear_orden(data: OrdenEntrada):
     cursor = db.cursor()
     try:
         cursor.execute("""
-            INSERT INTO ordenes (cliente, nota, usuario_id, entregado)
-            VALUES (%s, %s, %s, %s)
+            INSERT INTO ordenes (cliente, nota, usuario_id, entregado, turno)
+            VALUES (%s, %s, %s, %s, %s)
             RETURNING id
-        """, (data.cliente, data.nota, data.usuario_id, False))
-        orden_id = cursor.fetchone()[0]  # ✅ Ahora sí funciona
+        """, (data.cliente, data.nota, data.usuario_id, False, data.turno))  # ✅ AGREGADO turno
+        orden_id = cursor.fetchone()[0]
 
         for prod in data.productos:
             cursor.execute("""
@@ -339,8 +339,6 @@ def crear_orden(data: OrdenEntrada):
     finally:
         cursor.close()
         db.close()
-
-
 @app.get("/ordenes")
 def listar_ordenes():
     db = get_db_connection()
@@ -352,11 +350,13 @@ def listar_ordenes():
         cursor.execute("SELECT * FROM orden_productos WHERE orden_id = %s", (orden["id"],))
         orden["productos"] = cursor.fetchall()
         orden["hora"] = orden["fecha"].strftime("%I:%M %p")
-        orden["fecha"] = orden["fecha"].strftime("%d-%m-%Y")
+        orden["fecha_mostrada"] = orden["fecha"].strftime("%d-%m-%Y")
+        orden["fecha"] = orden["fecha"].strftime("%Y-%m-%d")  # ✅ FORMATO ISO para Caja.vue
 
     cursor.close()
     db.close()
     return ordenes
+
 
 @app.delete("/ordenes/{orden_id}")
 def cancelar_orden(orden_id: int):
