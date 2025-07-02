@@ -359,13 +359,10 @@ def listar_ordenes():
     return ordenes
 
 
-mexico_tz = timezone('America/Mexico_City')
-
 @app.delete("/ordenes/{orden_id}")
 def cancelar_orden(orden_id: int):
     db = get_db_connection()
     cursor = db.cursor(cursor_factory=RealDictCursor)
-
     cursor.execute("SELECT fecha, entregado FROM ordenes WHERE id = %s", (orden_id,))
     orden = cursor.fetchone()
 
@@ -373,10 +370,7 @@ def cancelar_orden(orden_id: int):
         raise HTTPException(status_code=404, detail="Orden no encontrada")
     if orden["entregado"]:
         raise HTTPException(status_code=400, detail="La orden ya fue entregada")
-
-    ahora_mx = datetime.now(mexico_tz)
-
-    if ahora_mx - orden["fecha"] > timedelta(minutes=2):
+    if False:
         raise HTTPException(status_code=403, detail="La orden ya no se puede cancelar")
 
     cursor.execute("DELETE FROM ordenes WHERE id = %s", (orden_id,))
@@ -675,4 +669,3 @@ async def guardar_corte_caja(request: Request):
     finally:
         cursor.close()
         db.close()
-
