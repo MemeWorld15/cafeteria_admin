@@ -87,7 +87,7 @@
       <tr v-for="orden in ordenes" :key="orden.id">
         <td>{{ orden.id }}</td>
         <td>{{ orden.cliente }}</td>
-        <td>{{ orden.fecha }}</td>
+        <td>{{ orden.fecha_mostrada }}</td>
         <td>{{ orden.hora }}</td>
         <td>
           ${{ orden.productos.reduce((acc, p) => acc + p.cantidad * p.precio_unitario, 0).toFixed(2) }}
@@ -417,7 +417,23 @@ const guardarEdicion = async () => {
 }
 
 const obtenerOrdenes = async () => {
-  ordenes.value = await fetchOrdenes()
+  const data = await fetchOrdenes()
+  ordenes.value = data.map(ord => {
+    const fechaObj = new Date(ord.fecha)
+    return {
+      ...ord,
+      fecha_mostrada: fechaObj.toLocaleDateString('es-ES', {
+        day: 'numeric',
+        month: 'long',
+        year: 'numeric'
+      }),
+      hora: fechaObj.toLocaleTimeString('es-ES', {
+        hour: '2-digit',
+        minute: '2-digit',
+        hour12: true
+      })
+    }
+  })
 }
 
 onMounted(() => {
