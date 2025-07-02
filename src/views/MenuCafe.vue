@@ -229,6 +229,12 @@ const eliminarProductoOrden = (producto) => {
 const calcularTotal = () => {
   return orden.value.reduce((acc, prod) => acc + prod.precio * prod.cantidad, 0).toFixed(2)
 }
+const obtenerTurnoActual = () => {
+  const hora = new Date().getHours();
+  if (hora >= 6 && hora < 14) return 'matutino';
+  if (hora >= 14 && hora < 22) return 'vespertino';
+  return 'nocturno';
+}
 
 const enviarOrden = async () => {
   if (!nombreCliente.value.trim() || orden.value.length === 0) {
@@ -237,15 +243,17 @@ const enviarOrden = async () => {
   }
 
   const payload = {
-    cliente: nombreCliente.value,
-    nota: notaOrden.value,
-    usuario_id,
-    productos: orden.value.map(p => ({
-      nombre: p.nombre,
-      cantidad: p.cantidad,
-      precio: p.precio
-    }))
-  }
+  cliente: nombreCliente.value,
+  nota: notaOrden.value,
+  usuario_id,
+  turno: obtenerTurnoActual(), //  AGREGADO
+  productos: orden.value.map(p => ({
+    nombre: p.nombre,
+    cantidad: p.cantidad,
+    precio: p.precio
+  }))
+}
+
 
   const res = await enviarOrdenAPI(payload)
   if (res.ok) {
