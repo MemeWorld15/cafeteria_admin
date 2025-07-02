@@ -132,8 +132,8 @@
                 {{ ord.entregado ? 'Entregado' : 'En espera' }}
               </span>
               <button
-                :disabled="!puedeCancelar(ord.fecha) || ord.entregado"
-                :class="['cancelar-btn', { desactivado: !puedeCancelar(ord.fecha) || ord.entregado }]"
+                :disabled="!puedeCancelar(ord.fechaDate) || ord.entregado"
+                :class="['cancelar-btn', { desactivado: !puedeCancelar(ord.fechaDate) || ord.entregado }]"
                 @click="cancelarOrden(ord.id)"
               >
                 Cancelar
@@ -280,12 +280,12 @@ const cancelarOrden = async (ordenId) => {
   }
 }
 
-const puedeCancelar = (fechaRaw) => {
-  const fechaReal = new Date(fechaRaw)
+const puedeCancelar = (fechaReal) => {
   const ahora = new Date()
   const diferenciaMin = (ahora - fechaReal) / 1000 / 60
   return diferenciaMin <= 2
 }
+
 
 const obtenerOrdenes = async () => {
   if (!usuario_id) return
