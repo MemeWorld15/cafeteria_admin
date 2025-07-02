@@ -14,6 +14,7 @@ import uvicorn
 from fastapi.middleware.cors import CORSMiddleware
 import psycopg2
 from psycopg2.extras import RealDictCursor
+import pytz
 
 
 app = FastAPI()
@@ -363,6 +364,7 @@ def listar_ordenes():
 def cancelar_orden(orden_id: int):
     db = get_db_connection()
     cursor = db.cursor(cursor_factory=RealDictCursor)
+    
     cursor.execute("SELECT fecha, entregado FROM ordenes WHERE id = %s", (orden_id,))
     orden = cursor.fetchone()
 
@@ -370,7 +372,17 @@ def cancelar_orden(orden_id: int):
         raise HTTPException(status_code=404, detail="Orden no encontrada")
     if orden["entregado"]:
         raise HTTPException(status_code=400, detail="La orden ya fue entregada")
-    if False:
+
+    # Usa la zona horaria de México
+    zona_mexico = pytz.timezone("America/Mexico_City")
+    ahora = datetime.now(zona_mexico)
+
+    # Asegúrate de que la fecha de la orden también tenga la zona horaria
+    fecha_orden = orden["fecha"].replace(tzinfo=zona_mexico)
+
+    diferencia = ahora - fecha_orden
+
+    if diferencia > timedelta(minutes=2):
         raise HTTPException(status_code=403, detail="La orden ya no se puede cancelar")
 
     cursor.execute("DELETE FROM ordenes WHERE id = %s", (orden_id,))
