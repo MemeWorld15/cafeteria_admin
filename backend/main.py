@@ -613,3 +613,59 @@ def generar_pdf_inventario():
 
     c.save()
     return FileResponse(pdf_path, media_type="application/pdf", filename="inventario.pdf")
+# ---------------- CAJA ----------------
+
+@app.get("/caja")
+def listar_cortes_caja():
+    db = get_db_connection()
+    cursor = db.cursor(cursor_factory=RealDictCursor)
+    try:
+        cursor.execute("SELECT * FROM caja ORDER BY fecha DESC, id DESC")
+        cortes = cursor.fetchall()
+        return cortes
+    except Exception as e:
+        raise HTTPException(status_code=500, detail="Error al obtener cortes de caja: " + str(e))
+    finally:
+        cursor.close()
+        db.close()
+
+
+@app.post("/caja")
+async def guardar_corte_caja(request: Request):
+    data = await request.json()
+    fecha = data.get("fecha")
+    turno = data.get("turno")
+    total_ventas = data.get("totalVentas")
+    gastos = data.get("gastos")
+    total_gastos = data.get("totalGastos")
+    monto_caja = data.get("montoCaja")
+    resultado = data.get("resultado")
+
+    # Validación simple
+    if not fecha or not turno or total_ventas is None:
+        raise HTTPException(status_code=400, detail="Datos incompletos para guardar corte")
+
+    db = get_db_connection()
+    cursor = db.cursor()
+    try:
+        cursor.execute("""
+            INSERT INTO caja (fecha, turno, total_ventas, gastos, total_gastos, monto_caja, resultado)
+            VALUES (%s, %s, %s, %s, %s, %s, %s)
+        """, (
+            fecha,
+            turno,
+            total_ventas,
+            json.dumps(gastos),
+            total_gastos,
+            monto_caja,
+            resultado
+        ))
+        db.commit()
+        return {"success": True, "message": "Corte de caja guardado correctamente"}
+    except Exception as e:
+        db.rollback()
+        raise HTTPException(status_code=500, detail="Error al guardar el corte: " + str(e))
+    finally:
+        cursor.close()
+        db.close()
+
