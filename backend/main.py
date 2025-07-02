@@ -352,7 +352,7 @@ def listar_ordenes():
         orden["productos"] = cursor.fetchall()
         orden["hora"] = orden["fecha"].strftime("%I:%M %p")
         orden["fecha_mostrada"] = orden["fecha"].strftime("%d-%m-%Y")
-        orden["fecha"] = orden["fecha"].strftime("%Y-%m-%d")  # ✅ FORMATO ISO para Caja.vue
+        #<!--orden["fecha"] = orden["fecha"].strftime("%Y-%m-%d")-->  # ✅ FORMATO ISO para Caja.vue
 
     cursor.close()
     db.close()
