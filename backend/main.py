@@ -47,6 +47,7 @@ class OrdenEntrada(BaseModel):
     cliente: str
     nota: str = ""
     usuario_id: Optional[int]
+    turno: str
     productos: List[ProductoOrden]
 
 # ---------------- RUTAS ----------------
