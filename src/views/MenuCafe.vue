@@ -121,7 +121,7 @@
           <ul class="ordenes-lista">
             <li v-for="ord in historialOrdenes" :key="ord.id" class="orden-item">
               <strong>{{ ord.cliente }}</strong><br />
-              <span>{{ ord.fecha }} {{ ord.hora }}</span>
+              <span>{{ ord.fecha_mostrada }} a las {{ ord.hora }}</span>
               <ul>
                 <li v-for="p in ord.productos" :key="p.nombre_producto">
                   {{ p.cantidad }} x {{ p.nombre_producto }} - ${{ (p.cantidad * p.precio_unitario).toFixed(2) }}
