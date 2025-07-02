@@ -370,7 +370,7 @@ def cancelar_orden(orden_id: int):
         raise HTTPException(status_code=404, detail="Orden no encontrada")
     if orden["entregado"]:
         raise HTTPException(status_code=400, detail="La orden ya fue entregada")
-    if False:
+    if datetime.now() - orden["fecha"] > timedelta(minutes=2):
         raise HTTPException(status_code=403, detail="La orden ya no se puede cancelar")
 
     cursor.execute("DELETE FROM ordenes WHERE id = %s", (orden_id,))
