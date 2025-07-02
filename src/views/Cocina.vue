@@ -41,7 +41,7 @@
       <main class="cocina-contenido" v-if="vista === 'ordenes'">
         <h2>Órdenes - Café</h2>
         <div v-for="(turnos, fecha) in ordenesAgrupadas" :key="fecha" class="bloque-fecha">
-          <h3 class="fecha-title">📅 {{ fecha }}</h3>
+          <h3 class="fecha-title">📅 {{ formatFecha(fecha) }}</h3>
 
           <div v-for="(ordenesTurno, turno) in turnos" :key="turno" class="bloque-turno">
             <h4 class="turno-title">🕐 Turno: {{ turno }}</h4>
@@ -249,6 +249,16 @@ const cargarOrdenes = async () => {
     }
   })
 }
+
+const formatFecha = (fechaStr) => {
+  const fechaObj = new Date(fechaStr)
+  return fechaObj.toLocaleDateString('es-ES', {
+    day: 'numeric',
+    month: 'long',
+    year: 'numeric'
+  })
+}
+
 
 const obtenerProductos = async () => {
   productos.value = await fetchProductos()
