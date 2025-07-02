@@ -69,7 +69,7 @@
                       </ul>
                     </td>
                     <td>-</td>
-                    <td>{{ orden.fecha_mostrada }} a las {{ orden.hora }}</td>
+                    <td>{{ orden.hora }}</td>
                     <td>
                       <span :class="['estado', orden.entregado ? 'entregado' : 'no-entregado']">
                         {{ orden.entregado ? 'Entregado' : 'En espera' }}
@@ -236,11 +236,6 @@ const cargarOrdenes = async () => {
     const fechaObj = new Date(ord.fecha)
     return {
       ...ord,
-      fecha_mostrada: fechaObj.toLocaleDateString('es-ES', {
-        day: 'numeric',
-        month: 'long',
-        year: 'numeric'
-      }),
       hora: fechaObj.toLocaleTimeString('es-ES', {
         hour: '2-digit',
         minute: '2-digit',
