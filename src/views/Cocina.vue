@@ -69,7 +69,7 @@
                       </ul>
                     </td>
                     <td>-</td>
-                    <td>{{ orden.hora }}</td>
+                    <td>{{ orden.fecha_mostrada }} a las {{ orden.hora }}</td>
                     <td>
                       <span :class="['estado', orden.entregado ? 'entregado' : 'no-entregado']">
                         {{ orden.entregado ? 'Entregado' : 'En espera' }}
