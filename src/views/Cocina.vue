@@ -231,8 +231,25 @@ const cerrarSesion = () => {
 }
 
 const cargarOrdenes = async () => {
-  ordenes.value = await fetchOrdenes()
+  const data = await fetchOrdenes()
+  ordenes.value = data.map(ord => {
+    const fechaObj = new Date(ord.fecha)
+    return {
+      ...ord,
+      fecha_mostrada: fechaObj.toLocaleDateString('es-ES', {
+        day: 'numeric',
+        month: 'long',
+        year: 'numeric'
+      }),
+      hora: fechaObj.toLocaleTimeString('es-ES', {
+        hour: '2-digit',
+        minute: '2-digit',
+        hour12: true
+      })
+    }
+  })
 }
+
 const obtenerProductos = async () => {
   productos.value = await fetchProductos()
 }
