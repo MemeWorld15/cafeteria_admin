@@ -359,6 +359,8 @@ def listar_ordenes():
     return ordenes
 
 
+mexico_tz = timezone('America/Mexico_City')
+
 @app.delete("/ordenes/{orden_id}")
 def cancelar_orden(orden_id: int):
     db = get_db_connection()
@@ -369,16 +371,12 @@ def cancelar_orden(orden_id: int):
 
     if not orden:
         raise HTTPException(status_code=404, detail="Orden no encontrada")
-
     if orden["entregado"]:
         raise HTTPException(status_code=400, detail="La orden ya fue entregada")
 
-    # ✅ Convertir solo si es string
-    fecha_orden = orden["fecha"]
-    if isinstance(fecha_orden, str):
-        fecha_orden = datetime.fromisoformat(fecha_orden)
+    ahora_mx = datetime.now(mexico_tz)
 
-    if datetime.now() - fecha_orden > timedelta(minutes=2):
+    if ahora_mx - orden["fecha"] > timedelta(minutes=2):
         raise HTTPException(status_code=403, detail="La orden ya no se puede cancelar")
 
     cursor.execute("DELETE FROM ordenes WHERE id = %s", (orden_id,))
