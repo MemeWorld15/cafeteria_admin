@@ -140,18 +140,17 @@ export const reabastecerInsumo = (id, formData) =>
 
 export const descargarInventarioPDF = () =>
   window.open(`${BASE_URL}/inventario/pdf`, "_blank");
-// Asegúrate de que estas funciones estén exportadas en api.js
-export const fetchArqueoDelDia = () =>
-  fetch(`${BASE_URL}/arqueo/dia`, { method: 'GET', mode: 'cors' }).then(res => res.json());
+// ---------------------- CAJA ----------------------
 
-export const realizarCorteCaja = (formData) =>
-  fetch(`${BASE_URL}/corteCaja`, {
+export const guardarCorteCaja = (corte) =>
+  fetch(`${BASE_URL}/caja`, {
     method: 'POST',
-    body: formData,
-    mode: 'cors',
-  }).then((res) => res.json());
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(corte),
+    mode: 'cors'
+  });
 
-export const fetchCortes = () =>
-  fetch(`${BASE_URL}/cortes`, { method: 'GET', mode: 'cors' }).then((res) => res.json());
+export const fetchCortesCaja = () =>
+  fetch(`${BASE_URL}/caja`, { method: 'GET', mode: 'cors' }).then(res => res.json());
 
 
