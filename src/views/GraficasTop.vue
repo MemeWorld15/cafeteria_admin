@@ -18,7 +18,7 @@
     </div>
   </div>
 </template>
-<style scoped>
+
 <script setup>
 import { ref, onMounted } from 'vue'
 import { Chart, registerables } from 'chart.js'
@@ -82,6 +82,8 @@ const cargarGraficas = async () => {
 
 onMounted(cargarGraficas)
 </script>
+
+<style scoped>
 .graficas-top {
   padding: 2rem;
   max-width: 1200px;
@@ -96,15 +98,21 @@ onMounted(cargarGraficas)
 
 .graf-item {
   background: #fff;
-  padding: 1rem;
-  border-radius: 8px;
-  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+  padding: 1.5rem;
+  border-radius: 12px;
+  box-shadow: 0 3px 8px rgba(0, 0, 0, 0.1);
+  transition: transform 0.2s ease;
+}
+
+.graf-item:hover {
+  transform: translateY(-4px);
 }
 
 .graf-item h3 {
   margin-bottom: 1rem;
   font-size: 1.2rem;
   text-align: center;
+  color: #333;
 }
 
 canvas {
