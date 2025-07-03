@@ -368,12 +368,44 @@ html, body {
 .logout-btn {
   background: none;
   border: none;
-  font-size: 0.9rem;
-  color: #e53935;
+  color: #d9534f;
+  font-weight: bold;
   cursor: pointer;
+  padding: 0.5rem 0;
+  width: 100%;
+  text-align: left;
 }
 
 .logout-btn:hover {
-  color: #c62828;
+  background: #f2f2f2;
 }
 
+/* Responsive */
+@media (max-width: 1024px) {
+  .menu-main-body {
+    flex-direction: column;
+    padding: 1rem;
+  }
+
+  .menu-sidebar,
+  .menu-content,
+  .menu-orden {
+    width: 100%;
+    max-width: 100%;
+  }
+
+  .menu-sidebar {
+    border-bottom: 1px solid #ddd;
+    padding-bottom: 1rem;
+  }
+
+  .menu-content,
+  .menu-orden {
+    margin-top: 1rem;
+  }
+
+  .ordenes-historial {
+    padding: 1rem;
+    height: auto;
+  }
+}
