@@ -152,5 +152,14 @@ export const guardarCorteCaja = (corte) =>
 
 export const fetchCortesCaja = () =>
   fetch(`${BASE_URL}/caja`, { method: 'GET', mode: 'cors' }).then(res => res.json());
+// GRAFICAS
+export const fetchTopProductos = () =>
+  fetch(`${BASE_URL}/graficas/top-productos`).then(res => res.json())
+
+export const fetchTopClientes = () =>
+  fetch(`${BASE_URL}/graficas/top-clientes`).then(res => res.json())
+
+export const fetchProductoMenosPedido = () =>
+  fetch(`${BASE_URL}/productos/menos-pedido`).then(res => res.json())
 
 
