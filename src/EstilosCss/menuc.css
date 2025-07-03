@@ -192,134 +192,114 @@ html, body {
 /* Órdenes */
 .menu-orden {
   width: 30%;
-  min-width: 300px;
-  background-color: #fff;
-  border: 1px solid #ddd;
-  padding: 1.5rem;
-  border-radius: 12px;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  min-width: 250px;
+  background-color: #f6f6f6;
+  border: 1px solid #ccc;
+  padding: 1rem;
+  border-radius: 10px;
   overflow-y: auto;
   max-height: calc(100vh - 100px);
-  transition: all 0.3s ease;
-}
-
-.menu-orden:hover {
-  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.2);
 }
 
 .menu-orden h3 {
-  font-size: 1.3rem;
-  font-weight: 600;
-  margin-bottom: 1rem;
-  color: #333;
-  text-align: center;
-  border-bottom: 2px solid #f1f1f1;
-  padding-bottom: 0.5rem;
-  color: #2e7d32;
+  font-size: 1.1rem;
+  margin-bottom: 0.5rem;
 }
 
 .menu-resumen p {
   display: flex;
   justify-content: space-between;
-  font-size: 1rem;
-  margin: 0.5rem 0;
-  color: #555;
-}
-
-.menu-resumen p strong {
-  font-weight: 600;
+  font-size: 0.95rem;
+  margin: 0.3rem 0;
 }
 
 .menu-resumen button {
   background: #e53935;
   color: white;
   border: none;
-  border-radius: 8px;
-  padding: 6px 14px;
+  border-radius: 4px;
+  padding: 2px 6px;
   cursor: pointer;
-  font-size: 0.9rem;
-  transition: background 0.3s ease;
 }
 
 .menu-resumen button:hover {
   background-color: #c62828;
 }
 
-/* Estilos para inputs y textarea */
 .menu-orden input,
 .menu-orden textarea {
   width: 100%;
-  padding: 0.8rem;
-  margin-top: 1rem;
-  border: 1px solid #ddd;
-  border-radius: 8px;
-  background-color: #fafafa;
-  font-size: 1rem;
-  color: #444;
-  transition: all 0.3s ease;
+  padding: 0.5rem;
+  margin-top: 0.7rem;
+  border: 1px solid #ccc;
+  border-radius: 5px;
 }
 
-.menu-orden input:focus,
-.menu-orden textarea:focus {
-  border-color: #2e7d32;
-  outline: none;
-  background-color: #f1f8f1;
-}
-
-/* Total y botón de ordenar */
 .menu-total {
-  font-size: 1.2rem;
-  font-weight: 600;
-  margin-top: 1.5rem;
-  color: #2e7d32;
-  text-align: center;
+  margin-top: 1rem;
+  font-size: 1.1rem;
 }
 
 .menu-ordenar {
   width: 100%;
-  padding: 0.8rem;
-  margin-top: 1.5rem;
-  background-color: #2e7d32;
+  padding: 0.7rem;
+  margin-top: 1rem;
+  background-color: #222;
   color: white;
   border: none;
-  border-radius: 8px;
+  border-radius: 6px;
   font-weight: bold;
-  font-size: 1.1rem;
-  cursor: pointer;
-  transition: background-color 0.3s ease;
 }
 
-.menu-ordenar:hover {
-  background-color: #256b29;
+/* Pestañas del menú */
+.menu-tabs {
+  display: flex;
+  justify-content: center;
+  background-color: #ffffff;
+  border-bottom: 1px solid #ddd;
 }
 
-.menu-ordenar:active {
-  background-color: #1b4d20;
-}
-
-/* Mensaje de confirmación */
-.menu-orden p.mensaje {
-  color: #28a745;
-  font-weight: 600;
-  margin-top: 1rem;
-  text-align: center;
+.menu-tabs button {
+  padding: 0.8rem 1.5rem;
+  border: none;
+  background: none;
   font-size: 1rem;
+  font-weight: 500;
+  cursor: pointer;
+  color: #444;
+  border-bottom: 3px solid transparent;
+}
+
+.menu-tabs button:hover {
+  background-color: #f5f5f5;
+}
+
+.menu-tabs button.active {
+  color: #2e7d32;
+  border-bottom: 3px solid #2e7d32;
+  background-color: #f1fef1;
 }
 
 /* Historial de órdenes */
 .ordenes-historial {
   width: 100%;
   padding: 2rem;
-  background-color: #fff;
-  border-radius: 10px;
+  background-color: #ffffff;
+  border-radius: 12px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
   overflow-y: auto;
   height: calc(100vh - 140px);
+  margin-top: 2rem;
 }
 
 .ordenes-historial h3 {
-  font-size: 1.2rem;
-  margin-bottom: 1rem;
+  font-size: 1.5rem;
+  margin-bottom: 1.5rem;
   color: #2e7d32;
+  text-align: center;
+  font-weight: 600;
+  border-bottom: 2px solid #f1f1f1;
+  padding-bottom: 0.5rem;
 }
 
 .ordenes-lista {
@@ -327,107 +307,89 @@ html, body {
 }
 
 .ordenes-lista li {
-  background-color: #f8f8f8;
+  background-color: #f9f9f9;
   border: 1px solid #ddd;
-  padding: 0.8rem 1rem;
-  border-radius: 6px;
-  margin-bottom: 0.8rem;
-  font-size: 0.95rem;
+  padding: 1rem;
+  border-radius: 8px;
+  margin-bottom: 1rem;
+  font-size: 1rem;
   display: flex;
   justify-content: space-between;
+  align-items: center;
+  transition: all 0.3s ease;
 }
 
-/* Botón cancelar */
-.cancelar-btn {
-  background-color: red;
+.ordenes-lista li:hover {
+  background-color: #f1f1f1;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.ordenes-lista li .orden-info {
+  flex: 1;
+  font-size: 1rem;
+  color: #333;
+}
+
+.ordenes-lista li .orden-info span {
+  display: block;
+  margin-bottom: 0.5rem;
+  color: #666;
+}
+
+.ordenes-lista li .orden-actions {
+  display: flex;
+  gap: 10px;
+}
+
+.ordenes-lista li .orden-actions button {
+  padding: 6px 12px;
+  background-color: #2e7d32;
   color: white;
-  padding: 4px 10px;
   border: none;
-  border-radius: 5px;
+  border-radius: 6px;
+  font-size: 0.9rem;
   cursor: pointer;
+  transition: background-color 0.3s ease;
 }
 
-.cancelar-btn:hover {
-  background-color: #b71c1c;
+.ordenes-lista li .orden-actions button:hover {
+  background-color: #256b29;
 }
 
-.cancelar-btn.desactivado {
-  background-color: gray;
+.ordenes-lista li .orden-actions button.cancelar {
+  background-color: #e53935;
+}
+
+.ordenes-lista li .orden-actions button.cancelar:hover {
+  background-color: #c62828;
+}
+
+.ordenes-lista li .orden-actions button.desactivado {
+  background-color: #ccc;
   cursor: not-allowed;
   opacity: 0.6;
 }
 
-/* Productos no disponibles */
-.menu-item.no-disponible {
-  opacity: 0.5;
-  pointer-events: none;
-  background-color: #eee;
+.ordenes-lista li .orden-status {
+  padding: 6px 12px;
+  background-color: #f1f1f1;
+  color: #777;
+  border-radius: 20px;
+  font-size: 0.9rem;
+  text-transform: capitalize;
 }
 
-.menu-item.no-disponible strong {
-  color: #999;
+.ordenes-lista li .orden-status.pending {
+  background-color: #ffeb3b;
+  color: #f57c00;
 }
 
-/* Dropdown menú */
-.dropdown-menu {
-  position: absolute;
-  right: 1rem;
-  top: 4rem;
-  background: white;
-  border: 1px solid #ccc;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-  padding: 0.75rem;
-  border-radius: 5px;
-  z-index: 999;
-  min-width: 150px;
+.ordenes-lista li .orden-status.completed {
+  background-color: #4caf50;
+  color: white;
 }
 
-.dropdown-menu p {
-  font-weight: bold;
-  margin-bottom: 0.5rem;
-}
-
-.logout-btn {
-  background: none;
-  border: none;
-  color: #d9534f;
-  font-weight: bold;
-  cursor: pointer;
-  padding: 0.5rem 0;
-  width: 100%;
-  text-align: left;
-}
-
-.logout-btn:hover {
-  background: #f2f2f2;
-}
-
-/* Responsive */
-@media (max-width: 1024px) {
-  .menu-main-body {
-    flex-direction: column;
-    padding: 1rem;
-  }
-
-  .menu-sidebar,
-  .menu-content,
-  .menu-orden {
-    width: 100%;
-    max-width: 100%;
-  }
-
-  .menu-sidebar {
-    border-bottom: 1px solid #ddd;
-    padding-bottom: 1rem;
-  }
-
-  .menu-content,
-  .menu-orden {
-    margin-top: 1rem;
-  }
-
-  .ordenes-historial {
-    padding: 1rem;
-    height: auto;
-  }
+.ordenes-lista li .orden-status.canceled {
+  background-color: #f44336;
+  color: white;
 }
