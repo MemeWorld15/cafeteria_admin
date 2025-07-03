@@ -78,4 +78,8 @@ onMounted(cargarGraficas)
   margin: auto;
   padding: 2rem;
 }
+canvas {
+  width: 100% !important;
+  height: 300px !important;
+}
 </style>
