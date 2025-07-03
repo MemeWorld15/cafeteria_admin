@@ -14,9 +14,6 @@
         <i class="fas fa-user"></i>
         
         <span class="menu-name">{{ nombreUsuario }}</span>
-        <!--<span class="menu-name">{{ nombreUsuario }}</span>-->
-        <!--<span class="menu-name">Gavano</span>-->
-        <!--<i class="fas fa-chevron-down"></i>-->
         <div class="dropdown" @click="toggleDropdown">
           <i class="fas fa-chevron-down"></i>
           <div v-if="mostrarDropdown" class="dropdown-menu" @click.stop>
@@ -64,11 +61,10 @@
                 <i :class="['fas', categoriaExpandida[categoria] ? 'fa-chevron-up' : 'fa-chevron-down']" style="margin-left: 8px;" />
               </h2>
               <div v-show="categoriaExpandida[categoria]">
-              <div class="menu-item"
-                  v-for="platillo in platillos[categoria]"
-                  :key="platillo.nombre"
-                  :class="{ 'no-disponible': platillo.disponible === false }"
-                >
+                <div class="menu-item"
+                     v-for="platillo in platillos[categoria]"
+                     :key="platillo.nombre"
+                     :class="{ 'no-disponible': platillo.disponible === false }">
                   <div>
                     <strong>
                       {{ platillo.nombre }}
@@ -92,26 +88,6 @@
             </div>
           </div>
         </main>
-
-        <aside class="menu-orden scrollable">
-          <h3>Orden</h3>
-          <p><strong>Mesa</strong> 1</p>
-          <div class="menu-resumen">
-            <div v-if="orden.length === 0">Aún no hay productos en la orden.</div>
-            <div v-else>
-              <p v-for="item in orden" :key="item.nombre">
-                - {{ item.cantidad }} x {{ item.nombre }}
-                <span>${{ (item.precio * item.cantidad).toFixed(2) }}</span>
-                <button @click="eliminarProductoOrden(item)">❌</button>
-              </p>
-            </div>
-          </div>
-          <input v-model="nombreCliente" type="text" placeholder="Nombre del cliente" />
-          <textarea v-model="notaOrden" placeholder="Nota"></textarea>
-          <p class="menu-total">Total: <strong>${{ calcularTotal() }}</strong></p>
-          <button class="menu-ordenar" @click="enviarOrden">ORDENAR</button>
-          <p v-if="mensajeConfirmacion" style="margin-top: 0.5rem; color: green;">{{ mensajeConfirmacion }}</p>
-        </aside>
       </template>
 
       <!-- Vista Órdenes -->
@@ -120,17 +96,23 @@
           <h3>Órdenes previas</h3>
           <ul class="ordenes-lista">
             <li v-for="ord in historialOrdenes" :key="ord.id" class="orden-item">
-              <strong>{{ ord.cliente }}</strong><br />
-              <span>{{ ord.fecha_mostrada }} a las {{ ord.hora }}</span>
-              <ul>
+              <div class="orden-info">
+                <strong>{{ ord.cliente }}</strong><br />
+                <span>{{ ord.fecha_mostrada }} a las {{ ord.hora }}</span>
+              </div>
+
+              <ul class="productos-lista">
                 <li v-for="p in ord.productos" :key="p.nombre_producto">
                   {{ p.cantidad }} x {{ p.nombre_producto }} - ${{ (p.cantidad * p.precio_unitario).toFixed(2) }}
                 </li>
               </ul>
-              <p><strong>Total:</strong> ${{ ord.total }}</p>
+
+              <p class="total"><strong>Total:</strong> ${{ ord.total }}</p>
+
               <span :class="['estado', ord.entregado ? 'entregado' : 'no-entregado']">
                 {{ ord.entregado ? 'Entregado' : 'En espera' }}
               </span>
+
               <button
                 :disabled="!puedeCancelar(ord.fechaDate) || ord.entregado"
                 :class="['cancelar-btn', { desactivado: !puedeCancelar(ord.fechaDate) || ord.entregado }]"
@@ -173,7 +155,6 @@ const nombreUsuario = ref(localStorage.getItem("usuario_nombre") || "Invitado")
 const rolUsuario = ref(localStorage.getItem("usuario_rol") || 'Cliente')
 const usuario_id = parseInt(localStorage.getItem("usuario_id") || '0')
 const mostrarDropdown = ref(false)
-
 
 const toggleCategoria = (cat) => {
   categoriaExpandida.value[cat] = !categoriaExpandida.value[cat]
@@ -229,12 +210,6 @@ const eliminarProductoOrden = (producto) => {
 const calcularTotal = () => {
   return orden.value.reduce((acc, prod) => acc + prod.precio * prod.cantidad, 0).toFixed(2)
 }
-const obtenerTurnoActual = () => {
-  const hora = new Date().getHours();
-  if (hora >= 6 && hora < 14) return 'matutino';
-  if (hora >= 14 && hora < 22) return 'vespertino';
-  return 'nocturno';
-}
 
 const enviarOrden = async () => {
   if (!nombreCliente.value.trim() || orden.value.length === 0) {
@@ -243,17 +218,15 @@ const enviarOrden = async () => {
   }
 
   const payload = {
-  cliente: nombreCliente.value,
-  nota: notaOrden.value,
-  usuario_id,
-  turno: obtenerTurnoActual(), //  AGREGADO
-  productos: orden.value.map(p => ({
-    nombre: p.nombre,
-    cantidad: p.cantidad,
-    precio: p.precio
-  }))
-}
-
+    cliente: nombreCliente.value,
+    nota: notaOrden.value,
+    usuario_id,
+    productos: orden.value.map(p => ({
+      nombre: p.nombre,
+      cantidad: p.cantidad,
+      precio: p.precio
+    }))
+  }
 
   const res = await enviarOrdenAPI(payload)
   if (res.ok) {
@@ -286,7 +259,6 @@ const puedeCancelar = (fechaReal) => {
   return diferenciaMin <= 2
 }
 
-
 const obtenerOrdenes = async () => {
   if (!usuario_id) return
   const data = await fetchOrdenesCliente(usuario_id)
@@ -299,12 +271,6 @@ const obtenerOrdenes = async () => {
 }
 
 onMounted(() => {
-  const rol = localStorage.getItem('usuario_rol')
-  if (rol !== 'cliente') {
-    router.push('/login')
-    return
-  }
-
   obtenerMenu()
   obtenerOrdenes()
 })
