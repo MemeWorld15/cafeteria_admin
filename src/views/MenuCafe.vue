@@ -12,14 +12,10 @@
       <div class="top-right">
         <i class="fas fa-sun" @click="toggleDarkMode"></i>
         <i class="fas fa-user"></i>
-        
         <span class="menu-name">{{ nombreUsuario }}</span>
-        <!--<span class="menu-name">{{ nombreUsuario }}</span>-->
-        <!--<span class="menu-name">Gavano</span>-->
-        <!--<i class="fas fa-chevron-down"></i>-->
         <div class="dropdown" @click="toggleDropdown">
           <i class="fas fa-chevron-down"></i>
-          <div v-if="mostrarDropdown" class="dropdown-menu" @click.stop>
+          <div v-if="mostrarDropdown" class="dropdown-menu">
             <p class="usuario-nombre">{{ nombreUsuario }}</p>
             <hr />
             <button class="logout-btn" @click="cerrarSesion">Cerrar sesión</button>
@@ -64,11 +60,10 @@
                 <i :class="['fas', categoriaExpandida[categoria] ? 'fa-chevron-up' : 'fa-chevron-down']" style="margin-left: 8px;" />
               </h2>
               <div v-show="categoriaExpandida[categoria]">
-              <div class="menu-item"
-                  v-for="platillo in platillos[categoria]"
-                  :key="platillo.nombre"
-                  :class="{ 'no-disponible': platillo.disponible === false }"
-                >
+                <div class="menu-item"
+                    v-for="platillo in platillos[categoria]"
+                    :key="platillo.nombre"
+                    :class="{ 'no-disponible': platillo.disponible === false }">
                   <div>
                     <strong>
                       {{ platillo.nombre }}
@@ -147,10 +142,9 @@
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue'
+import { ref, onMounted, onBeforeUnmount } from 'vue'
 import logo from '../assets/images/LogoCafe.png'
 import '../EstilosCss/menuc.css'
-
 import {
   fetchMenu,
   fetchOrdenesCliente,
@@ -170,10 +164,8 @@ const notaOrden = ref('')
 const mensajeConfirmacion = ref('')
 const historialOrdenes = ref([])
 const nombreUsuario = ref(localStorage.getItem("usuario_nombre") || "Invitado")
-const rolUsuario = ref(localStorage.getItem("usuario_rol") || 'Cliente')
 const usuario_id = parseInt(localStorage.getItem("usuario_id") || '0')
 const mostrarDropdown = ref(false)
-
 
 const toggleCategoria = (cat) => {
   categoriaExpandida.value[cat] = !categoriaExpandida.value[cat]
@@ -187,6 +179,24 @@ const toggleDropdown = () => {
   mostrarDropdown.value = !mostrarDropdown.value
 }
 
+// Cierra dropdown al hacer clic fuera
+const handleClickOutside = (event) => {
+  const dropdown = document.querySelector('.dropdown')
+  if (dropdown && !dropdown.contains(event.target)) {
+    mostrarDropdown.value = false
+  }
+}
+
+onMounted(() => {
+  document.addEventListener('click', handleClickOutside)
+  obtenerMenu()
+  obtenerOrdenes()
+})
+
+onBeforeUnmount(() => {
+  document.removeEventListener('click', handleClickOutside)
+})
+
 const cerrarSesion = () => {
   localStorage.clear()
   window.location.href = '/'  
@@ -196,7 +206,6 @@ const obtenerMenu = async () => {
   platillos.value = await fetchMenu()
   categorias.value = Object.keys(platillos.value)
   categoriaSeleccionada.value = 'Todas'
-
   const expanded = {}
   categorias.value.forEach(cat => (expanded[cat] = true))
   categoriaExpandida.value = expanded
@@ -229,6 +238,7 @@ const eliminarProductoOrden = (producto) => {
 const calcularTotal = () => {
   return orden.value.reduce((acc, prod) => acc + prod.precio * prod.cantidad, 0).toFixed(2)
 }
+
 const obtenerTurnoActual = () => {
   const hora = new Date().getHours();
   if (hora >= 6 && hora < 14) return 'matutino';
@@ -241,20 +251,17 @@ const enviarOrden = async () => {
     alert("Por favor ingresa el nombre del cliente y al menos un producto.")
     return
   }
-
   const payload = {
-  cliente: nombreCliente.value,
-  nota: notaOrden.value,
-  usuario_id,
-  turno: obtenerTurnoActual(), //  AGREGADO
-  productos: orden.value.map(p => ({
-    nombre: p.nombre,
-    cantidad: p.cantidad,
-    precio: p.precio
-  }))
-}
-
-
+    cliente: nombreCliente.value,
+    nota: notaOrden.value,
+    usuario_id,
+    turno: obtenerTurnoActual(),
+    productos: orden.value.map(p => ({
+      nombre: p.nombre,
+      cantidad: p.cantidad,
+      precio: p.precio
+    }))
+  }
   const res = await enviarOrdenAPI(payload)
   if (res.ok) {
     mensajeConfirmacion.value = 'Orden enviada correctamente.'
@@ -268,9 +275,7 @@ const enviarOrden = async () => {
 }
 
 const cancelarOrden = async (ordenId) => {
-  const confirmar = confirm("¿Seguro que quieres cancelar esta orden?")
-  if (!confirmar) return
-
+  if (!confirm("¿Seguro que quieres cancelar esta orden?")) return
   const res = await cancelarOrdenPorId(ordenId)
   if (!res.ok) {
     alert("Error al cancelar la orden.")
@@ -286,26 +291,13 @@ const puedeCancelar = (fechaReal) => {
   return diferenciaMin <= 2
 }
 
-
 const obtenerOrdenes = async () => {
   if (!usuario_id) return
   const data = await fetchOrdenesCliente(usuario_id)
-
   historialOrdenes.value = data.map(ord => ({
     ...ord,
     total: ord.productos.reduce((acc, p) => acc + p.precio_unitario * p.cantidad, 0).toFixed(2),
     fechaDate: new Date(ord.fecha)
   }))
 }
-
-onMounted(() => {
-  const rol = localStorage.getItem('usuario_rol')
-  if (rol !== 'cliente') {
-    router.push('/login')
-    return
-  }
-
-  obtenerMenu()
-  obtenerOrdenes()
-})
 </script>
