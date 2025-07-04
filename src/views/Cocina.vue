@@ -332,4 +332,10 @@ onMounted(() => {
   margin-bottom: 0.5rem;
 }
 .scroll-tabla { overflow-x: auto; }
+.cocina-contenido {
+  background: white;
+  padding: 2rem;
+  border-radius: 8px;
+}
+
 </style>
