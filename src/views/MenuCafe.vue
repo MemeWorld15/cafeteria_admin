@@ -51,7 +51,7 @@
         <main class="menu-content">
           <input type="text" placeholder="Buscar..." class="menu-buscar" />
           <div class="menu-seccion scrollable">
-            <div class="menu-titulo">Menú <span class="mesa">Mesa 1</span></div>
+            <div class="menu-titulo">Menú <!--<span class="mesa">Mesa 1</span></div>-->
             <div v-for="categoria in categorias" :key="categoria"
                 v-show="categoriaSeleccionada === 'Todas' || categoriaSeleccionada === categoria"
                 class="menu-categoria">
@@ -90,7 +90,7 @@
 
         <aside class="menu-orden scrollable">
           <h3>Orden</h3>
-          <p><strong>Mesa</strong> 1</p>
+          <!--<p><strong>Mesa</strong> 1</p>-->
           <div class="menu-resumen">
             <div v-if="orden.length === 0">Aún no hay productos en la orden.</div>
             <div v-else>
@@ -126,6 +126,7 @@
               <span :class="['estado', ord.entregado ? 'entregado' : 'no-entregado']">
                 {{ ord.entregado ? 'Entregado' : 'En espera' }}
               </span>
+              <button @click="ordenExpandida = ord">Ver Detalle</button>
               <button
                 :disabled="!puedeCancelar(ord.fechaDate) || ord.entregado"
                 :class="['cancelar-btn', { desactivado: !puedeCancelar(ord.fechaDate) || ord.entregado }]"
@@ -137,6 +138,22 @@
           </ul>
         </main>
       </template>
+        <div v-if="ordenExpandida" class="modal-overlay" @click.self="ordenExpandida = null">
+        <div class="modal-content">
+          <h3>Detalle de Orden</h3>
+          <p><strong>Cliente:</strong> {{ ordenExpandida.cliente }}</p>
+          <p><strong>Fecha:</strong> {{ ordenExpandida.fecha_mostrada }} a las {{ ordenExpandida.hora }}</p>
+          <p v-if="ordenExpandida.nota"><strong>Nota:</strong> {{ ordenExpandida.nota }}</p>
+          <ul>
+            <li v-for="p in ordenExpandida.productos" :key="p.nombre_producto">
+              {{ p.cantidad }} x {{ p.nombre_producto }} - ${{ (p.cantidad * p.precio_unitario).toFixed(2) }}
+            </li>
+          </ul>
+          <p><strong>Total:</strong> ${{ ordenExpandida.total }}</p>
+          <button @click="ordenExpandida = null">Cerrar</button>
+        </div>
+      </div>
+
     </div>
   </div>
 </template>
@@ -166,6 +183,8 @@ const historialOrdenes = ref([])
 const nombreUsuario = ref(localStorage.getItem("usuario_nombre") || "Invitado")
 const usuario_id = parseInt(localStorage.getItem("usuario_id") || '0')
 const mostrarDropdown = ref(false)
+const ordenExpandida = ref(null)
+
 
 const toggleCategoria = (cat) => {
   categoriaExpandida.value[cat] = !categoriaExpandida.value[cat]
