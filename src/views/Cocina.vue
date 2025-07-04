@@ -36,83 +36,95 @@
         </ul>
       </aside>
 
-      <!-- Vista Órdenes -->
+      <!-- Vista Órdenes con separación -->
       <main class="cocina-contenido" v-if="vista === 'ordenes'">
         <h2>📋 Órdenes - Café</h2>
-        <div v-for="(turnos, fecha) in ordenesAgrupadas" :key="fecha" class="bloque-fecha">
-          <h3 class="fecha-title">📅 {{ formatFecha(fecha) }}</h3>
-          <div v-for="(ordenesTurno, turno) in turnos" :key="turno" class="bloque-turno">
-            <h4 class="turno-title">🕐 Turno: {{ turno }}</h4>
 
-            <!-- En espera -->
-            <div class="scroll-tabla">
-              <h5>🕒 En espera</h5>
-              <table class="tabla-ordenes">
-                <thead>
-                  <tr>
-                    <th>Cliente</th>
-                    <th>Productos</th>
-                    <th>Mesa</th>
-                    <th>Hora</th>
-                    <th>Status</th>
-                    <th>Acción</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  <tr v-for="orden in ordenesTurno.filter(o => !o.entregado)" :key="orden.id">
-                    <td><strong>{{ orden.cliente }}</strong></td>
-                    <td>
-                      <ul>
-                        <li v-for="prod in orden.productos" :key="prod.id">
-                          {{ prod.cantidad }} x {{ prod.nombre_producto }}
-                        </li>
-                      </ul>
-                    </td>
-                    <td>-</td>
-                    <td>{{ orden.hora }}</td>
-                    <td><span class="estado no-entregado">En espera</span></td>
-                    <td>
-                      <button @click="marcarEntregado(orden.id)" class="btn-entregar">
-                        Marcar como entregado
-                      </button>
-                    </td>
-                  </tr>
-                </tbody>
-              </table>
-
-              <!-- Entregadas -->
-              <h5>✅ Entregadas</h5>
-              <table class="tabla-ordenes">
-                <thead>
-                  <tr>
-                    <th>Cliente</th>
-                    <th>Productos</th>
-                    <th>Mesa</th>
-                    <th>Hora</th>
-                    <th>Status</th>
-                    <th>Acción</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  <tr v-for="orden in ordenesTurno.filter(o => o.entregado)" :key="orden.id">
-                    <td><strong>{{ orden.cliente }}</strong></td>
-                    <td>
-                      <ul>
-                        <li v-for="prod in orden.productos" :key="prod.id">
-                          {{ prod.cantidad }} x {{ prod.nombre_producto }}
-                        </li>
-                      </ul>
-                    </td>
-                    <td>-</td>
-                    <td>{{ orden.hora }}</td>
-                    <td><span class="estado entregado">Entregado</span></td>
-                    <td><span class="entregado-msg">✅ Entregado</span></td>
-                  </tr>
-                </tbody>
-              </table>
+        <!-- Órdenes por realizar -->
+        <section class="bloque-seccion">
+          <h3 class="seccion-title">🕒 Órdenes por realizar</h3>
+          <div v-for="(turnos, fecha) in ordenesAgrupadas" :key="'pend-' + fecha">
+            <div v-for="(ordenesTurno, turno) in turnos" :key="'pend-' + turno + fecha">
+              <div v-if="ordenesTurno.some(o => !o.entregado)">
+                <h4 class="fecha-turno">📅 {{ formatFecha(fecha) }} — 🕐 {{ turno }}</h4>
+                <div class="scroll-tabla">
+                  <table class="tabla-ordenes">
+                    <thead>
+                      <tr>
+                        <th>Cliente</th>
+                        <th>Productos</th>
+                        <th>Mesa</th>
+                        <th>Hora</th>
+                        <th>Status</th>
+                        <th>Acción</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <tr v-for="orden in ordenesTurno.filter(o => !o.entregado)" :key="orden.id">
+                        <td><strong>{{ orden.cliente }}</strong></td>
+                        <td>
+                          <ul>
+                            <li v-for="prod in orden.productos" :key="prod.id">
+                              {{ prod.cantidad }} x {{ prod.nombre_producto }}
+                            </li>
+                          </ul>
+                        </td>
+                        <td>-</td>
+                        <td>{{ orden.hora }}</td>
+                        <td><span class="estado no-entregado">En espera</span></td>
+                        <td>
+                          <button @click="marcarEntregado(orden.id)" class="btn-entregar">Marcar como entregado</button>
+                        </td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
+              </div>
             </div>
           </div>
-        </div>
+        </section>
+
+        <!-- Órdenes entregadas -->
+        <section class="bloque-seccion">
+          <h3 class="seccion-title">✅ Órdenes entregadas</h3>
+          <div v-for="(turnos, fecha) in ordenesAgrupadas" :key="'ent-' + fecha">
+            <div v-for="(ordenesTurno, turno) in turnos" :key="'ent-' + turno + fecha">
+              <div v-if="ordenesTurno.some(o => o.entregado)">
+                <h4 class="fecha-turno">📅 {{ formatFecha(fecha) }} — 🕐 {{ turno }}</h4>
+                <div class="scroll-tabla">
+                  <table class="tabla-ordenes">
+                    <thead>
+                      <tr>
+                        <th>Cliente</th>
+                        <th>Productos</th>
+                        <th>Mesa</th>
+                        <th>Hora</th>
+                        <th>Status</th>
+                        <th>Acción</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <tr v-for="orden in ordenesTurno.filter(o => o.entregado)" :key="orden.id">
+                        <td><strong>{{ orden.cliente }}</strong></td>
+                        <td>
+                          <ul>
+                            <li v-for="prod in orden.productos" :key="prod.id">
+                              {{ prod.cantidad }} x {{ prod.nombre_producto }}
+                            </li>
+                          </ul>
+                        </td>
+                        <td>-</td>
+                        <td>{{ orden.hora }}</td>
+                        <td><span class="estado entregado">Entregado</span></td>
+                        <td><span class="entregado-msg">✅ Entregado</span></td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
       </main>
 
       <!-- Vista Menú -->
