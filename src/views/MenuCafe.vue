@@ -138,25 +138,24 @@
             </li>
           </ul>
         </main>
-      </template>
         <transition name="modal-fade">
-  <div v-if="ordenExpandida" class="modal-overlay" @click.self="ordenExpandida = null">
-    <div class="modal-content">
-      <h3>Detalle de Orden</h3>
-      <p><strong>Cliente:</strong> {{ ordenExpandida.cliente }}</p>
-      <p><strong>Fecha:</strong> {{ ordenExpandida.fecha_mostrada }} a las {{ ordenExpandida.hora }}</p>
-      <p v-if="ordenExpandida.nota"><strong>Nota:</strong> {{ ordenExpandida.nota }}</p>
-      <ul>
-        <li v-for="p in ordenExpandida.productos" :key="p.nombre_producto">
-          {{ p.cantidad }} x {{ p.nombre_producto }} - ${{ (p.cantidad * p.precio_unitario).toFixed(2) }}
-        </li>
-      </ul>
-      <p><strong>Total:</strong> ${{ ordenExpandida.total }}</p>
-      <button @click="ordenExpandida = null">Cerrar</button>
-    </div>
-  </div>
-</transition>
-
+        <div v-if="ordenExpandida" class="modal-overlay" @click.self="ordenExpandida = null">
+          <div class="modal-content">
+            <h3>Detalle de Orden</h3>
+            <p><strong>Cliente:</strong> {{ ordenExpandida.cliente }}</p>
+            <p><strong>Fecha:</strong> {{ ordenExpandida.fecha_mostrada }} a las {{ ordenExpandida.hora }}</p>
+            <p v-if="ordenExpandida.nota"><strong>Nota:</strong> {{ ordenExpandida.nota }}</p>
+            <ul>
+              <li v-for="p in ordenExpandida.productos" :key="p.nombre_producto">
+                {{ p.cantidad }} x {{ p.nombre_producto }} - ${{ (p.cantidad * p.precio_unitario).toFixed(2) }}
+              </li>
+            </ul>
+            <p><strong>Total:</strong> ${{ ordenExpandida.total }}</p>
+            <button @click="ordenExpandida = null">Cerrar</button>
+          </div>
+        </div>
+      </transition>
+      </template>
 
     </div>
   </div>
