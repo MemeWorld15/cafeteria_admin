@@ -391,3 +391,70 @@ body.dark-mode button {
     justify-content: center;
   }
 }
+/* Tabla Órdenes */
+.tabla-ordenes {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 1rem;
+  font-size: 0.95rem;
+}
+
+.tabla-ordenes th,
+.tabla-ordenes td {
+  border: 1px solid #ddd;
+  padding: 10px;
+  text-align: center;
+}
+
+.tabla-ordenes th {
+  background-color: #f0f0f0;
+  font-weight: 600;
+}
+
+.tabla-ordenes tr:nth-child(even) {
+  background-color: #fafafa;
+}
+
+.badge-entregado {
+  display: inline-block;
+  padding: 4px 8px;
+  background-color: #a7e9af;
+  color: #256b29;
+  border-radius: 5px;
+  font-weight: bold;
+  font-size: 0.85rem;
+}
+
+.badge-pendiente {
+  display: inline-block;
+  padding: 4px 8px;
+  background-color: #ffe0b2;
+  color: #d35400;
+  border-radius: 5px;
+  font-weight: bold;
+  font-size: 0.85rem;
+}
+
+body.dark-mode .tabla-ordenes th {
+  background-color: #333;
+}
+
+body.dark-mode .tabla-ordenes td {
+  background-color: #2a2a2a;
+  color: #f1f1f1;
+}
+
+body.dark-mode .tabla-ordenes tr:nth-child(even) {
+  background-color: #242424;
+}
+
+body.dark-mode .badge-entregado {
+  background-color: #4caf50;
+  color: #fff;
+}
+
+body.dark-mode .badge-pendiente {
+  background-color: #ff9800;
+  color: #fff;
+}
+
