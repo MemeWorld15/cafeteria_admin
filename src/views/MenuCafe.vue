@@ -117,6 +117,7 @@
             <li v-for="ord in historialOrdenes" :key="ord.id" class="orden-item">
               <strong>{{ ord.cliente }}</strong><br />
               <span>{{ ord.fecha_mostrada }} a las {{ ord.hora }}</span>
+              <p v-if="ord.nota"><strong>Nota:</strong> {{ ord.nota }}</p>
               <ul>
                 <li v-for="p in ord.productos" :key="p.nombre_producto">
                   {{ p.cantidad }} x {{ p.nombre_producto }} - ${{ (p.cantidad * p.precio_unitario).toFixed(2) }}
@@ -138,21 +139,24 @@
           </ul>
         </main>
       </template>
-        <div v-if="ordenExpandida" class="modal-overlay" @click.self="ordenExpandida = null">
-        <div class="modal-content">
-          <h3>Detalle de Orden</h3>
-          <p><strong>Cliente:</strong> {{ ordenExpandida.cliente }}</p>
-          <p><strong>Fecha:</strong> {{ ordenExpandida.fecha_mostrada }} a las {{ ordenExpandida.hora }}</p>
-          <p v-if="ordenExpandida.nota"><strong>Nota:</strong> {{ ordenExpandida.nota }}</p>
-          <ul>
-            <li v-for="p in ordenExpandida.productos" :key="p.nombre_producto">
-              {{ p.cantidad }} x {{ p.nombre_producto }} - ${{ (p.cantidad * p.precio_unitario).toFixed(2) }}
-            </li>
-          </ul>
-          <p><strong>Total:</strong> ${{ ordenExpandida.total }}</p>
-          <button @click="ordenExpandida = null">Cerrar</button>
-        </div>
-      </div>
+        <transition name="modal-fade">
+  <div v-if="ordenExpandida" class="modal-overlay" @click.self="ordenExpandida = null">
+    <div class="modal-content">
+      <h3>Detalle de Orden</h3>
+      <p><strong>Cliente:</strong> {{ ordenExpandida.cliente }}</p>
+      <p><strong>Fecha:</strong> {{ ordenExpandida.fecha_mostrada }} a las {{ ordenExpandida.hora }}</p>
+      <p v-if="ordenExpandida.nota"><strong>Nota:</strong> {{ ordenExpandida.nota }}</p>
+      <ul>
+        <li v-for="p in ordenExpandida.productos" :key="p.nombre_producto">
+          {{ p.cantidad }} x {{ p.nombre_producto }} - ${{ (p.cantidad * p.precio_unitario).toFixed(2) }}
+        </li>
+      </ul>
+      <p><strong>Total:</strong> ${{ ordenExpandida.total }}</p>
+      <button @click="ordenExpandida = null">Cerrar</button>
+    </div>
+  </div>
+</transition>
+
 
     </div>
   </div>
@@ -206,15 +210,24 @@ const handleClickOutside = (event) => {
   }
 }
 
+const handleEscape = (e) => {
+  if (e.key === 'Escape' && ordenExpandida.value) {
+    ordenExpandida.value = null
+  }
+}
+
 onMounted(() => {
   document.addEventListener('click', handleClickOutside)
+  document.addEventListener('keydown', handleEscape)
   obtenerMenu()
   obtenerOrdenes()
 })
 
 onBeforeUnmount(() => {
   document.removeEventListener('click', handleClickOutside)
+  document.removeEventListener('keydown', handleEscape)
 })
+
 
 const cerrarSesion = () => {
   localStorage.clear()
@@ -314,9 +327,11 @@ const obtenerOrdenes = async () => {
   if (!usuario_id) return
   const data = await fetchOrdenesCliente(usuario_id)
   historialOrdenes.value = data.map(ord => ({
-    ...ord,
-    total: ord.productos.reduce((acc, p) => acc + p.precio_unitario * p.cantidad, 0).toFixed(2),
-    fechaDate: new Date(ord.fecha)
-  }))
+  ...ord,
+  total: ord.productos.reduce((acc, p) => acc + p.precio_unitario * p.cantidad, 0).toFixed(2),
+  fechaDate: new Date(ord.fecha),
+  nota: ord.nota || ''
+}))
+
 }
 </script>
