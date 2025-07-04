@@ -1,4 +1,3 @@
-
 <template>
   <div class="cocina-app">
     <!-- Topbar -->
@@ -37,100 +36,79 @@
         </ul>
       </aside>
 
-      <!-- Órdenes -->
+      <!-- Vista Órdenes -->
       <main class="cocina-contenido" v-if="vista === 'ordenes'">
-        <h2>📋 Órdenes - Café</h2>
+        <h2>Órdenes - Café</h2>
+        <div v-for="(turnos, fecha) in ordenesAgrupadas" :key="fecha" class="bloque-fecha">
+          <h3 class="fecha-title">📅 {{ formatFecha(fecha) }}</h3>
+          <div v-for="(ordenesTurno, turno) in turnos" :key="turno" class="bloque-turno">
+            <h4 class="turno-title">🕐 Turno: {{ turno }}</h4>
+            <div class="scroll-tabla">
+              <h5>🕒 En espera</h5>
+              <table class="tabla-ordenes">
+                <thead>
+                  <tr>
+                    <th>Cliente</th>
+                    <th>Productos</th>
+                    <th>Mesa</th>
+                    <th>Hora</th>
+                    <th>Status</th>
+                    <th>Acción</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr v-for="orden in ordenesTurno.filter(o => !o.entregado)" :key="orden.id">
+                    <td><strong>{{ orden.cliente }}</strong></td>
+                    <td>
+                      <ul>
+                        <li v-for="prod in orden.productos" :key="prod.id">
+                          {{ prod.cantidad }} x {{ prod.nombre_producto }}
+                        </li>
+                      </ul>
+                    </td>
+                    <td>-</td>
+                    <td>{{ orden.hora }}</td>
+                    <td><span class="estado no-entregado">En espera</span></td>
+                    <td><button @click="marcarEntregado(orden.id)" class="btn-entregar">Marcar como entregado</button></td>
+                  </tr>
+                </tbody>
+              </table>
 
-        <!-- Sección: Órdenes por realizar -->
-        <section class="bloque-seccion">
-          <h3 class="seccion-title">🕒 Órdenes por realizar</h3>
-          <div v-for="(turnos, fecha) in ordenesAgrupadas" :key="'pend-'+fecha">
-            <div v-for="(ordenesTurno, turno) in turnos" :key="'pend-'+turno+fecha">
-              <div v-if="ordenesTurno.some(o => !o.entregado)">
-                <h4 class="fecha-turno">📅 {{ formatFecha(fecha) }} — 🕐 {{ turno }}</h4>
-                <div class="scroll-tabla">
-                  <table class="tabla-ordenes">
-                    <thead>
-                      <tr>
-                        <th>Cliente</th>
-                        <th>Productos</th>
-                        <th>Mesa</th>
-                        <th>Hora</th>
-                        <th>Status</th>
-                        <th>Acción</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      <tr v-for="orden in ordenesTurno.filter(o => !o.entregado)" :key="orden.id">
-                        <td><strong>{{ orden.cliente }}</strong></td>
-                        <td>
-                          <ul>
-                            <li v-for="prod in orden.productos" :key="prod.id">
-                              {{ prod.cantidad }} x {{ prod.nombre_producto }}
-                            </li>
-                          </ul>
-                        </td>
-                        <td>-</td>
-                        <td>{{ orden.hora }}</td>
-                        <td><span class="estado no-entregado">En espera</span></td>
-                        <td>
-                          <button @click="marcarEntregado(orden.id)" class="btn-entregar">
-                            Marcar como entregado
-                          </button>
-                        </td>
-                      </tr>
-                    </tbody>
-                  </table>
-                </div>
-              </div>
+              <h5>✅ Entregadas</h5>
+              <table class="tabla-ordenes">
+                <thead>
+                  <tr>
+                    <th>Cliente</th>
+                    <th>Productos</th>
+                    <th>Mesa</th>
+                    <th>Hora</th>
+                    <th>Status</th>
+                    <th>Acción</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr v-for="orden in ordenesTurno.filter(o => o.entregado)" :key="orden.id">
+                    <td><strong>{{ orden.cliente }}</strong></td>
+                    <td>
+                      <ul>
+                        <li v-for="prod in orden.productos" :key="prod.id">
+                          {{ prod.cantidad }} x {{ prod.nombre_producto }}
+                        </li>
+                      </ul>
+                    </td>
+                    <td>-</td>
+                    <td>{{ orden.hora }}</td>
+                    <td><span class="estado entregado">Entregado</span></td>
+                    <td><span class="entregado-msg">✅ Entregado</span></td>
+                  </tr>
+                </tbody>
+              </table>
             </div>
           </div>
-        </section>
-
-        <!-- Sección: Órdenes entregadas -->
-        <section class="bloque-seccion">
-          <h3 class="seccion-title">✅ Órdenes entregadas</h3>
-          <div v-for="(turnos, fecha) in ordenesAgrupadas" :key="'ent-'+fecha">
-            <div v-for="(ordenesTurno, turno) in turnos" :key="'ent-'+turno+fecha">
-              <div v-if="ordenesTurno.some(o => o.entregado)">
-                <h4 class="fecha-turno">📅 {{ formatFecha(fecha) }} — 🕐 {{ turno }}</h4>
-                <div class="scroll-tabla">
-                  <table class="tabla-ordenes">
-                    <thead>
-                      <tr>
-                        <th>Cliente</th>
-                        <th>Productos</th>
-                        <th>Mesa</th>
-                        <th>Hora</th>
-                        <th>Status</th>
-                        <th>Acción</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      <tr v-for="orden in ordenesTurno.filter(o => o.entregado)" :key="orden.id">
-                        <td><strong>{{ orden.cliente }}</strong></td>
-                        <td>
-                          <ul>
-                            <li v-for="prod in orden.productos" :key="prod.id">
-                              {{ prod.cantidad }} x {{ prod.nombre_producto }}
-                            </li>
-                          </ul>
-                        </td>
-                        <td>-</td>
-                        <td>{{ orden.hora }}</td>
-                        <td><span class="estado entregado">Entregado</span></td>
-                        <td><span class="entregado-msg">✅ Entregado</span></td>
-                      </tr>
-                    </tbody>
-                  </table>
-                </div>
-              </div>
-            </div>
-          </div>
-        </section>
+        </div>
       </main>
 
-      <!-- Menú de productos -->
+      <!-- Vista Menú -->
       <main class="cocina-contenido" v-if="vista === 'menu'">
         <h2>Menú de Productos</h2>
 
@@ -138,14 +116,7 @@
         <form @submit.prevent="crearProductoNuevo" class="form-platillo">
           <input v-model="nuevoProducto.nombre" placeholder="Nombre" required />
           <textarea v-model="nuevoProducto.descripcion" placeholder="Descripción" required />
-          <input
-            v-model="nuevoProducto.precio"
-            type="number"
-            min="0.01"
-            step="0.01"
-            placeholder="Precio"
-            required
-          />
+          <input v-model="nuevoProducto.precio" type="number" min="0.01" step="0.01" placeholder="Precio" required />
           <select v-model="nuevoProducto.categoria_id" required>
             <option disabled value="">Seleccionar categoría</option>
             <option v-for="c in categorias" :key="c.id" :value="c.id">{{ c.nombre }}</option>
@@ -169,36 +140,23 @@
               <td>{{ prod.nombre }}</td>
               <td>{{ categoriaNombre(prod.categoria_id) }}</td>
               <td>${{ prod.precio }}</td>
-              <td>
-                <span :class="prod.disponible ? 'activo' : 'inactivo'">
-                  {{ prod.disponible ? 'Disponible' : 'Agotado' }}
-                </span>
-              </td>
+              <td><span :class="prod.disponible ? 'activo' : 'inactivo'">{{ prod.disponible ? 'Disponible' : 'Agotado' }}</span></td>
               <td>
                 <button @click="abrirEditar(prod)">Editar</button>
-                <button @click="toggleDisponible(prod.id)">
-                  {{ prod.disponible ? 'Marcar Agotado' : 'Marcar Disponible' }}
-                </button>
+                <button @click="toggleDisponible(prod.id)">{{ prod.disponible ? 'Marcar Agotado' : 'Marcar Disponible' }}</button>
                 <button @click="eliminarProducto(prod.id)">Eliminar</button>
               </td>
             </tr>
           </tbody>
         </table>
 
-        <!-- Modal de edición -->
         <div v-if="editandoProducto" class="modal-overlay" @click.self="cerrarModal">
           <div class="modal">
             <h3>Editar Platillo</h3>
             <form @submit.prevent="guardarEdicion">
               <input v-model="editandoProducto.nombre" required />
               <textarea v-model="editandoProducto.descripcion" required />
-              <input
-                v-model="editandoProducto.precio"
-                type="number"
-                min="0.01"
-                step="0.01"
-                required
-              />
+              <input v-model="editandoProducto.precio" type="number" min="0.01" step="0.01" required />
               <select v-model="editandoProducto.categoria_id" required>
                 <option disabled value="">Seleccionar categoría</option>
                 <option v-for="c in categorias" :key="c.id" :value="c.id">{{ c.nombre }}</option>
@@ -233,27 +191,30 @@ const vista = ref('ordenes')
 const ordenes = ref([])
 const productos = ref([])
 const categorias = ref([])
+const nuevoProducto = ref({ nombre: '', descripcion: '', precio: '', categoria_id: '' })
+const editandoProducto = ref(null)
 const nombreUsuario = ref('')
 const rolUsuario = ref('')
 const mostrarDropdown = ref(false)
+const mensaje = ref('')
+const mensajeColor = ref('green')
 
 const ordenesAgrupadas = computed(() => {
   const agrupadas = {}
   ordenes.value.forEach(o => {
     const fecha = o.fecha
     const hora = parseInt(o.hora.split(':')[0])
-    const turno = hora >= 6 && hora < 14 ? 'Mañana' : hora < 22 ? 'Tarde' : 'Noche'
-    agrupadas[fecha] ??= {}
-    agrupadas[fecha][turno] ??= []
+    let turno = ''
+    if (hora >= 6 && hora < 14) turno = 'Mañana'
+    else if (hora >= 14 && hora < 22) turno = 'Tarde'
+    else turno = 'Noche'
+
+    if (!agrupadas[fecha]) agrupadas[fecha] = {}
+    if (!agrupadas[fecha][turno]) agrupadas[fecha][turno] = []
     agrupadas[fecha][turno].push(o)
   })
   return agrupadas
 })
-
-const formatFecha = fechaStr =>
-  new Date(fechaStr).toLocaleDateString('es-ES', {
-    day: 'numeric', month: 'long', year: 'numeric'
-  })
 
 const toggleDarkMode = () => document.body.classList.toggle('dark-mode')
 const toggleDropdown = () => (mostrarDropdown.value = !mostrarDropdown.value)
@@ -264,29 +225,124 @@ const cerrarSesion = () => {
 
 const cargarOrdenes = async () => {
   const data = await fetchOrdenes()
-  ordenes.value = data.map(ord => ({
-    ...ord,
-    hora: new Date(ord.fecha).toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit', hour12: true })
-  }))
+  ordenes.value = data.map(ord => {
+    const fechaObj = new Date(ord.fecha)
+    return {
+      ...ord,
+      hora: fechaObj.toLocaleTimeString('es-ES', {
+        hour: '2-digit',
+        minute: '2-digit',
+        hour12: true
+      })
+    }
+  })
+}
+
+const formatFecha = fechaStr => {
+  const fechaObj = new Date(fechaStr)
+  return fechaObj.toLocaleDateString('es-ES', {
+    day: 'numeric',
+    month: 'long',
+    year: 'numeric'
+  })
+}
+
+const obtenerProductos = async () => {
+  productos.value = await fetchProductos()
+}
+const obtenerCategorias = async () => {
+  categorias.value = await fetchCategorias()
+}
+const categoriaNombre = id => categorias.value.find(c => c.id === id)?.nombre || '—'
+
+const crearProductoNuevo = async () => {
+  mensaje.value = ''
+  const p = parseFloat(nuevoProducto.value.precio)
+  if (isNaN(p) || p <= 0) {
+    mensaje.value = 'Precio debe ser > 0'
+    mensajeColor.value = 'red'
+    setTimeout(() => (mensaje.value = ''), 3000)
+    return
+  }
+  try {
+    const fd = new FormData()
+    Object.entries(nuevoProducto.value).forEach(([k, v]) => fd.append(k, v))
+    await crearProducto(fd)
+    mensaje.value = '✅ Agregado'
+    mensajeColor.value = 'green'
+    Object.assign(nuevoProducto.value, { nombre: '', descripcion: '', precio: '', categoria_id: '' })
+    await obtenerProductos()
+  } catch {
+    mensaje.value = '❌ Error al agregar'
+    mensajeColor.value = 'red'
+  }
+  setTimeout(() => (mensaje.value = ''), 3000)
+}
+
+const toggleDisponible = async id => {
+  await toggleDisponibilidadProducto(id)
+  await obtenerProductos()
+}
+
+const eliminarProducto = async id => {
+  if (!confirm('¿Eliminar este platillo?')) return
+  await eliminarProductoPorId(id)
+  await obtenerProductos()
+}
+
+const abrirEditar = prod => (editandoProducto.value = { ...prod })
+const cerrarModal = () => (editandoProducto.value = null)
+
+const guardarEdicion = async () => {
+  const p = editandoProducto.value
+  const price = parseFloat(p.precio)
+  if (isNaN(price) || price <= 0) {
+    mensaje.value = 'Precio debe ser > 0'
+    mensajeColor.value = 'red'
+    setTimeout(() => (mensaje.value = ''), 3000)
+    return
+  }
+  try {
+    const fd = new FormData()
+    Object.entries(p).forEach(([k, v]) => fd.append(k, v))
+    await actualizarProducto(p.id, fd)
+    mensaje.value = '✅ Actualizado'
+    mensajeColor.value = 'green'
+    await obtenerProductos()
+    cerrarModal()
+  } catch {
+    mensaje.value = '❌ Error al actualizar'
+    mensajeColor.value = 'red'
+  }
+  setTimeout(() => (mensaje.value = ''), 3000)
 }
 
 const marcarEntregado = async id => {
   try {
     const res = await marcarOrdenComoEntregada(id)
-    res.ok ? (cargarOrdenes(), alert('✅ Orden entregada')) : alert('❌ Error al entregar')
+    if (res.ok) {
+      await cargarOrdenes()
+      alert('✅ Orden entregada')
+    } else alert('❌ Error al entregar')
   } catch {
     alert('❌ Error al entregar')
   }
 }
 
 onMounted(() => {
-  if (localStorage.getItem('usuario_rol') !== 'chef') window.location.href = '/login'
+  if (localStorage.getItem('usuario_rol') !== 'chef') {
+    window.location.href = '/login'
+    return
+  }
   nombreUsuario.value = localStorage.getItem('usuario_nombre') || 'Usuario'
   rolUsuario.value = 'Chef'
   cargarOrdenes()
+  obtenerProductos()
+  obtenerCategorias()
 })
 </script>
 
+<style scoped>
 /* Estructura principal */
 .cocina-app {
   display: flex;
@@ -518,3 +574,5 @@ select {
   color: red;
   font-weight: bold;
 }
+
+</style>
