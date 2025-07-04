@@ -51,7 +51,7 @@
         <main class="menu-content">
           <input type="text" placeholder="Buscar..." class="menu-buscar" />
           <div class="menu-seccion scrollable">
-            <div class="menu-titulo">Menú <!--<span class="mesa">Mesa 1</span></div>-->
+            <div class="menu-titulo">Menú <!--<span class="mesa">Mesa 1</span>--></div>
             <div v-for="categoria in categorias" :key="categoria"
                 v-show="categoriaSeleccionada === 'Todas' || categoriaSeleccionada === categoria"
                 class="menu-categoria">
