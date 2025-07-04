@@ -1,4 +1,3 @@
-
 <template>
   <div class="cocina-app">
     <!-- Topbar -->
@@ -8,7 +7,7 @@
         <span class="cocina-brand">Cafetería</span>
       </div>
       <div class="cocina-user" @click="toggleDropdown">
-        <i class="fas fa-sun" @click="toggleDarkMode"></i>
+        <i class="fas fa-sun" @click.stop="toggleDarkMode"></i>
         <i class="fas fa-bell"></i>
         <i class="fas fa-user"></i>
         <div class="cocina-user-info">
@@ -47,6 +46,8 @@
             <h4 class="turno-title">🕐 Turno: {{ turno }}</h4>
 
             <div class="scroll-tabla">
+              <!-- ÓRDENES EN ESPERA -->
+              <h5>🕒 En espera</h5>
               <table class="tabla-ordenes">
                 <thead>
                   <tr>
@@ -59,78 +60,7 @@
                   </tr>
                 </thead>
                 <tbody>
-                  <!-- ÓRDENES EN ESPERA -->
-                  <h5>🕒 En espera</h5>
-                  <table class="tabla-ordenes">
-                    <thead>
-                      <tr>
-                        <th>Cliente</th>
-                        <th>Productos</th>
-                        <th>Mesa</th>
-                        <th>Hora</th>
-                        <th>Status</th>
-                        <th>Acción</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      <tr v-for="orden in ordenesTurno.filter(o => !o.entregado)" :key="orden.id">
-                        <td><strong>{{ orden.cliente }}</strong></td>
-                        <td>
-                          <ul>
-                            <li v-for="prod in orden.productos" :key="prod.id">
-                              {{ prod.cantidad }} x {{ prod.nombre_producto }}
-                            </li>
-                          </ul>
-                        </td>
-                        <td>-</td>
-                        <td>{{ orden.hora }}</td>
-                        <td>
-                          <span class="estado no-entregado">En espera</span>
-                        </td>
-                        <td>
-                          <button @click="marcarEntregado(orden.id)" class="btn-entregar">
-                            Marcar como entregado
-                          </button>
-                        </td>
-                      </tr>
-                    </tbody>
-                  </table>
-                  
-                  <!-- ÓRDENES ENTREGADAS -->
-                  <h5>✅ Entregadas</h5>
-                  <table class="tabla-ordenes">
-                    <thead>
-                      <tr>
-                        <th>Cliente</th>
-                        <th>Productos</th>
-                        <th>Mesa</th>
-                        <th>Hora</th>
-                        <th>Status</th>
-                        <th>Acción</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      <tr v-for="orden in ordenesTurno.filter(o => o.entregado)" :key="orden.id">
-                        <td><strong>{{ orden.cliente }}</strong></td>
-                        <td>
-                          <ul>
-                            <li v-for="prod in orden.productos" :key="prod.id">
-                              {{ prod.cantidad }} x {{ prod.nombre_producto }}
-                            </li>
-                          </ul>
-                        </td>
-                        <td>-</td>
-                        <td>{{ orden.hora }}</td>
-                        <td>
-                          <span class="estado entregado">Entregado</span>
-                        </td>
-                        <td>
-                          <span class="entregado-msg">✅ Entregado</span>
-                        </td>
-                      </tr>
-                    </tbody>
-                  </table>
-
+                  <tr v-for="orden in ordenesTurno.filter(o => !o.entregado)" :key="orden.id">
                     <td><strong>{{ orden.cliente }}</strong></td>
                     <td>
                       <ul>
@@ -142,19 +72,50 @@
                     <td>-</td>
                     <td>{{ orden.hora }}</td>
                     <td>
-                      <span :class="['estado', orden.entregado ? 'entregado' : 'no-entregado']">
-                        {{ orden.entregado ? 'Entregado' : 'En espera' }}
-                      </span>
+                      <span class="estado no-entregado">En espera</span>
                     </td>
                     <td>
                       <button
-                        v-if="!orden.entregado"
                         @click="marcarEntregado(orden.id)"
                         class="btn-entregar"
                       >
                         Marcar como entregado
                       </button>
-                      <span v-else class="entregado-msg">✅ Entregado</span>
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+
+              <!-- ÓRDENES ENTREGADAS -->
+              <h5>✅ Entregadas</h5>
+              <table class="tabla-ordenes">
+                <thead>
+                  <tr>
+                    <th>Cliente</th>
+                    <th>Productos</th>
+                    <th>Mesa</th>
+                    <th>Hora</th>
+                    <th>Status</th>
+                    <th>Acción</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr v-for="orden in ordenesTurno.filter(o => o.entregado)" :key="orden.id">
+                    <td><strong>{{ orden.cliente }}</strong></td>
+                    <td>
+                      <ul>
+                        <li v-for="prod in orden.productos" :key="prod.id">
+                          {{ prod.cantidad }} x {{ prod.nombre_producto }}
+                        </li>
+                      </ul>
+                    </td>
+                    <td>-</td>
+                    <td>{{ orden.hora }}</td>
+                    <td>
+                      <span class="estado entregado">Entregado</span>
+                    </td>
+                    <td>
+                      <span class="entregado-msg">✅ Entregado</span>
                     </td>
                   </tr>
                 </tbody>
@@ -511,4 +472,11 @@ select {
   font-weight: bold;
   color: #444;
 }
+h5 {
+    margin-top: 1rem;
+    margin-bottom: 0.5rem;
+    font-size: 1rem;
+    font-weight: bold;
+    color: #333;
+  }
 </style>
