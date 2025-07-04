@@ -59,7 +59,78 @@
                   </tr>
                 </thead>
                 <tbody>
-                  <tr v-for="orden in ordenesTurno" :key="orden.id">
+                  <!-- ÓRDENES EN ESPERA -->
+                  <h5>🕒 En espera</h5>
+                  <table class="tabla-ordenes">
+                    <thead>
+                      <tr>
+                        <th>Cliente</th>
+                        <th>Productos</th>
+                        <th>Mesa</th>
+                        <th>Hora</th>
+                        <th>Status</th>
+                        <th>Acción</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <tr v-for="orden in ordenesTurno.filter(o => !o.entregado)" :key="orden.id">
+                        <td><strong>{{ orden.cliente }}</strong></td>
+                        <td>
+                          <ul>
+                            <li v-for="prod in orden.productos" :key="prod.id">
+                              {{ prod.cantidad }} x {{ prod.nombre_producto }}
+                            </li>
+                          </ul>
+                        </td>
+                        <td>-</td>
+                        <td>{{ orden.hora }}</td>
+                        <td>
+                          <span class="estado no-entregado">En espera</span>
+                        </td>
+                        <td>
+                          <button @click="marcarEntregado(orden.id)" class="btn-entregar">
+                            Marcar como entregado
+                          </button>
+                        </td>
+                      </tr>
+                    </tbody>
+                  </table>
+                  
+                  <!-- ÓRDENES ENTREGADAS -->
+                  <h5>✅ Entregadas</h5>
+                  <table class="tabla-ordenes">
+                    <thead>
+                      <tr>
+                        <th>Cliente</th>
+                        <th>Productos</th>
+                        <th>Mesa</th>
+                        <th>Hora</th>
+                        <th>Status</th>
+                        <th>Acción</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <tr v-for="orden in ordenesTurno.filter(o => o.entregado)" :key="orden.id">
+                        <td><strong>{{ orden.cliente }}</strong></td>
+                        <td>
+                          <ul>
+                            <li v-for="prod in orden.productos" :key="prod.id">
+                              {{ prod.cantidad }} x {{ prod.nombre_producto }}
+                            </li>
+                          </ul>
+                        </td>
+                        <td>-</td>
+                        <td>{{ orden.hora }}</td>
+                        <td>
+                          <span class="estado entregado">Entregado</span>
+                        </td>
+                        <td>
+                          <span class="entregado-msg">✅ Entregado</span>
+                        </td>
+                      </tr>
+                    </tbody>
+                  </table>
+
                     <td><strong>{{ orden.cliente }}</strong></td>
                     <td>
                       <ul>
