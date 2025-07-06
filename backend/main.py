@@ -422,6 +422,34 @@ def marcar_entregado(orden_id: int):
     finally:
         cursor.close()
         db.close()
+#Cancelar con motivos
+@app.patch("/ordenes/{orden_id}/cancelar")
+def cancelar_orden_con_motivo(orden_id: int, motivo: dict):
+    db = get_db_connection()
+    cursor = db.cursor()
+    try:
+        cursor.execute("SELECT entregado, cancelada FROM ordenes WHERE id = %s", (orden_id,))
+        orden = cursor.fetchone()
+        if not orden:
+            raise HTTPException(status_code=404, detail="Orden no encontrada")
+        if orden[0]:  # entregado
+            raise HTTPException(status_code=400, detail="La orden ya fue entregada")
+        if orden[1]:  # cancelada
+            raise HTTPException(status_code=400, detail="La orden ya está cancelada")
+
+        cursor.execute(
+            "UPDATE ordenes SET cancelada = TRUE, motivo_cancelacion = %s WHERE id = %s",
+            (motivo.get("motivo", "Sin especificar"), orden_id)
+        )
+        db.commit()
+        return {"success": True, "message": "Orden cancelada correctamente"}
+    except Exception as e:
+        db.rollback()
+        raise HTTPException(status_code=500, detail=str(e))
+    finally:
+        cursor.close()
+        db.close()
+
 
 
 # ---------------- GRAFICAS ----------------
