@@ -364,6 +364,11 @@ onMounted(() => {
   cargarOrdenes()
   obtenerProductos()
   obtenerCategorias()
+  // Actualización automática de órdenes cada 5 segundos
+setInterval(() => {
+  cargarOrdenes()
+}, 5000)
+
 })
 </script>
 
