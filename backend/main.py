@@ -424,7 +424,7 @@ def marcar_entregado(orden_id: int):
         db.close()
 #Cancelar con motivos
 @app.patch("/ordenes/{orden_id}/cancelar")
-def cancelar_orden_con_motivo(orden_id: int, motivo: dict):
+def cancelar_orden_con_motivo(orden_id: int):
     db = get_db_connection()
     cursor = db.cursor()
     try:
@@ -437,9 +437,12 @@ def cancelar_orden_con_motivo(orden_id: int, motivo: dict):
         if orden[1]:  # cancelada
             raise HTTPException(status_code=400, detail="La orden ya está cancelada")
 
+        # ✅ Motivo fijo automático
+        motivo_texto = "Lo sentimos, este pedido ha sido cancelado."
+
         cursor.execute(
             "UPDATE ordenes SET cancelada = TRUE, motivo_cancelacion = %s WHERE id = %s",
-            (motivo.get("motivo", "Sin especificar"), orden_id)
+            (motivo_texto, orden_id)
         )
         db.commit()
         return {"success": True, "message": "Orden cancelada correctamente"}
