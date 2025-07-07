@@ -39,11 +39,13 @@
       <!-- Vista Órdenes con separación -->
       <main class="cocina-contenido" v-if="vista === 'ordenes'">
         <h2>📋 Órdenes - Café</h2>
-
+        <div v-if="!hayOrdenesPendientes">
+              <p>No hay órdenes pendientes en este momento. 💤</p>
+            </div>
         <!-- Órdenes por realizar -->
         <section class="bloque-seccion">
           <h3 class="seccion-title">🕒 Órdenes por realizar</h3>
-          <script setu" :key="'pend-' + fecha">
+          <!--<script setu" :key="'pend-' + fecha">-->
             <div v-for="(ordenesTurno, turno) in turnos" :key="'pend-' + turno + fecha">
               <div v-if="ordenesTurno.some(o => !o.entregado)">
                 <h4 class="fecha-turno">📅 {{ formatFecha(fecha) }} — 🕐 {{ turno }}</h4>
@@ -89,10 +91,7 @@
         <section class="bloque-seccion">
           <h3 class="seccion-title">✅ Órdenes entregadas</h3>
           <div v-for="(turnos, fecha) in ordenesAgrupadas" :key="'ent-' + fecha">
-          <div v-if="!hayOrdenesPendientes">
-              <p>No hay órdenes pendientes en este momento. 💤</p>
-            </div>
-
+          
             <div v-for="(ordenesTurno, turno) in turnos" :key="'ent-' + turno + fecha">
               <div v-if="ordenesTurno.some(o => o.entregado)">
                 <h4 class="fecha-turno">📅 {{ formatFecha(fecha) }} — 🕐 {{ turno }}</h4>
@@ -261,16 +260,6 @@ const hayOrdenesPendientes = computed(() => {
   }
   return false;
 });
-
-export const cancelarOrdenChef = (id, motivo) =>
-  fetch(`${BASE_URL}/ordenes/${id}/cancelar`, {
-    method: 'PATCH',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ motivo }),
-    mode: 'cors'
-  });
-
-
 
 
 const ordenesAgrupadas = computed(() => {
