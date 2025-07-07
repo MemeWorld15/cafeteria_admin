@@ -65,16 +65,12 @@ export const marcarOrdenComoEntregada = (id) =>
     mode: 'cors'
   })
 
-export const cancelarOrdenChef = async (id) => {
-  try {
-    const response = await fetch(`/api/ordenes/${id}/cancelar`, { method: 'POST' });
-    if (!response.ok) throw new Error('No se pudo cancelar la orden');
-    return response.json();
-  } catch (error) {
-    console.error('Error al cancelar orden:', error);
-    throw error;
-  }
-}
+export const cancelarOrdenCocina = (id) =>
+  fetch(`${BASE_URL}/ordenes/${id}/cancelar-por-cocina`, {
+    method: 'PATCH',
+    mode: 'cors',
+  }).then(res => res.json());
+
 
 
 
