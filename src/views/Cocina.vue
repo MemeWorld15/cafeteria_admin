@@ -118,7 +118,7 @@
                             </li>
                           </ul>
                         </td>
-                        <td>-</td>
+                        <td>{{ orden.notas || '-' }}</td>
                         <td>{{ orden.hora }}</td>
                         <td>
                           <span v-if="orden.cancelada" class="estado cancelada">Cancelada</span>
