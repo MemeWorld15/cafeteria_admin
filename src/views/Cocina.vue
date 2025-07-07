@@ -46,6 +46,7 @@
         <section class="bloque-seccion">
           <h3 class="seccion-title">🕒 Órdenes por realizar</h3>
           <!--<script setu" :key="'pend-' + fecha">-->
+            <div v-for="(turnos, fecha) in ordenesAgrupadas" :key="'pend-' + fecha">
             <div v-for="(ordenesTurno, turno) in turnos" :key="'pend-' + turno + fecha">
               <div v-if="ordenesTurno.some(o => !o.entregado)">
                 <h4 class="fecha-turno">📅 {{ formatFecha(fecha) }} — 🕐 {{ turno }}</h4>
