@@ -43,7 +43,7 @@
         <!-- Órdenes por realizar -->
         <section class="bloque-seccion">
           <h3 class="seccion-title">🕒 Órdenes por realizar</h3>
-          <div v-for="(turnos, fecha) in ordenesAgrupadas" :key="'pend-' + fecha">
+          <script setu" :key="'pend-' + fecha">
             <div v-for="(ordenesTurno, turno) in turnos" :key="'pend-' + turno + fecha">
               <div v-if="ordenesTurno.some(o => !o.entregado)">
                 <h4 class="fecha-turno">📅 {{ formatFecha(fecha) }} — 🕐 {{ turno }}</h4>
@@ -60,7 +60,7 @@
                       </tr>
                     </thead>
                     <tbody>
-                      <tr v-for="orden in ordenesTurno.filter(o => !o.entregado)" :key="orden.id">
+                      <tr v-for="orden in ordenesTurno.filter(o => !o.entregado && !o.cancelada)" :key="orden.id">
                         <td><strong>{{ orden.cliente }}</strong></td>
                         <td>
                           <ul>
@@ -74,6 +74,7 @@
                         <td><span class="estado no-entregado">En espera</span></td>
                         <td>
                           <button @click="marcarEntregado(orden.id)" class="btn-entregar">Marcar como entregado</button>
+                          <button @click="cancelarOrdenChef(orden.id)" class="btn-cancelar">Cancelar</button>
                         </td>
                       </tr>
                     </tbody>
@@ -88,6 +89,10 @@
         <section class="bloque-seccion">
           <h3 class="seccion-title">✅ Órdenes entregadas</h3>
           <div v-for="(turnos, fecha) in ordenesAgrupadas" :key="'ent-' + fecha">
+          <div v-if="!hayOrdenesPendientes">
+              <p>No hay órdenes pendientes en este momento. 💤</p>
+            </div>
+
             <div v-for="(ordenesTurno, turno) in turnos" :key="'ent-' + turno + fecha">
               <div v-if="ordenesTurno.some(o => o.entregado)">
                 <h4 class="fecha-turno">📅 {{ formatFecha(fecha) }} — 🕐 {{ turno }}</h4>
@@ -115,7 +120,11 @@
                         </td>
                         <td>-</td>
                         <td>{{ orden.hora }}</td>
-                        <td><span class="estado entregado">Entregado</span></td>
+                        <td>
+                          <span v-if="orden.cancelada" class="estado cancelada">Cancelada</span>
+                          <span v-else class="estado entregado">Entregado</span>
+                        </td>
+
                         <td><span class="entregado-msg">✅ Entregado</span></td>
                       </tr>
                     </tbody>
@@ -200,6 +209,7 @@
 </template>
 <script setup>
 import { ref, computed, onMounted } from 'vue'
+
 import logo from '../assets/images/LogoCafe.png'
 import {
   fetchOrdenes,
@@ -209,7 +219,8 @@ import {
   eliminarProductoPorId,
   marcarOrdenComoEntregada,
   crearProducto,
-  actualizarProducto
+  actualizarProducto,
+  cancelarOrdenChef
 } from '../api'
 
 const vista = ref('ordenes')
@@ -223,6 +234,44 @@ const rolUsuario = ref('')
 const mostrarDropdown = ref(false)
 const mensaje = ref('')
 const mensajeColor = ref('green')
+const cancelarOrden = async (id) => {
+
+const motivo = prompt('Motivo de cancelación:');
+  if (!motivo) return;
+  try {
+    const res = await cancelarOrdenPorId(id, motivo);
+    if (res.ok) {
+      alert('✅ Orden cancelada');
+      await cargarOrdenes();
+    } else {
+      alert('❌ Error al cancelar');
+    }
+  } catch {
+    alert('❌ Error al cancelar');
+  }
+};
+//ver si hay ordenes 
+const hayOrdenesPendientes = computed(() => {
+  for (const fecha in ordenesAgrupadas.value) {
+    for (const turno in ordenesAgrupadas.value[fecha]) {
+      if (ordenesAgrupadas.value[fecha][turno].some(o => !o.entregado && !o.cancelada)) {
+        return true;
+      }
+    }
+  }
+  return false;
+});
+
+export const cancelarOrdenChef = (id, motivo) =>
+  fetch(`${BASE_URL}/ordenes/${id}/cancelar`, {
+    method: 'PATCH',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ motivo }),
+    mode: 'cors'
+  });
+
+
+
 
 const ordenesAgrupadas = computed(() => {
   const agrupadas = {}
@@ -353,6 +402,7 @@ const marcarEntregado = async id => {
     alert('❌ Error al entregar')
   }
 }
+
 
 onMounted(() => {
   if (localStorage.getItem('usuario_rol') !== 'chef') {
@@ -604,5 +654,13 @@ select {
   color: red;
   font-weight: bold;
 }
+.cancelada {
+  background: #ffcdd2;
+  color: #b71c1c;
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-weight: bold;
+}
+
 
 </style>
