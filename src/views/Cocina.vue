@@ -77,7 +77,7 @@
                         <td><span class="estado no-entregado">En espera</span></td>
                         <td>
                           <button @click="marcarEntregado(orden.id)" class="btn-entregar">Marcar como entregado</button>
-                          <button @click="cancelarOrden(orden.id)" class="btn-cancelar">Cancelar</button>
+                          <button @click="cancelarOrdenChef(orden.id)" class="btn-cancelar">Cancelar</button>
                         </td>
                       </tr>
                     </tbody>
@@ -234,12 +234,12 @@ const rolUsuario = ref('')
 const mostrarDropdown = ref(false)
 const mensaje = ref('')
 const mensajeColor = ref('green')
-const cancelarOrden = async (id) => {
+const cancelarOrdenChef = async (id) => {
   if (!confirm("¿Seguro que deseas cancelar esta orden?")) return;
   try {
-    const res = await cancelarOrdenPorId(id);
-    if (res.ok || res.success) {
-      alert("✅ Orden cancelada correctamente.");
+    const res = await cancelarOrdenCocina(id);
+    if (res.success) {
+      alert(res.message || "✅ Orden cancelada correctamente.");
       await cargarOrdenes();
     } else {
       alert("❌ Error al cancelar la orden.");
