@@ -72,7 +72,7 @@
                             </li>
                           </ul>
                         </td>
-                        <td>{{ orden.notas ? orden.notas : 'Sin Notas' }}</td>
+                        <td>{{ orden.nota || 'Sin Notas' }}</td>
                         <td>{{ orden.hora }}</td>
                         <td><span class="estado no-entregado">En espera</span></td>
                         <td>
@@ -118,7 +118,7 @@
                             </li>
                           </ul>
                         </td>
-                        <td>{{ orden.notas || '-' }}</td>
+                        <td>{{ orden.nota || '-' }}</td>
                         <td>{{ orden.hora }}</td>
                         <td>
                           <span v-if="orden.cancelada" class="estado cancelada">Cancelada</span>
