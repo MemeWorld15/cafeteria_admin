@@ -72,7 +72,7 @@
                             </li>
                           </ul>
                         </td>
-                        <td>{{ orden.notas || 'Sin Notas' }}</td><td>{{ orden.notas ? orden.notas : 'Sin Notas' }}</td>
+                        <td>{{ orden.notas ? orden.notas : 'Sin Notas' }}</td>
                         <td>{{ orden.hora }}</td>
                         <td><span class="estado no-entregado">En espera</span></td>
                         <td>
