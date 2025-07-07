@@ -241,6 +241,8 @@ const cancelarOrdenChef = async (id) => {
     if (res.success) {
       alert(res.message || "✅ Orden cancelada correctamente.");
       await cargarOrdenes();
+    } else if (res.detail) {
+      alert("❌ " + res.detail); // Mostrar el mensaje de error del backend
     } else {
       alert("❌ Error al cancelar la orden.");
     }
@@ -249,6 +251,7 @@ const cancelarOrdenChef = async (id) => {
     console.error(error);
   }
 };
+
 
 //ver si hay ordenes 
 const hayOrdenesPendientes = computed(() => {
