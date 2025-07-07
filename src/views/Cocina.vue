@@ -1,6 +1,6 @@
 <template>
   <div class="cocina-app">
-    <!-- Topbar -->
+    <!--prueba  Topbar -->
     <header class="cocina-topbar">
       <div class="cocina-logo">
         <img :src="logo" alt="Logo" />
