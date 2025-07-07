@@ -102,7 +102,7 @@
                       <tr>
                         <th>Cliente</th>
                         <th>Productos</th>
-                        <th>Mesa</th>
+                        <th>Nota</th>
                         <th>Hora</th>
                         <th>Status</th>
                         <th>Acción</th>
