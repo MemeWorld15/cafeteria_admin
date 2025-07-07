@@ -104,13 +104,12 @@ export const enviarOrden = (payload) =>
     mode: 'cors'
   })
 
-export const cancelarOrdenPorId = (id, motivo) =>
+export const cancelarOrdenPorId = (id) =>
   fetch(`${BASE_URL}/ordenes/${id}/cancelar`, {
     method: 'PATCH',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ motivo }),
     mode: 'cors'
   });
+
 
 // INVENTARIO
 export const fetchInventario = () =>
