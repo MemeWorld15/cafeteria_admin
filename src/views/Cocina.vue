@@ -235,21 +235,21 @@ const mostrarDropdown = ref(false)
 const mensaje = ref('')
 const mensajeColor = ref('green')
 const cancelarOrden = async (id) => {
-
-const motivo = prompt('Motivo de cancelación:');
-  if (!motivo) return;
+  if (!confirm("¿Seguro que deseas cancelar esta orden?")) return;
   try {
-    const res = await cancelarOrdenPorId(id, motivo);
-    if (res.ok) {
-      alert('✅ Orden cancelada');
+    const res = await cancelarOrdenPorId(id);
+    if (res.ok || res.success) {
+      alert("✅ Orden cancelada correctamente.");
       await cargarOrdenes();
     } else {
-      alert('❌ Error al cancelar');
+      alert("❌ Error al cancelar la orden.");
     }
-  } catch {
-    alert('❌ Error al cancelar');
+  } catch (error) {
+    alert("❌ Error al cancelar la orden.");
+    console.error(error);
   }
 };
+
 //ver si hay ordenes 
 const hayOrdenesPendientes = computed(() => {
   for (const fecha in ordenesAgrupadas.value) {
