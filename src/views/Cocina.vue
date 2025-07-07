@@ -77,7 +77,7 @@
                         <td><span class="estado no-entregado">En espera</span></td>
                         <td>
                           <button @click="marcarEntregado(orden.id)" class="btn-entregar">Marcar como entregado</button>
-                          <button @click="cancelarOrdenChef(orden.id)" class="btn-cancelar">Cancelar</button>
+                          <button @click="cancelarOrden(orden.id)" class="btn-cancelar">Cancelar</button>
                         </td>
                       </tr>
                     </tbody>
