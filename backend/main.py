@@ -427,28 +427,42 @@ def marcar_entregado(orden_id: int):
 def cancelar_orden_cocina_con_mensaje(orden_id: int):
     db = get_db_connection()
     cursor = db.cursor()
-    
-    cursor.execute("SELECT entregado, cancelada FROM ordenes WHERE id = %s", (orden_id,))
-    orden = cursor.fetchone()
-    
-    if not orden:
-        raise HTTPException(status_code=404, detail="Orden no encontrada")
-    if orden[0]:  # entregado
-        raise HTTPException(status_code=400, detail="La orden ya fue entregada")
-    if orden[1]:  # cancelada
-        raise HTTPException(status_code=400, detail="La orden ya está cancelada")
-    
-    mensaje_cancelacion = "Lo sentimos, este pedido ha sido cancelado"
-    cursor.execute(
-        "UPDATE ordenes SET cancelada = TRUE, motivo_cancelacion = %s WHERE id = %s",
-        (mensaje_cancelacion, orden_id)
-    )
-    db.commit()
-    cursor.close()
-    db.close()
-    return {"success": True, "message": mensaje_cancelacion}
 
+    try:
+        # Verifica si la orden existe
+        cursor.execute("SELECT entregado, cancelada FROM ordenes WHERE id = %s", (orden_id,))
+        orden = cursor.fetchone()
+        print(f"Orden encontrada: {orden}")  # Depuración
 
+        if not orden:
+            raise HTTPException(status_code=404, detail="Orden no encontrada")
+
+        # Verifica si la orden ya fue entregada
+        if orden[0]:  # Si la orden ya fue entregada
+            raise HTTPException(status_code=400, detail="La orden ya fue entregada")
+
+        # Verifica si la orden ya está cancelada
+        if orden[1]:  # Si la orden ya está cancelada
+            raise HTTPException(status_code=400, detail="La orden ya está cancelada")
+
+        # Proceder con la cancelación
+        mensaje_cancelacion = "Lo sentimos, este pedido ha sido cancelado por la cocina."
+        cursor.execute(
+            "UPDATE ordenes SET cancelada = TRUE, motivo_cancelacion = %s WHERE id = %s",
+            (mensaje_cancelacion, orden_id)
+        )
+        db.commit()
+
+        return {"success": True, "message": mensaje_cancelacion}
+    
+    except Exception as e:
+        print(f"Error al cancelar la orden: {e}")  # Depuración
+        db.rollback()
+        raise HTTPException(status_code=500, detail=str(e))
+    
+    finally:
+        cursor.close()
+        db.close()
 
 
 # ---------------- GRAFICAS ----------------
