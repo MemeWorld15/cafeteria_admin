@@ -220,7 +220,7 @@ import {
   marcarOrdenComoEntregada,
   crearProducto,
   actualizarProducto,
-  cancelarOrdenChef
+  cancelarOrdenCocina
 } from '../api'
 
 const vista = ref('ordenes')
