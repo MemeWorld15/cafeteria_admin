@@ -101,10 +101,11 @@ export const enviarOrden = (payload) =>
   })
 
 export const cancelarOrdenPorId = (id) =>
-  fetch(`${BASE_URL}/ordenes/${id}/cancelar`, {
-    method: 'PATCH',
+  fetch(`${BASE_URL}/ordenes/${id}`, {
+    method: 'DELETE',
     mode: 'cors'
-  });
+  })
+
 
 
 // INVENTARIO
