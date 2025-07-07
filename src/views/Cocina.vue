@@ -56,7 +56,7 @@
                       <tr>
                         <th>Cliente</th>
                         <th>Productos</th>
-                        <th>Mesa</th>
+                        <th>Notas</th>
                         <th>Hora</th>
                         <th>Status</th>
                         <th>Acción</th>
@@ -72,7 +72,7 @@
                             </li>
                           </ul>
                         </td>
-                        <td>-</td>
+                        <td>{{ orden.notas || 'Sin Notas' }}</td>
                         <td>{{ orden.hora }}</td>
                         <td><span class="estado no-entregado">En espera</span></td>
                         <td>
