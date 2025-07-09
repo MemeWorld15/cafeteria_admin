@@ -28,13 +28,14 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+
 # ---------------- CONEXIÓN ----------------
 def get_db_connection():
     return psycopg2.connect(
-        host="dpg-d1mqvvruibrs73dvk7h0-a.oregon-postgres.render.com",  # Host
+        host="dpg-d1f65gbe5dus73fjq8s0-a.oregon-postgres.render.com",  # Host
         user="admin",  # Usuario
-        password="8UUQhPDJiI8AS4wThcefasAEIV9HQDgL",  # Contraseña
-        database="cafe_unach_ywdh",  # Base de datos
+        password="ZRbnaj3DjOTERco2ezwQNoiUtFdMiNIh",  # Contraseña
+        database="cafeteria_admin",  # Base de datos
         port="5432"  # Puerto
     )
 
