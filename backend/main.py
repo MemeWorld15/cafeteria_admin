@@ -31,11 +31,11 @@ app.add_middleware(
 # ---------------- CONEXIÓN ----------------
 def get_db_connection():
     return psycopg2.connect(
-        host="trolley.proxy.rlwy.net",  # Host
-        user="postgres",  # Usuario
-        password="jWgIhZAxGtnSWBigIdWoAOPyaxMBwUqC",  # Contraseña
-        database="railway",  # Base de datos
-        port="47524"  # Puerto
+        host="dpg-d1msh7je5dus7382ahbg-a.oregon-postgres.render.com",  # Host
+        user="admin",  # Usuario
+        password="L8bmTZbqobDCHNkVzcmjslCEXeOSeHAy",  # Contraseña
+        database="cafe_administracion",  # Base de datos
+        port="5432"  # Puerto
     )
 
 # ---------------- MODELOS ----------------
