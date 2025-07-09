@@ -29,14 +29,17 @@ app.add_middleware(
 )
 
 # ---------------- CONEXIÓN ----------------
+# ---------------- CONEXIÓN ----------------
 def get_db_connection():
     return psycopg2.connect(
-        host="dpg-d1msh7je5dus7382ahbg-a.oregon-postgres.render.com",  # Host
-        user="admin",  # Usuario
-        password="L8bmTZbqobDCHNkVzcmjslCEXeOSeHAy",  # Contraseña
-        database="cafe_administracion",  # Base de datos
-        port="5432"  # Puerto
+        host="ep-sparkling-wildflower-aeam7ome-pooler.c-2.us-east-2.aws.neon.tech",  # Host
+        user="neondb_owner",  # Usuario
+        password="npg_JQi7pVzlnRh2",  # Contraseña
+        database="neondb",  # Base de datos
+        port="5432",  # Puerto
+        sslmode="require"  # SSL
     )
+
 
 # ---------------- MODELOS ----------------
 class ProductoOrden(BaseModel):
